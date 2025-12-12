@@ -1,0 +1,4 @@
+
+> page-host@1.0.0 build C:\Users\mateu\WebstormProjects\ng-reports\apps\client-host
+> tsc -p tsconfig.json --module CommonJS
+

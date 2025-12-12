@@ -1,0 +1,16 @@
+
+> client@0.0.0 build C:\Users\mateu\WebstormProjects\ng-reports\apps\client
+> ng build
+
+[33m>[39m Building...
+[32m√[39m Building...
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m        [2m | [22m [1mRaw size[22m[2m | [22m[1mEstimated transfer size[22m
+[32mmain-3RQUISIA.js[39m   [2m | [22m[2mmain[22m         [2m | [22m[36m211.27 kB[39m[2m | [22m               [36m57.73 kB[39m
+[32mstyles-5INURTSO.css[39m[2m | [22m[2mstyles[22m       [2m | [22m  [36m0 bytes[39m[2m | [22m                [36m0 bytes[39m
+
+[1m [22m                  [2m | [22m[1mInitial total[22m[2m | [22m[1m211.27 kB[22m[2m | [22m               [1m57.73 kB[22m
+
+Application bundle generation complete. [4.034 seconds] - 2025-12-10T07:28:35.711Z
+
+Output location: C:\Users\mateu\WebstormProjects\ng-reports\build\client
+

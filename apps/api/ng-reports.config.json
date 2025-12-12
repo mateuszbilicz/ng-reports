@@ -1,0 +1,19 @@
+{
+  "databaseUrl": "mongodb://localhost:27017",
+  "panelUrl": "http://localhost:4300",
+  "http": {
+    "enabled": true,
+    "port": 80
+  },
+  "https": {
+    "enabled": false,
+    "port": 443,
+    "privateKeyPath": "",
+    "certPath": ""
+  },
+  "jwt": {
+    "secret": "TEMPORARY_SECRET_LATER_INSERT_SOMETHING_HERE_123!@#",
+    "expiresInMinutes": 10
+  },
+  "googleAPI": {}
+}

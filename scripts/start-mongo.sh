@@ -1,0 +1,1 @@
+sudo mongod -f /data/cfg/ng-reports-db.yaml
