@@ -1,5 +1,5 @@
 import {Injectable} from '@nestjs/common';
-import {forkJoin, from, map, Observable, of, switchMap} from 'rxjs';
+import {catchError, filter, forkJoin, from, map, Observable, of, switchMap, tap, throwError} from 'rxjs';
 import {
     User,
     USER_DEFAULT_PROJECTION,
@@ -10,9 +10,11 @@ import {
     UserView,
 } from '../../database/schemas/user.schema';
 import {DeleteResult, Model, UpdateWriteOpResult} from 'mongoose';
-import {argon2Verify} from '../../global/rx-argon';
+import {argon2Hash, argon2Verify} from '../../global/rx-argon';
 import {InjectModel} from '@nestjs/mongoose';
 import {AsFilteredListOf} from '../../database/filtered-list';
+import {defaultAdmin} from '../../../ng-reports.config.json';
+import {Role} from "../../database/schemas/roles.schema";
 
 export const UserFilteredListClass = AsFilteredListOf(UserMini);
 
@@ -21,6 +23,40 @@ export type UserFilteredList = InstanceType<typeof UserFilteredListClass>;
 @Injectable()
 export class UsersService {
     constructor(@InjectModel(User.name) private userModel: Model<User>) {
+        this.checkForAdmin();
+    }
+
+    private checkForAdmin() {
+        from(
+            this.userModel.findOne({
+                username: defaultAdmin.username
+            })
+        )
+            .pipe(
+                filter(user => !user),
+                switchMap(() =>
+                    argon2Hash(defaultAdmin.password)
+                ),
+                switchMap(hashedPassword =>
+                    from(
+                        this.userModel.create({
+                            username: defaultAdmin.username,
+                            password: hashedPassword,
+                            name: 'Admin',
+                            description: 'Default admin account',
+                            role: Role.Admin,
+                            createDate: new Date(),
+                            isActive: true
+                        })
+                    )
+                ),
+                tap(() => console.log('Default admin account created!')),
+                catchError(err => {
+                    console.error('An error occurred while creating default admin account!', err);
+                    return throwError(() => err);
+                })
+            )
+            .subscribe();
     }
 
     create(userCreate: UserCreate) {
@@ -29,28 +65,36 @@ export class UsersService {
             createDate: new Date(),
             isActive: true,
         };
-
-        return from(this.userModel.create(newUser)).pipe(
-            map(
-                ({
-                     username,
-                     name,
-                     description,
-                     role,
-                     createDate,
-                     isActive,
-                 }): UserView => {
-                    return {
-                        username,
-                        name,
-                        description,
-                        role,
-                        createDate,
-                        isActive,
-                    };
-                },
-            ),
-        );
+        return from(
+            argon2Hash(userCreate.password)
+        )
+            .pipe(
+                switchMap(hashedPassword =>
+                    from(this.userModel.create({
+                        ...newUser,
+                        password: hashedPassword
+                    }))
+                ),
+                map(
+                    ({
+                         username,
+                         name,
+                         description,
+                         role,
+                         createDate,
+                         isActive,
+                     }): UserView => {
+                        return {
+                            username,
+                            name,
+                            description,
+                            role,
+                            createDate,
+                            isActive,
+                        };
+                    },
+                ),
+            );
     }
 
     get(username: string) {
@@ -73,13 +117,20 @@ export class UsersService {
 
     updatePassword(username: string, password: string) {
         return from(
-            this.userModel.updateOne(
-                {username},
-                {
-                    $set: {password},
-                },
-            ),
-        );
+            argon2Hash(password)
+        )
+            .pipe(
+                switchMap(hashedPassword =>
+                    from(
+                        this.userModel.updateOne(
+                            {username},
+                            {
+                                $set: {password},
+                            },
+                        ),
+                    )
+                )
+            );
     }
 
     getAuth(username: string, password: string): Observable<UserView> {

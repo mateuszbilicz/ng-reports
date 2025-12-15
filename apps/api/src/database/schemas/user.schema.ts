@@ -69,7 +69,6 @@ export const USER_DEFAULT_PROJECTION = {
     role: 1,
     createDate: 1,
     isActive: 1,
-    password: 0,
 };
 
 export class UserCreate {

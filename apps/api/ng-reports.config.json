@@ -11,6 +11,10 @@
     "privateKeyPath": "",
     "certPath": ""
   },
+  "defaultAdmin": {
+    "username": "admin",
+    "password": "admin"
+  },
   "jwt": {
     "secret": "TEMPORARY_SECRET_LATER_INSERT_SOMETHING_HERE_123!@#",
     "expiresInMinutes": 10

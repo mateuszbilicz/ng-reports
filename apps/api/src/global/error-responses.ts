@@ -6,7 +6,8 @@ import {
   ApiProperty,
   getSchemaPath,
 } from '@nestjs/swagger';
-import { catchError, map, OperatorFunction, tap, throwError } from 'rxjs';
+import {catchError, map, OperatorFunction, throwError} from 'rxjs';
+import {randomUUID} from "node:crypto";
 
 export class ErrorResponse {
   @ApiProperty({ example: 'Example message' })
@@ -15,6 +16,38 @@ export class ErrorResponse {
   constructor(message: string) {
     this.message = message;
   }
+}
+
+export class OperationSuccessResult {
+    @ApiProperty({ example: 'Success status' })
+    success: boolean;
+
+    @ApiProperty({ example: 'Operation name', required: false })
+    name?: string;
+
+    @ApiProperty({ example: 'Error ID', required: false })
+    errorId?: string;
+}
+
+export const operationSuccessPipe = <T>(name: string): OperatorFunction<T, OperationSuccessResult> => {
+    return map((v: T) => {
+        if (!!v) {
+            return {
+                success: true,
+                result: v
+            };
+        } else {
+            const id = randomUUID(),
+                errText = `Operation ${name} failed. ID:${id}`,
+                err = new Error(errText);
+            console.error(err);
+            return {
+                success: false,
+                name,
+                errorId: id
+            }
+        }
+    })
 }
 
 export const throwPipe = <T>(message: string): OperatorFunction<T, T> => {
