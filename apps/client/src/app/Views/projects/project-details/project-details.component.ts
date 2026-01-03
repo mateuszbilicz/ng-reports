@@ -47,21 +47,28 @@ export class ProjectDetailsComponent implements OnInit {
     environments = signal<Environment[]>([]);
 
     // Project Edit
-    projectDialog = false;
+    isProjectEditMode = signal(false);
+    loadingProject = signal(false);
+
     projectForm = this.fb.group({
         name: ['', Validators.required],
         description: ['']
     });
 
-    // Environment Edit
-    envDialog = false;
-    isEnvEditMode = false;
-    currentEnvId = '';
+    // Environment Inline Edit
+    editingEnvId = signal<string | null>(null);
+    loadingEnvId = signal<string | null>(null);
+
     envForm = this.fb.group({
         name: ['', Validators.required],
         description: [''],
-        environmentId: ['']
+        environmentId: [''],
+        urls: this.fb.array([])
     });
+
+    get urls() {
+        return this.envForm.get('urls') as any; // Typed as FormArray in template usage
+    }
 
     ngOnInit() {
         this.route.paramMap.subscribe(params => {
@@ -99,40 +106,82 @@ export class ProjectDetailsComponent implements OnInit {
             name: p.name,
             description: p.description
         });
-        this.projectDialog = true;
+        this.isProjectEditMode.set(true);
+    }
+
+    cancelEditProject() {
+        this.isProjectEditMode.set(false);
+        this.projectForm.reset();
     }
 
     saveProject() {
         if (this.projectForm.invalid) return;
+
+        this.loadingProject.set(true);
         const val = this.projectForm.value;
         const update: UpdateProject = {
             name: val.name!,
             description: val.description || ''
         };
 
-        this.projectsService.updateProject(this.projectId, update).subscribe(() => {
-            this.loadData(); // Reload to get updates
-            this.projectDialog = false;
-            this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Project updated' });
+        this.projectsService.updateProject(this.projectId, update).subscribe({
+            next: () => {
+                this.loadData();
+                this.isProjectEditMode.set(false);
+                this.loadingProject.set(false);
+                this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Project updated' });
+            },
+            error: () => {
+                this.loadingProject.set(false);
+                this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to update project' });
+            }
         });
     }
 
     // Environment Actions
-    openNewEnv() {
+
+    // Helper to generic URL form group
+    createUrlGroup(data?: { name: string, url: string }) {
+        return this.fb.group({
+            name: [data?.name || '', Validators.required],
+            url: [data?.url || '', [Validators.required]] // Could add URL validator pattern
+        });
+    }
+
+    addUrl() {
+        this.urls.push(this.createUrlGroup());
+    }
+
+    removeUrl(index: number) {
+        this.urls.removeAt(index);
+    }
+
+    startNewEnv() {
+        this.cancelEditEnv(); // Close any other edit
+        this.editingEnvId.set('new'); // Special ID for new env
         this.envForm.reset();
-        this.isEnvEditMode = false;
-        this.envDialog = true;
+        this.urls.clear();
     }
 
     editEnv(env: Environment) {
+        this.cancelEditEnv();
+        this.editingEnvId.set(env.environmentId);
         this.envForm.patchValue({
             name: env.name,
             description: env.description,
             environmentId: env.environmentId
         });
-        this.currentEnvId = env.environmentId!;
-        this.isEnvEditMode = true;
-        this.envDialog = true;
+
+        this.urls.clear();
+        if (env.urls) {
+            env.urls.forEach(u => this.urls.push(this.createUrlGroup(u)));
+        }
+    }
+
+    cancelEditEnv() {
+        this.editingEnvId.set(null);
+        this.envForm.reset();
+        this.urls.clear();
     }
 
     deleteEnv(env: Environment) {
@@ -150,16 +199,24 @@ export class ProjectDetailsComponent implements OnInit {
     saveEnv() {
         if (this.envForm.invalid) return;
         const val = this.envForm.value;
+        const isNew = this.editingEnvId() === 'new';
 
-        if (this.isEnvEditMode) {
+        this.loadingEnvId.set(this.editingEnvId());
+
+        if (!isNew) {
             const update: UpdateEnvironment = {
                 name: val.name!,
-                description: val.description || ''
+                description: val.description || '',
+                urls: val.urls as any[]
             };
-            this.projectsService.updateEnvironment(this.currentEnvId, update).subscribe(() => {
-                this.loadData();
-                this.envDialog = false;
-                this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Environment updated' });
+            this.projectsService.updateEnvironment(this.editingEnvId()!, update).subscribe({
+                next: () => {
+                    this.loadData();
+                    this.cancelEditEnv();
+                    this.loadingEnvId.set(null);
+                    this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Environment updated' });
+                },
+                error: () => this.loadingEnvId.set(null)
             });
         } else {
             // Generate ID if empty
@@ -173,12 +230,16 @@ export class ProjectDetailsComponent implements OnInit {
                 environmentId: envId as string,
                 name: val.name!,
                 description: val.description || '',
-                urls: [] // Optional
+                urls: val.urls as any[]
             };
-            this.projectsService.createEnvironment(create).subscribe(() => {
-                this.loadData();
-                this.envDialog = false;
-                this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Environment created' });
+            this.projectsService.createEnvironment(create).subscribe({
+                next: () => {
+                    this.loadData();
+                    this.cancelEditEnv();
+                    this.loadingEnvId.set(null);
+                    this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Environment created' });
+                },
+                error: () => this.loadingEnvId.set(null)
             });
         }
     }

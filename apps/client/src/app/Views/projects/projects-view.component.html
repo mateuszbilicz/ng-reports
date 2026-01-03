@@ -12,7 +12,6 @@
             <tr>
                 <th>Name</th>
                 <th>Description</th>
-                <th>Environments</th>
                 <th>Actions</th>
             </tr>
         </ng-template>
@@ -20,7 +19,6 @@
             <tr>
                 <td>{{ project.name }}</td>
                 <td>{{ project.description }}</td>
-                <td>{{ project.environments?.length || 0 }}</td>
                 <td>
                     <p-button icon="pi pi-pencil" styleClass="p-button-text p-button-warning"
                         (onClick)="editProject(project)"></p-button>
@@ -44,7 +42,8 @@
                 <div class="field">
                     <label for="description">Description</label>
                     <!-- Enabled textarea for description -->
-                    <textarea pInputTextarea id="description" formControlName="description" rows="3"></textarea>
+                    <textarea pInputTextarea id="description" formControlName="description" rows="3"
+                        [autoResize]="true"></textarea>
                 </div>
 
                 <div class="field">

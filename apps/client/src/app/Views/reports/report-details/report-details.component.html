@@ -55,7 +55,7 @@
 
         <div class="flex gap-2 align-items-start">
             <textarea pInputTextarea [(ngModel)]="newCommentText" rows="2" class="w-full"
-                placeholder="Write a comment..."></textarea>
+                placeholder="Write a comment..." [autoResize]="true"></textarea>
             <p-button icon="pi pi-send" (onClick)="postComment()" [disabled]="!newCommentText"></p-button>
         </div>
     </div>
@@ -71,7 +71,8 @@
                 </div>
                 <div class="field">
                     <label for="description">Details</label>
-                    <textarea pInputTextarea id="description" formControlName="description" rows="5"></textarea>
+                    <textarea pInputTextarea id="description" formControlName="description" rows="5"
+                        [autoResize]="true"></textarea>
                 </div>
                 <div class="field">
                     <label for="severity">Severity</label>
@@ -98,7 +99,8 @@
         <ng-template pTemplate="content">
             <div class="field mt-3">
                 <label for="editCommentText">Content</label>
-                <textarea pInputTextarea id="editCommentText" [(ngModel)]="editingCommentText" rows="3"></textarea>
+                <textarea pInputTextarea id="editCommentText" [(ngModel)]="editingCommentText" rows="3"
+                    [autoResize]="true"></textarea>
             </div>
         </ng-template>
         <ng-template pTemplate="footer">
