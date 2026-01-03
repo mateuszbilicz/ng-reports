@@ -1,0 +1,15 @@
+export * from './auth.service';
+import { AuthService } from './auth.service';
+export * from './comments.service';
+import { CommentsService } from './comments.service';
+export * from './environments.service';
+import { EnvironmentsService } from './environments.service';
+export * from './projects.service';
+import { ProjectsService } from './projects.service';
+export * from './reports.service';
+import { ReportsService } from './reports.service';
+export * from './statistics.service';
+import { StatisticsService } from './statistics.service';
+export * from './users.service';
+import { UsersService } from './users.service';
+export const APIS = [AuthService, CommentsService, EnvironmentsService, ProjectsService, ReportsService, StatisticsService, UsersService];

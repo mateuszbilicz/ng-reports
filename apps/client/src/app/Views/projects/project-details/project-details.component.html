@@ -1,0 +1,107 @@
+<div class="card p-3 surface-card shadow-2 border-round">
+    <p-toast></p-toast>
+    <p-confirmDialog></p-confirmDialog>
+
+    <div *ngIf="project()" class="mb-4">
+        <div class="flex justify-content-between align-items-center mb-3">
+            <div>
+                <h2 class="m-0 text-900">{{ project()!.name }}</h2>
+                <p class="text-600 mt-1">{{ project()!.description || 'No description provided.' }}</p>
+            </div>
+            <div class="flex gap-2">
+                <p-button label="Edit Project" icon="pi pi-pencil" styleClass="p-button-outlined"
+                    (onClick)="editProject()"></p-button>
+                <p-button label="Back" icon="pi pi-arrow-left" styleClass="p-button-secondary p-button-text"
+                    (onClick)="goBack()"></p-button>
+            </div>
+        </div>
+    </div>
+
+    <div class="card p-0 border-none">
+        <div class="flex justify-content-between align-items-center mb-3">
+            <h3 class="m-0 text-800">Environments</h3>
+            <p-button label="New Environment" icon="pi pi-plus" (onClick)="openNewEnv()"
+                styleClass="p-button-sm"></p-button>
+        </div>
+
+        <p-table [value]="environments()" [tableStyle]="{ 'min-width': '50rem' }">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th>Name</th>
+                    <th>ID</th>
+                    <th>Description</th>
+                    <th>Actions</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-env>
+                <tr>
+                    <td>{{ env.name }}</td>
+                    <td><code>{{ env.environmentId }}</code></td>
+                    <td>{{ env.description }}</td>
+                    <td>
+                        <p-button icon="pi pi-pencil" styleClass="p-button-text p-button-warning p-button-sm"
+                            (onClick)="editEnv(env)"></p-button>
+                        <p-button icon="pi pi-trash" styleClass="p-button-text p-button-danger p-button-sm"
+                            (onClick)="deleteEnv(env)"></p-button>
+                    </td>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="empty">
+                <tr>
+                    <td colspan="4" class="text-center p-4">No environments found.</td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+
+    <!-- Project Edit Dialog -->
+    <p-dialog [(visible)]="projectDialog" [style]="{ width: '450px' }" header="Edit Project" [modal]="true"
+        styleClass="p-fluid">
+        <ng-template pTemplate="content">
+            <form [formGroup]="projectForm" class="flex flex-column gap-3 mt-3">
+                <div class="field">
+                    <label for="pName">Name</label>
+                    <input type="text" pInputText id="pName" formControlName="name" />
+                </div>
+                <div class="field">
+                    <label for="pDesk">Description</label>
+                    <textarea pInputTextarea id="pDesk" formControlName="description" rows="3"></textarea>
+                </div>
+            </form>
+        </ng-template>
+        <ng-template pTemplate="footer">
+            <p-button label="Cancel" icon="pi pi-times" styleClass="p-button-text"
+                (onClick)="projectDialog = false"></p-button>
+            <p-button label="Save" icon="pi pi-check" styleClass="p-button-text" (onClick)="saveProject()"
+                [disabled]="projectForm.invalid"></p-button>
+        </ng-template>
+    </p-dialog>
+
+    <!-- Environment Edit/Create Dialog -->
+    <p-dialog [(visible)]="envDialog" [style]="{ width: '450px' }" header="Environment Details" [modal]="true"
+        styleClass="p-fluid">
+        <ng-template pTemplate="content">
+            <form [formGroup]="envForm" class="flex flex-column gap-3 mt-3">
+                <div class="field">
+                    <label for="eName">Name</label>
+                    <input type="text" pInputText id="eName" formControlName="name" />
+                </div>
+                <div class="field">
+                    <label for="eDesc">Description</label>
+                    <textarea pInputTextarea id="eDesc" formControlName="description" rows="3"></textarea>
+                </div>
+                <div class="field">
+                    <label for="eId">Environment ID (Auto-generated if empty)</label>
+                    <input type="text" pInputText id="eId" formControlName="environmentId" [readonly]="isEnvEditMode"
+                        placeholder="Leave empty to auto-generate" />
+                </div>
+            </form>
+        </ng-template>
+        <ng-template pTemplate="footer">
+            <p-button label="Cancel" icon="pi pi-times" styleClass="p-button-text"
+                (onClick)="envDialog = false"></p-button>
+            <p-button label="Save" icon="pi pi-check" styleClass="p-button-text" (onClick)="saveEnv()"
+                [disabled]="envForm.invalid"></p-button>
+        </ng-template>
+    </p-dialog>
+</div>

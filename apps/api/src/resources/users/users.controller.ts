@@ -1,12 +1,12 @@
-import {InitializeController} from '../../global/initialize-controller';
-import {Body, Delete, Get, Param, Post, Put, Query, Req} from '@nestjs/common';
-import {UserFilteredList, UserFilteredListClass, UsersService,} from './users.service';
-import {ApiBody, ApiOkResponse, ApiQuery} from '@nestjs/swagger';
-import {UserCreate, UserUpdateInformation} from '../../database/schemas/user.schema';
-import {Role} from '../../database/schemas/roles.schema';
-import {map, Observable} from 'rxjs';
-import {operationSuccessPipe, throwPipe} from '../../global/error-responses';
-import {MinRole} from "../auth/min-role";
+import { InitializeController } from '../../global/initialize-controller';
+import { Body, Delete, Get, Param, Post, Put, Query, Req } from '@nestjs/common';
+import { UserFilteredList, UserFilteredListClass, UsersService, } from './users.service';
+import { ApiBody, ApiOkResponse, ApiQuery } from '@nestjs/swagger';
+import { UserCreate, UserUpdateInformation, UserView } from '../../database/schemas/user.schema';
+import { Role } from '../../database/schemas/roles.schema';
+import { map, Observable } from 'rxjs';
+import { operationSuccessPipe, throwPipe } from '../../global/error-responses';
+import { MinRole } from "../auth/min-role";
 
 @InitializeController('users')
 export class UsersController {
@@ -17,6 +17,16 @@ export class UsersController {
     getSelf(@Req() req) {
         const username = req.user.username;
         return this.userService.get(username);
+    }
+
+    @Get('/:username')
+    @ApiOkResponse({
+        type: () => UserView,
+    })
+    findOne(@Param('username') username: string) {
+        return this.userService.get(username).pipe(
+            throwPipe('Failed to get user'),
+        );
     }
 
     @Post()
@@ -103,7 +113,6 @@ export class UsersController {
     @ApiOkResponse({
         type: () => UserFilteredListClass,
     })
-    @MinRole(Role.Developer)
     getList(
         @Query('filter') filter?: string,
         @Query('skip') skip?: number,

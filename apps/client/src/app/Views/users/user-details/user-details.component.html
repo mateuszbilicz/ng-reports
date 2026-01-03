@@ -1,0 +1,45 @@
+<div class="card p-3 surface-card shadow-2 border-round">
+    <p-toast></p-toast>
+
+    <div class="flex justify-content-between align-items-center mb-4">
+        <h2 class="m-0 text-900">{{ isEditMode ? 'Edit User' : 'New User' }}</h2>
+        <p-button label="Back" icon="pi pi-arrow-left" styleClass="p-button-secondary p-button-text"
+            (onClick)="goBack()"></p-button>
+    </div>
+
+    <form [formGroup]="userForm" class="flex flex-column gap-3 max-w-30rem">
+
+        <div class="field">
+            <label for="username">Username</label>
+            <input type="text" pInputText id="username" formControlName="username" [readonly]="isEditMode" />
+            <small *ngIf="isEditMode" class="block text-500 mt-1">Username cannot be changed.</small>
+        </div>
+
+        <div class="field">
+            <label for="name">Name</label>
+            <input type="text" pInputText id="name" formControlName="name" />
+        </div>
+
+        <div class="field">
+            <label for="role">Role</label>
+            <p-select [options]="roles" formControlName="role" appendTo="body" optionLabel="label" optionValue="value"
+                styleClass="w-full"></p-select>
+        </div>
+
+        <div class="field">
+            <label for="description">Description</label>
+            <input type="text" pInputText id="description" formControlName="description" />
+        </div>
+
+        <div class="field">
+            <label for="password">{{ isEditMode ? 'New Password (Optional)' : 'Password' }}</label>
+            <p-password id="password" formControlName="password" [toggleMask]="true" styleClass="w-full"></p-password>
+        </div>
+
+        <div class="flex gap-2 justify-content-end mt-4">
+            <p-button label="Cancel" icon="pi pi-times" styleClass="p-button-text" (onClick)="goBack()"></p-button>
+            <p-button label="Save" icon="pi pi-check" (onClick)="saveUser()" [disabled]="userForm.invalid"></p-button>
+        </div>
+
+    </form>
+</div>

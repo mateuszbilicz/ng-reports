@@ -1,0 +1,76 @@
+<div class="card p-3 surface-card shadow-2 border-round">
+    <p-toast></p-toast>
+    <p-confirmDialog></p-confirmDialog>
+
+    <div class="flex justify-content-between align-items-center mb-3">
+        <h2 class="m-0 text-900">Projects</h2>
+        <p-button label="New Project" icon="pi pi-plus" (onClick)="openNew()" styleClass="p-button-primary"></p-button>
+    </div>
+
+    <p-table [value]="projects()" [tableStyle]="{ 'min-width': '60rem' }">
+        <ng-template pTemplate="header">
+            <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Environments</th>
+                <th>Actions</th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-project>
+            <tr>
+                <td>{{ project.name }}</td>
+                <td>{{ project.description }}</td>
+                <td>{{ project.environments?.length || 0 }}</td>
+                <td>
+                    <p-button icon="pi pi-pencil" styleClass="p-button-text p-button-warning"
+                        (onClick)="editProject(project)"></p-button>
+                    <p-button icon="pi pi-trash" styleClass="p-button-text p-button-danger"
+                        (onClick)="deleteProject(project)"></p-button>
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+
+    <p-dialog [(visible)]="projectDialog" [style]="{ width: '600px' }" header="Project Details" [modal]="true"
+        styleClass="p-fluid">
+        <ng-template pTemplate="content">
+            <form [formGroup]="projectForm" class="flex flex-column gap-3 mt-3">
+
+                <div class="field">
+                    <label for="name">Name</label>
+                    <input type="text" pInputText id="name" formControlName="name" />
+                </div>
+
+                <div class="field">
+                    <label for="description">Description</label>
+                    <!-- Enabled textarea for description -->
+                    <textarea pInputTextarea id="description" formControlName="description" rows="3"></textarea>
+                </div>
+
+                <div class="field">
+                    <label class="mb-2 block">Environments</label>
+                    <div formArrayName="environments" class="flex flex-column gap-2">
+                        @for (env of environments.controls; track $index) {
+                        <div [formGroupName]="$index" class="flex gap-2 align-items-center">
+                            <input type="text" pInputText formControlName="name" placeholder="Name (e.g. Dev)"
+                                class="flex-1" />
+                            <input type="text" pInputText formControlName="url" placeholder="URL" class="flex-2" />
+                            <button pButton icon="pi pi-trash" class="p-button-danger p-button-text"
+                                (click)="removeEnvironment($index)"></button>
+                        </div>
+                        }
+                        <button pButton label="Add Environment" icon="pi pi-plus"
+                            class="p-button-outlined p-button-sm align-self-start" (click)="addEnvironment()"></button>
+                    </div>
+                </div>
+
+            </form>
+        </ng-template>
+
+        <ng-template pTemplate="footer">
+            <p-button label="Cancel" icon="pi pi-times" styleClass="p-button-text" (onClick)="hideDialog()"></p-button>
+            <p-button label="Save" icon="pi pi-check" styleClass="p-button-text" (onClick)="saveProject()"
+                [disabled]="projectForm.invalid"></p-button>
+        </ng-template>
+    </p-dialog>
+</div>

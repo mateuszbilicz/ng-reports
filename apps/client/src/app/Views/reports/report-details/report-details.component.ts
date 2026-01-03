@@ -1,0 +1,203 @@
+import { Component, inject, signal, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ActivatedRoute, Router } from '@angular/router';
+import { FormBuilder, ReactiveFormsModule, Validators, FormsModule } from '@angular/forms';
+import { ButtonModule } from 'primeng/button';
+import { DialogModule } from 'primeng/dialog';
+import { InputTextModule } from 'primeng/inputtext';
+import { TextareaModule } from 'primeng/textarea';
+import { SelectModule } from 'primeng/select';
+import { CheckboxModule } from 'primeng/checkbox';
+import { TagModule } from 'primeng/tag';
+import { MessageService, ConfirmationService } from 'primeng/api';
+import { ToastModule } from 'primeng/toast';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ReportsService } from '../../../core/Services/ReportsService/ReportsService';
+import { CommentsService } from '../../../core/Services/CommentsService/CommentsService';
+import { Report } from '../../../core/swagger/model/report';
+import { Comment } from '../../../core/swagger/model/comment';
+import { Severity } from '../../../core/Models/Severity';
+import { CreateComment } from '../../../core/swagger/model/createComment';
+import { UpdateComment } from '../../../core/swagger/model/updateComment';
+
+@Component({
+    selector: 'app-report-details',
+    standalone: true,
+    imports: [
+        CommonModule,
+        ButtonModule,
+        DialogModule,
+        ReactiveFormsModule,
+        FormsModule,
+        InputTextModule,
+        TextareaModule,
+        SelectModule,
+        CheckboxModule,
+        TagModule,
+        ToastModule,
+        ConfirmDialogModule
+    ],
+    providers: [MessageService, ConfirmationService],
+    templateUrl: './report-details.component.html'
+})
+export class ReportDetailsComponent implements OnInit {
+    route = inject(ActivatedRoute);
+    router = inject(Router);
+    reportsService = inject(ReportsService);
+    commentsService = inject(CommentsService);
+    messageService = inject(MessageService);
+    confirmationService = inject(ConfirmationService);
+    fb = inject(FormBuilder);
+
+    reportId = '';
+    report = signal<Report | any>(null); // Use any for loose typing flexibility if models drift
+    comments = signal<Comment[]>([]);
+
+    // Report Edit
+    reportDialog = false;
+    severities = [
+        { label: 'Info', value: Severity.Info },
+        { label: 'Warning', value: Severity.Warning },
+        { label: 'Error', value: Severity.Error },
+        { label: 'Critical', value: Severity.Critical }
+    ];
+    reportForm = this.fb.group({
+        title: ['', Validators.required],
+        description: [''],
+        severity: [Severity.Info, Validators.required],
+        fixed: [false]
+    });
+
+    // Comments
+    newCommentText = '';
+    commentEditDialog = false;
+    editingCommentText = '';
+    editingCommentId = '';
+
+    ngOnInit() {
+        this.route.paramMap.subscribe(params => {
+            this.reportId = params.get('id') || '';
+            if (this.reportId) {
+                this.loadData();
+            }
+        });
+    }
+
+    loadData() {
+        this.reportsService.getReport(this.reportId).subscribe({
+            next: (r) => {
+                this.report.set(r);
+                this.loadComments();
+            },
+            error: () => this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load report' })
+        });
+    }
+
+    loadComments() {
+        this.commentsService.getComments(this.reportId).subscribe({
+            next: (data) => {
+                const items = data.items || data.comments || (Array.isArray(data) ? data : []);
+                this.comments.set(items);
+            },
+            error: () => console.error('Failed to load comments')
+        });
+    }
+
+    goBack() {
+        this.router.navigate(['/reports']);
+    }
+
+    // Report Actions
+    editReport() {
+        const r = this.report();
+        if (!r) return;
+        this.reportForm.patchValue({
+            title: r.title,
+            description: r.details,
+            severity: r.severity,
+            fixed: r.fixed
+        });
+        this.reportDialog = true;
+    }
+
+    saveReport() {
+        if (this.reportForm.invalid) return;
+        const val = this.reportForm.value;
+        const update: Partial<Report> = {
+            title: val.title!,
+            details: val.description || '',
+            severity: val.severity!,
+            fixed: val.fixed!
+        };
+
+        this.reportsService.updateReport(this.reportId, update).subscribe(() => {
+            this.loadData();
+            this.reportDialog = false;
+            this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Report updated' });
+        });
+    }
+
+    getSeverityColor(severity: any): 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast' | undefined {
+        const sev = Number(severity);
+        switch (sev) {
+            case Severity.Critical: return 'danger';
+            case Severity.Error: return 'danger';
+            case Severity.Warning: return 'warn';
+            case Severity.Info: return 'info';
+            default: return 'info';
+        }
+    }
+
+    // Comment Actions
+    postComment() {
+        if (!this.newCommentText.trim()) return;
+
+        const create: CreateComment = {
+            reportId: this.reportId,
+            content: this.newCommentText,
+            // user, timestamp handled by backend mainly, but minimal reqs:
+            // user and timestamp might be required in model but backend fills? 
+            // Checking createComment.ts: required: reportId, content. Optional: user, timestamp.
+            timestamp: new Date().getTime()
+        } as any;
+
+        this.commentsService.createComment(create).subscribe({
+            next: () => {
+                this.newCommentText = '';
+                this.loadComments();
+                this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Comment posted' });
+            },
+            error: (e) => this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to post comment' })
+        });
+    }
+
+    deleteComment(comment: Comment) {
+        this.confirmationService.confirm({
+            message: 'Delete comment?',
+            accept: () => {
+                this.commentsService.deleteComment(comment.commentId!).subscribe(() => {
+                    this.loadComments();
+                    this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Comment deleted' });
+                });
+            }
+        });
+    }
+
+    editComment(comment: Comment) {
+        this.editingCommentText = comment.content!;
+        this.editingCommentId = comment.commentId!;
+        this.commentEditDialog = true;
+    }
+
+    saveCommentUpdate() {
+        if (!this.editingCommentText.trim()) return;
+        const update: UpdateComment = {
+            content: this.editingCommentText
+        };
+        this.commentsService.updateComment(this.editingCommentId, update).subscribe(() => {
+            this.loadComments();
+            this.commentEditDialog = false;
+            this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Comment updated' });
+        });
+    }
+}

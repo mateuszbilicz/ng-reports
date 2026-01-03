@@ -43,7 +43,7 @@ export class CORSController {
       };
     } else {
       const origins = (
-        await this.environmentModel.find<Environment>({}, { environments: 1 })
+        await this.environmentModel.find<Environment>({}, { urls: 1 })
       )
         .map((env: Environment) => env.urls)
         .flat()
