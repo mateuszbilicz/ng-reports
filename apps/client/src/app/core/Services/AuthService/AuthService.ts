@@ -1,6 +1,6 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { tap, catchError, of, Observable, map, switchMap } from 'rxjs';
+import { tap, catchError, of, Observable, map, switchMap, filter } from 'rxjs';
 import { Login } from '../../swagger/model/login';
 import { UserView } from '../../swagger/model/userView';
 import { AuthService as ApiAuthService } from '../../swagger/api/auth.service';
@@ -26,10 +26,15 @@ export class AuthService {
 
     readonly isLoggedIn = computed(() => !!this._tkn());
 
-    constructor() {
-        if (this._tkn()) {
-            this.fetchSelf().subscribe();
-        }
+    init() {
+        this.refreshToken()
+            .pipe(
+                filter((succeeded) => succeeded),
+                switchMap(() => this.fetchSelf()),
+                // tap(() => this.router.navigate(['/'])),
+                catchError(() => of(void 0))
+            )
+            .subscribe();
     }
 
     login(credentials: Login): Observable<void> {
@@ -78,9 +83,9 @@ export class AuthService {
         this._rtkn.set(refreshToken);
     }
 
-    private fetchSelf(): Observable<UserView | null> {
+    private fetchSelf(): Observable<any | null> {
         return this.apiAuthService.authControllerGetUser().pipe(
-            tap(user => this._currentUser.set(user)),
+            tap(user => this._currentUser.set(user.hasOwnProperty('_doc') ? user._doc : user)),
             catchError(() => {
                 this.logout();
                 return of(null);

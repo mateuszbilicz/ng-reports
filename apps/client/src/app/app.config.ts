@@ -1,4 +1,4 @@
-import { ApplicationConfig, provideBrowserGlobalErrorListeners, importProvidersFrom } from '@angular/core';
+import { ApplicationConfig, provideBrowserGlobalErrorListeners, importProvidersFrom, provideAppInitializer, inject } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 
@@ -9,12 +9,14 @@ import Aura from '@primeng/themes/aura';
 import { ApiModule } from './core/swagger/api.module';
 import { Configuration } from './core/swagger/configuration';
 import { environment } from '../environments/environment';
-import { AuthService } from './core/swagger/api/auth.service';
+import { AuthService } from './core/Services/AuthService/AuthService';
 import { RolesService } from './core/Services/roles-service/roles-service';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
+    AuthService,
+    RolesService,
     provideRouter(routes),
     provideHttpClient(withInterceptors([authInterceptor])),
     providePrimeNG({
@@ -28,7 +30,9 @@ export const appConfig: ApplicationConfig = {
       }
     }),
     importProvidersFrom(ApiModule.forRoot(() => new Configuration({ basePath: environment.apiUrl }))),
-    AuthService,
-    RolesService
+    provideAppInitializer(() => {
+      const authService = inject(AuthService);
+      authService.init();
+    })
   ]
 };
