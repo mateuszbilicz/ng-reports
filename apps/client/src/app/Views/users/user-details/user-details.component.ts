@@ -10,6 +10,7 @@ import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import { UsersService, UserCreate, UserUpdateInformation } from '../../../core/Services/UsersService/UsersService';
 import { Role } from '../../../core/Models/Role';
+import { Textarea } from "primeng/textarea";
 
 @Component({
     selector: 'app-user-details',
@@ -21,7 +22,8 @@ import { Role } from '../../../core/Models/Role';
         InputTextModule,
         SelectModule,
         PasswordModule,
-        ToastModule
+        ToastModule,
+        Textarea,
     ],
     providers: [MessageService],
     templateUrl: './user-details.component.html'
@@ -71,7 +73,7 @@ export class UserDetailsComponent implements OnInit {
                 this.userForm.patchValue({
                     username: user.username,
                     name: user.name,
-                    role: user.role as unknown as Role,
+                    role: parseInt(user.role as unknown as string) as Role,
                     description: user.description
                 });
                 this.userForm.controls.password.clearValidators();
@@ -96,30 +98,6 @@ export class UserDetailsComponent implements OnInit {
                 description: val.description || '',
                 role: val.role!
             };
-            // Only call password update if password provided. Note: API `updateUser` might not handle password?
-            // API has `usersControllerUpdatePassword` separate endpoint?
-            // `UsersController` -> `updateUser` (PUT /update/:username) takes `UserUpdateInformation` (name, desc, role).
-            // `updatePassword` (PUT /updatePassword) takes only `newPassword` and uses `req.user.username` (SELF update only!).
-            // Wait, Admin cannot reset other user's password?
-            // Review `UsersController`:
-            // `updatePassword` (@Req() req) -> checks `req.user.username`. Yes, it looks like only SELF password update is supported via that endpoint.
-            // `updateUser` -> only info.
-            // So Admin cannot reset password? That's a gap or intended?
-            // "Editing and adding users should be available only for admin."
-            // If `UsersService.create` takes password, Admin creates user with password.
-            // But update?
-            // I'll check `UsersService.updateInformation` in backend.
-            // Backend `users.controller.ts` line 56: `updatePassword` uses `@Req() req`.
-            // So Admin CANNOT change other's password via `updatePassword` endpoint.
-            // Only via `create`.
-            // I will mention this limitation or check if I missed something.
-            // Maybe I can assume for now Admin can only edit info, not password.
-            // Or I should add an endpoint for Admin to set password?
-            // User asked "Fix all these things". If Admin can't reset password, it's a gap.
-            // I'll leave password field in edit mode but maybe disabled with explanation "Password reset not supported via API"? Or ignore it if empty.
-            // Actually `UserUpdateInformation` doesn't have password.
-            // I'll ignore password in Edit Mode for now.
-
             this.usersService.updateUser(this.username, update).subscribe(() => {
                 this.router.navigate(['/users']);
                 this.messageService.add({ severity: 'success', summary: 'Success', detail: 'User updated' });
@@ -128,7 +106,6 @@ export class UserDetailsComponent implements OnInit {
             const create: UserCreate = {
                 username: val.username!,
                 name: val.name!,
-                // email: 'omitted', 
                 description: val.description || '',
                 role: val.role!,
                 password: val.password!

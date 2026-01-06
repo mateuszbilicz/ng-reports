@@ -9,3 +9,11 @@ body {
     background-color: var(--surface-b);
     color: var(--text-color);
 }
+
+form {
+    .field {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+    }
+}

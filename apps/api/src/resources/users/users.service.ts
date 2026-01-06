@@ -210,7 +210,7 @@ export class UsersService {
             }),
         ).pipe(
             switchMap((list) =>
-                from(this.userModel.countDocuments(filters).hint('username')).pipe(
+                from(this.userModel.countDocuments(filters)).pipe(
                     map((count) => {
                         return {
                             list: list as UserMini[],
@@ -224,7 +224,7 @@ export class UsersService {
                     items: list,
                     totalItemsCount: count,
                 } as UserFilteredList;
-            }),
+            })
         );
     }
 }

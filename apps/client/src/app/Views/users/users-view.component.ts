@@ -12,6 +12,7 @@ import { InputIconModule } from 'primeng/inputicon';
 import { UsersService, User, UserFilteredList } from '../../core/Services/UsersService/UsersService';
 import { UserMini } from '../../core/swagger/model/userMini';
 import { Role } from '../../core/Models/Role';
+import { InputText } from 'primeng/inputtext';
 
 @Component({
     selector: 'app-users-view',
@@ -24,7 +25,8 @@ import { Role } from '../../core/Models/Role';
         ToastModule,
         ConfirmDialogModule,
         IconFieldModule,
-        InputIconModule
+        InputIconModule,
+        InputText
     ],
     providers: [MessageService, ConfirmationService],
     templateUrl: './users-view.component.html'

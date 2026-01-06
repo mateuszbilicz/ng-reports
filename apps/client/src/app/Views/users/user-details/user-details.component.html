@@ -28,13 +28,15 @@
 
         <div class="field">
             <label for="description">Description</label>
-            <input type="text" pInputText id="description" formControlName="description" />
+            <textarea type="text" pInputTextarea id="description" formControlName="description" autoResize></textarea>
         </div>
 
+        @if (!isEditMode) {
         <div class="field">
-            <label for="password">{{ isEditMode ? 'New Password (Optional)' : 'Password' }}</label>
+            <label for="password">Password</label>
             <p-password id="password" formControlName="password" [toggleMask]="true" styleClass="w-full"></p-password>
         </div>
+        }
 
         <div class="flex gap-2 justify-content-end mt-4">
             <p-button label="Cancel" icon="pi pi-times" styleClass="p-button-text" (onClick)="goBack()"></p-button>

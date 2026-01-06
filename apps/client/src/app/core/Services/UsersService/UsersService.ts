@@ -18,7 +18,7 @@ export class UsersService {
     private http = inject(HttpClient);
 
     getUser(username: string): Observable<User> {
-        return this.http.get<User>(`/users/${username}`);
+        return this.apiUsersService.usersControllerFindOne(username);
     }
 
     getUsers(filter?: string, limit?: number, skip?: number): Observable<UserFilteredList> {

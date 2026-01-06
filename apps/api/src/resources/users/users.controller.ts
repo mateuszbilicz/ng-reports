@@ -19,6 +19,35 @@ export class UsersController {
         return this.userService.get(username);
     }
 
+    @Get('/list')
+    @ApiQuery({
+        name: 'filter',
+        required: false,
+        type: () => String,
+    })
+    @ApiQuery({
+        name: 'skip',
+        required: false,
+        type: () => Number,
+    })
+    @ApiQuery({
+        name: 'limit',
+        required: false,
+        type: () => Number,
+    })
+    @ApiOkResponse({
+        type: () => UserFilteredListClass,
+    })
+    getList(
+        @Query('filter') filter?: string,
+        @Query('skip') skip?: number,
+        @Query('limit') limit?: number,
+    ): Observable<UserFilteredList> {
+        return this.userService
+            .listUsers(filter ?? '', skip ?? 0, limit ?? 1000)
+            .pipe(throwPipe('Cannot get list of users'));
+    }
+
     @Get('/:username')
     @ApiOkResponse({
         type: () => UserView,
@@ -92,34 +121,5 @@ export class UsersController {
             map((res) => res && res.modifiedCount === 1),
             operationSuccessPipe('USER_ACTIVATION')
         );
-    }
-
-    @Get('/list')
-    @ApiQuery({
-        name: 'filter',
-        required: false,
-        type: () => String,
-    })
-    @ApiQuery({
-        name: 'skip',
-        required: false,
-        type: () => Number,
-    })
-    @ApiQuery({
-        name: 'limit',
-        required: false,
-        type: () => Number,
-    })
-    @ApiOkResponse({
-        type: () => UserFilteredListClass,
-    })
-    getList(
-        @Query('filter') filter?: string,
-        @Query('skip') skip?: number,
-        @Query('limit') limit?: number,
-    ): Observable<UserFilteredList> {
-        return this.userService
-            .listUsers(filter ?? '', skip ?? 0, limit ?? 1000)
-            .pipe(throwPipe('Cannot get list of users'));
     }
 }
