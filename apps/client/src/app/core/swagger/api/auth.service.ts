@@ -19,6 +19,7 @@ import { Observable }                                        from 'rxjs';
 
 import { InlineResponse400 } from '../model/inlineResponse400';
 import { Login } from '../model/login';
+import { ObjStr } from '../model/objStr';
 
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
 import { Configuration }                                     from '../configuration';
@@ -146,10 +147,10 @@ export class AuthService {
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public authControllerRefreshToken(body: string, observe?: 'body', reportProgress?: boolean): Observable<any>;
-    public authControllerRefreshToken(body: string, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<any>>;
-    public authControllerRefreshToken(body: string, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<any>>;
-    public authControllerRefreshToken(body: string, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+    public authControllerRefreshToken(body: ObjStr, observe?: 'body', reportProgress?: boolean): Observable<any>;
+    public authControllerRefreshToken(body: ObjStr, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<any>>;
+    public authControllerRefreshToken(body: ObjStr, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<any>>;
+    public authControllerRefreshToken(body: ObjStr, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
 
         if (body === null || body === undefined) {
             throw new Error('Required parameter body was null or undefined when calling authControllerRefreshToken.');

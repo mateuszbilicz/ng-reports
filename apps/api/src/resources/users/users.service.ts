@@ -1,5 +1,5 @@
-import {Injectable} from '@nestjs/common';
-import {catchError, filter, forkJoin, from, map, Observable, of, switchMap, tap, throwError} from 'rxjs';
+import { Injectable } from '@nestjs/common';
+import { catchError, filter, forkJoin, from, map, Observable, of, switchMap, tap, throwError } from 'rxjs';
 import {
     User,
     USER_DEFAULT_PROJECTION,
@@ -9,12 +9,12 @@ import {
     UserUpdateInformation,
     UserView,
 } from '../../database/schemas/user.schema';
-import {DeleteResult, Model, UpdateWriteOpResult} from 'mongoose';
-import {argon2Hash, argon2Verify} from '../../global/rx-argon';
-import {InjectModel} from '@nestjs/mongoose';
-import {AsFilteredListOf} from '../../database/filtered-list';
-import {defaultAdmin} from '../../../ng-reports.config.json';
-import {Role} from "../../database/schemas/roles.schema";
+import { DeleteResult, Model, UpdateWriteOpResult } from 'mongoose';
+import { argon2Hash, argon2Verify } from '../../global/rx-argon';
+import { InjectModel } from '@nestjs/mongoose';
+import { AsFilteredListOf } from '../../database/filtered-list';
+import { defaultAdmin } from '../../../ng-reports.config.json';
+import { Role } from "../../database/schemas/roles.schema";
 
 export const UserFilteredListClass = AsFilteredListOf(UserMini);
 
@@ -77,13 +77,13 @@ export class UsersService {
                 ),
                 map(
                     ({
-                         username,
-                         name,
-                         description,
-                         role,
-                         createDate,
-                         isActive,
-                     }): UserView => {
+                        username,
+                        name,
+                        description,
+                        role,
+                        createDate,
+                        isActive,
+                    }): UserView => {
                         return {
                             username,
                             name,
@@ -98,7 +98,7 @@ export class UsersService {
     }
 
     get(username: string) {
-        return from(this.userModel.findOne({username}, USER_DEFAULT_PROJECTION));
+        return from(this.userModel.findOne({ username }, USER_DEFAULT_PROJECTION));
     }
 
     updateInformation(
@@ -107,7 +107,7 @@ export class UsersService {
     ): Observable<UpdateWriteOpResult> {
         return from(
             this.userModel.updateOne(
-                {username},
+                { username },
                 {
                     $set: update,
                 },
@@ -123,9 +123,9 @@ export class UsersService {
                 switchMap(hashedPassword =>
                     from(
                         this.userModel.updateOne(
-                            {username},
+                            { username },
                             {
-                                $set: {password},
+                                $set: { password },
                             },
                         ),
                     )
@@ -134,7 +134,7 @@ export class UsersService {
     }
 
     getAuth(username: string, password: string): Observable<UserView> {
-        return from(this.userModel.findOne({username})).pipe(
+        return from(this.userModel.findOne({ username })).pipe(
             switchMap((user) => {
                 if (!user) {
                     throw new Error(`User not found`);
@@ -147,7 +147,7 @@ export class UsersService {
                     user: of(user),
                 });
             }),
-            map(({user, isValid}) => {
+            map(({ user, isValid }) => {
                 if (!isValid) {
                     throw new Error(`Invalid password`);
                 }
@@ -167,11 +167,11 @@ export class UsersService {
         username: string,
         isActive: boolean,
     ): Observable<UpdateWriteOpResult> {
-        return from(this.userModel.updateOne({username}, {$set: {isActive}}));
+        return from(this.userModel.updateOne({ username }, { $set: { isActive } }));
     }
 
     deleteUser(username: string): Observable<DeleteResult> {
-        return from(this.userModel.deleteOne({username}));
+        return from(this.userModel.deleteOne({ username }));
     }
 
     listUsers(
@@ -180,23 +180,28 @@ export class UsersService {
         limit: number,
     ): Observable<UserFilteredList> {
         const filters = {
-            $or: [
-                {
-                    username: {
-                        $regex: `.*${filter}.*`,
-                    },
-                },
-                {
-                    name: {
-                        $regex: `.*${filter}.*`,
-                    },
-                },
-                {
-                    description: {
-                        $regex: `.*${filter}.*`,
-                    },
-                },
-            ],
+            ...(
+                filter ? {
+                    $or: [
+                        {
+                            username: {
+                                $regex: `.*${filter}.*`,
+                            },
+                        },
+                        {
+                            name: {
+                                $regex: `.*${filter}.*`,
+                            },
+                        },
+                        {
+                            description: {
+                                $regex: `.*${filter}.*`,
+                            },
+                        },
+                    ],
+                }
+                    : {}
+            )
         };
         return from(
             this.userModel.find<UserMini>(filters, UserListProjection, {
@@ -214,7 +219,7 @@ export class UsersService {
                     }),
                 ),
             ),
-            map(({list, count}) => {
+            map(({ list, count }) => {
                 return {
                     items: list,
                     totalItemsCount: count,

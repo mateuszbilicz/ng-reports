@@ -243,4 +243,8 @@ export class ProjectDetailsComponent implements OnInit {
             });
         }
     }
+
+    viewReports(env: Environment) {
+        this.router.navigate(['/reports'], { queryParams: { envId: env.environmentId } });
+    }
 }

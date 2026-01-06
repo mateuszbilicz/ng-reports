@@ -4,7 +4,7 @@
   "compileOnSave": false,
   "compilerOptions": {
     "strict": true,
-    "noImplicitOverride": true,
+    "noImplicitOverride": false,
     "noPropertyAccessFromIndexSignature": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
@@ -21,7 +21,7 @@
       "ng-reports": [
         "./dist/ng-reports"
       ]
-    }
+    },
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,

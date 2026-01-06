@@ -89,10 +89,13 @@
                         }
                     </div>
                     <div class="flex gap-2">
+                        <p-button icon="pi pi-list" styleClass="p-button-text p-button-info"
+                            (onClick)="viewReports(env)" pTooltip="View Reports"></p-button>
                         <p-button icon="pi pi-pencil" styleClass="p-button-text p-button-warning"
-                            (onClick)="editEnv(env)" [disabled]="editingEnvId() !== null"></p-button>
+                            (onClick)="editEnv(env)" [disabled]="editingEnvId() !== null" pTooltip="Edit"></p-button>
                         <p-button icon="pi pi-trash" styleClass="p-button-text p-button-danger"
-                            (onClick)="deleteEnv(env)" [disabled]="editingEnvId() !== null"></p-button>
+                            (onClick)="deleteEnv(env)" [disabled]="editingEnvId() !== null"
+                            pTooltip="Delete"></p-button>
                     </div>
                 </div>
             </div>

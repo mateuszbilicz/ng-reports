@@ -10,6 +10,8 @@ import { MessageService, ConfirmationService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { TextareaModule } from 'primeng/textarea';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
 import { forkJoin, of } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { ProjectsService } from '../../core/Services/ProjectsService/ProjectsService';
@@ -30,7 +32,9 @@ import { CreateEnvironment } from '../../core/swagger/model/createEnvironment';
         InputTextModule,
         ToastModule,
         ConfirmDialogModule,
-        TextareaModule
+        TextareaModule,
+        IconFieldModule,
+        InputIconModule
     ],
     providers: [MessageService, ConfirmationService],
     templateUrl: './projects-view.component.html'

@@ -3,10 +3,11 @@ import { Login, UserView } from '../../database/schemas/user.schema';
 import { InitializeController } from '../../global/initialize-controller';
 import { AuthService } from './auth.service';
 import { Public } from './auth.guard';
+import { ObjStr } from '../../database/schemas/universal';
 
 @InitializeController('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService) { }
 
   @Get('self')
   getUser(@Request() req) {
@@ -21,7 +22,7 @@ export class AuthController {
 
   @Public()
   @Post('refreshToken')
-  refreshToken(@Body() refreshToken: string) {
-    return this.authService.refresh(refreshToken);
+  refreshToken(@Body() refreshToken: ObjStr) {
+    return this.authService.refresh(refreshToken.string);
   }
 }

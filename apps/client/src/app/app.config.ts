@@ -9,6 +9,8 @@ import Aura from '@primeng/themes/aura';
 import { ApiModule } from './core/swagger/api.module';
 import { Configuration } from './core/swagger/configuration';
 import { environment } from '../environments/environment';
+import { AuthService } from './core/swagger/api/auth.service';
+import { RolesService } from './core/Services/roles-service/roles-service';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -25,6 +27,8 @@ export const appConfig: ApplicationConfig = {
         }
       }
     }),
-    importProvidersFrom(ApiModule.forRoot(() => new Configuration({ basePath: environment.apiUrl })))
+    importProvidersFrom(ApiModule.forRoot(() => new Configuration({ basePath: environment.apiUrl }))),
+    AuthService,
+    RolesService
   ]
 };

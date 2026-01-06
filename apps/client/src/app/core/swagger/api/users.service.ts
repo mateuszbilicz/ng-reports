@@ -17,10 +17,11 @@ import { CustomHttpUrlEncodingCodec }                        from '../encoder';
 
 import { Observable }                                        from 'rxjs';
 
+import { E42a185d170abb92c2cee } from '../model/e42a185d170abb92c2cee';
 import { InlineResponse400 } from '../model/inlineResponse400';
-import { Model1526a5d2e8088b132e87c } from '../model/model1526a5d2e8088b132e87c';
 import { UserCreate } from '../model/userCreate';
 import { UserUpdateInformation } from '../model/userUpdateInformation';
+import { UserView } from '../model/userView';
 
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
 import { Configuration }                                     from '../configuration';
@@ -149,15 +150,56 @@ export class UsersService {
     /**
      * 
      * 
+     * @param username 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     */
+    public usersControllerFindOne(username: string, observe?: 'body', reportProgress?: boolean): Observable<UserView>;
+    public usersControllerFindOne(username: string, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<UserView>>;
+    public usersControllerFindOne(username: string, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<UserView>>;
+    public usersControllerFindOne(username: string, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+
+        if (username === null || username === undefined) {
+            throw new Error('Required parameter username was null or undefined when calling usersControllerFindOne.');
+        }
+
+        let headers = this.defaultHeaders;
+
+        // to determine the Accept header
+        let httpHeaderAccepts: string[] = [
+            'application/json'
+        ];
+        const httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+        if (httpHeaderAcceptSelected != undefined) {
+            headers = headers.set('Accept', httpHeaderAcceptSelected);
+        }
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+        ];
+
+        return this.httpClient.request<UserView>('get',`${this.basePath}/users/${encodeURIComponent(String(username))}`,
+            {
+                withCredentials: this.configuration.withCredentials,
+                headers: headers,
+                observe: observe,
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * 
+     * 
      * @param filter 
      * @param skip 
      * @param limit 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public usersControllerGetList(filter?: string, skip?: number, limit?: number, observe?: 'body', reportProgress?: boolean): Observable<Model1526a5d2e8088b132e87c>;
-    public usersControllerGetList(filter?: string, skip?: number, limit?: number, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Model1526a5d2e8088b132e87c>>;
-    public usersControllerGetList(filter?: string, skip?: number, limit?: number, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Model1526a5d2e8088b132e87c>>;
+    public usersControllerGetList(filter?: string, skip?: number, limit?: number, observe?: 'body', reportProgress?: boolean): Observable<E42a185d170abb92c2cee>;
+    public usersControllerGetList(filter?: string, skip?: number, limit?: number, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<E42a185d170abb92c2cee>>;
+    public usersControllerGetList(filter?: string, skip?: number, limit?: number, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<E42a185d170abb92c2cee>>;
     public usersControllerGetList(filter?: string, skip?: number, limit?: number, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
 
 
@@ -189,7 +231,7 @@ export class UsersService {
         const consumes: string[] = [
         ];
 
-        return this.httpClient.request<Model1526a5d2e8088b132e87c>('get',`${this.basePath}/users/list`,
+        return this.httpClient.request<E42a185d170abb92c2cee>('get',`${this.basePath}/users/list`,
             {
                 params: queryParameters,
                 withCredentials: this.configuration.withCredentials,

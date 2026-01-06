@@ -2,12 +2,25 @@
     <p-toast></p-toast>
     <p-confirmDialog></p-confirmDialog>
 
-    <div class="flex justify-content-between align-items-center mb-3">
+    <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center mb-3 gap-2">
         <h2 class="m-0 text-900">Projects</h2>
-        <p-button label="New Project" icon="pi pi-plus" (onClick)="openNew()" styleClass="p-button-primary"></p-button>
+        <div class="flex gap-2 align-items-center">
+            <span class="p-input-icon-left">
+                <p-iconField iconPosition="left">
+                    <p-inputIcon styleClass="pi pi-search" />
+                    <input type="text" pInputText placeholder="Search..."
+                        (input)="dt.filterGlobal($any($event.target).value, 'contains')" />
+                </p-iconField>
+            </span>
+            <p-button icon="pi pi-refresh" (onClick)="loadProjects()" styleClass="p-button-outlined p-button-secondary"
+                pTooltip="Refresh"></p-button>
+            <p-button label="New Project" icon="pi pi-plus" (onClick)="openNew()" styleClass="p-button-primary"
+                pTooltip="New Project"></p-button>
+        </div>
     </div>
 
-    <p-table [value]="projects()" [tableStyle]="{ 'min-width': '60rem' }">
+    <p-table #dt [value]="projects()" [tableStyle]="{ 'min-width': '60rem' }"
+        [globalFilterFields]="['name', 'description']">
         <ng-template pTemplate="header">
             <tr>
                 <th>Name</th>
@@ -21,9 +34,9 @@
                 <td>{{ project.description }}</td>
                 <td>
                     <p-button icon="pi pi-pencil" styleClass="p-button-text p-button-warning"
-                        (onClick)="editProject(project)"></p-button>
+                        (onClick)="editProject(project)" pTooltip="Edit"></p-button>
                     <p-button icon="pi pi-trash" styleClass="p-button-text p-button-danger"
-                        (onClick)="deleteProject(project)"></p-button>
+                        (onClick)="deleteProject(project)" pTooltip="Delete"></p-button>
                 </td>
             </tr>
         </ng-template>

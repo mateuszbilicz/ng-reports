@@ -2,19 +2,35 @@
     <p-toast></p-toast>
     <p-confirmDialog></p-confirmDialog>
 
-    <div class="flex justify-content-between align-items-center mb-3">
+    <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center mb-3 gap-2">
         <h2 class="m-0 text-900">Reports</h2>
-        <div class="flex gap-2">
-            <!-- Provisional input for filtering reports by environment -->
-            <input type="text" pInputText placeholder="Env ID (e.g. dev)" #envInput
-                (keyup.enter)="loadReports(envInput.value)">
-            <p-button label="Load" (onClick)="loadReports(envInput.value)"></p-button>
-            <p-button label="New Report" icon="pi pi-plus" (onClick)="openNew()"
-                styleClass="p-button-primary"></p-button>
+        <div class="flex gap-2 align-items-center">
+            <p-treeSelect class="w-20rem" containerStyleClass="w-full" [(ngModel)]="selectedNode" [options]="nodes()"
+                placeholder="Select Environment" selectionMode="single" (onNodeSelect)="onNodeSelect($event)">
+                <ng-template pTemplate="value" let-node>
+                    @if (selectedNode) {
+                    {{ selectedNode.data.projectName }} > {{ selectedNode.label }}
+                    } @else {
+                    Select Environment
+                    }
+                </ng-template>
+            </p-treeSelect>
+            <span class="p-input-icon-left">
+                <p-iconField iconPosition="left">
+                    <p-inputIcon styleClass="pi pi-search" />
+                    <input type="text" pInputText placeholder="Search..."
+                        (input)="dt.filterGlobal($any($event.target).value, 'contains')" />
+                </p-iconField>
+            </span>
+            <p-button icon="pi pi-refresh" (onClick)="loadReports(currentEnvIdForList)"
+                styleClass="p-button-outlined p-button-secondary" pTooltip="Refresh"></p-button>
+            <p-button label="New Report" icon="pi pi-plus" (onClick)="openNew()" styleClass="p-button-primary"
+                pTooltip="New Report"></p-button>
         </div>
     </div>
 
-    <p-table [value]="reports()" [tableStyle]="{ 'min-width': '60rem' }">
+    <p-table #dt [value]="reports()" [tableStyle]="{ 'min-width': '60rem' }"
+        [globalFilterFields]="['title', 'details', 'status']">
         <ng-template pTemplate="header">
             <tr>
                 <th>Title</th>
@@ -36,9 +52,9 @@
                 </td>
                 <td>
                     <p-button icon="pi pi-pencil" styleClass="p-button-text p-button-warning"
-                        (onClick)="editReport(report)"></p-button>
+                        (onClick)="editReport(report)" pTooltip="Edit"></p-button>
                     <p-button icon="pi pi-trash" styleClass="p-button-text p-button-danger"
-                        (onClick)="deleteReport(report)"></p-button>
+                        (onClick)="deleteReport(report)" pTooltip="Delete"></p-button>
                 </td>
             </tr>
         </ng-template>

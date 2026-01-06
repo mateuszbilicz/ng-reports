@@ -7,21 +7,22 @@ import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
 import { AvatarModule } from 'primeng/avatar';
 import { MenuModule } from 'primeng/menu';
+import { RolesService } from '../../Services/roles-service/roles-service';
 
 @Component({
-    selector: 'app-main-layout',
-    standalone: true,
-    imports: [
-        CommonModule,
-        RouterOutlet,
-        RouterLink,
-        RouterLinkActive,
-        ButtonModule,
-        TooltipModule,
-        AvatarModule,
-        MenuModule
-    ],
-    template: `
+  selector: 'app-main-layout',
+  standalone: true,
+  imports: [
+    CommonModule,
+    RouterOutlet,
+    RouterLink,
+    RouterLinkActive,
+    ButtonModule,
+    TooltipModule,
+    AvatarModule,
+    MenuModule
+  ],
+  template: `
     <div class="min-h-screen flex flex-column md:flex-row bg-gray-50 text-color">
       
       <!-- Sidebar / Mobile Navbar -->
@@ -48,7 +49,7 @@ import { MenuModule } from 'primeng/menu';
             <span class="hidden md:inline font-medium">Reports</span>
           </a>
 
-          @if (hasAdminAccess()) {
+          @if (isAdmin()) {
             <a routerLink="/users" routerLinkActive="surface-hover text-primary" 
                class="p-3 border-round-lg cursor-pointer transition-colors no-underline text-color hover:surface-100 flex align-items-center gap-3">
               <i class="pi pi-users text-xl"></i>
@@ -91,15 +92,14 @@ import { MenuModule } from 'primeng/menu';
   `
 })
 export class MainLayout {
-    authService = inject(AuthService);
-    currentUser = this.authService.currentUser;
+  protected readonly authService = inject(AuthService);
+  protected readonly rolesService = inject(RolesService);
+  currentUser = this.authService.currentUser;
 
-    hasAdminAccess() {
-        const user = this.currentUser();
-        return user?.role === Role.Admin || user?.role === Role.Developer;
-    }
+  minRole = this.rolesService.minRole.bind(this.rolesService);
+  isAdmin = this.rolesService.isAdmin.bind(this.rolesService);
 
-    logout() {
-        this.authService.logout();
-    }
+  logout() {
+    this.authService.logout();
+  }
 }

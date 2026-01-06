@@ -1,6 +1,6 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { tap, catchError, of, Observable } from 'rxjs';
+import { tap, catchError, of, Observable, map, switchMap } from 'rxjs';
 import { Login } from '../../swagger/model/login';
 import { UserView } from '../../swagger/model/userView';
 import { AuthService as ApiAuthService } from '../../swagger/api/auth.service';
@@ -21,6 +21,7 @@ export class AuthService {
     readonly currentUser = this._currentUser.asReadonly();
 
     private _tkn = signal<string | null>(localStorage.getItem('access_token'));
+    private _rtkn = signal<string | null>(localStorage.getItem('refresh_token'));
     readonly token = this._tkn.asReadonly();
 
     readonly isLoggedIn = computed(() => !!this._tkn());
@@ -31,17 +32,36 @@ export class AuthService {
         }
     }
 
-    login(credentials: Login): Observable<any> {
+    login(credentials: Login): Observable<void> {
         return this.apiAuthService.authControllerLogin(credentials).pipe(
             tap(response => {
-                this.setSession(response.accessToken);
-                this.fetchSelf().subscribe();
-            })
+                this.setSession(response.accessToken, response.refreshToken);
+            }),
+            switchMap(() => this.fetchSelf()),
+            map(() => void 0)
+        );
+    }
+
+    refreshToken(): Observable<boolean> {
+        if (!this._rtkn()) {
+            return of(false)
+                .pipe(
+                    tap(() => this.logout())
+                );
+        }
+        return this.apiAuthService.authControllerRefreshToken({ string: this._rtkn()! }).pipe(
+            tap(response => {
+                this.setSession(response.accessToken, response.refreshToken);
+            }),
+            switchMap(() => this.fetchSelf()),
+            map(() => true),
+            catchError(() => of(false))
         );
     }
 
     logout() {
         localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
         this._tkn.set(null);
         this._currentUser.set(null);
         this.router.navigate(['/auth/login']);
@@ -51,9 +71,11 @@ export class AuthService {
         return this._tkn();
     }
 
-    private setSession(token: string) {
+    private setSession(token: string, refreshToken: string) {
         localStorage.setItem('access_token', token);
+        localStorage.setItem('refresh_token', refreshToken);
         this._tkn.set(token);
+        this._rtkn.set(refreshToken);
     }
 
     private fetchSelf(): Observable<UserView | null> {

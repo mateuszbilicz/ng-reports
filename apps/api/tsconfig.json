@@ -22,7 +22,10 @@
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false,
     "paths": {
-      "@ng-reports/shared-types": ["../../packages/shared-types/src/index.ts"]
-    }
+      "@ng-reports/shared-types": [
+        "../../packages/shared-types/src/index.ts"
+      ]
+    },
+    "noImplicitOverride": false
   }
 }

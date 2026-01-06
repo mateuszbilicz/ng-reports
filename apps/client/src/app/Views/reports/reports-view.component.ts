@@ -1,7 +1,9 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { switchMap, map, catchError } from 'rxjs/operators';
+import { forkJoin, of } from 'rxjs';
+import { FormBuilder, ReactiveFormsModule, FormsModule, Validators } from '@angular/forms';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
@@ -12,6 +14,12 @@ import { ToastModule } from 'primeng/toast';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { TextareaModule } from 'primeng/textarea';
 import { SelectModule } from 'primeng/select';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
+import { TreeSelectModule } from 'primeng/treeselect';
+import { TreeNode } from 'primeng/api';
+import { ProjectsService } from '../../core/Services/ProjectsService/ProjectsService';
+import { ActivatedRoute } from '@angular/router';
 import { ReportsService } from '../../core/Services/ReportsService/ReportsService';
 import { Report } from '../../core/swagger/model/report';
 import { Severity } from '../../core/Models/Severity';
@@ -24,13 +32,18 @@ import { Severity } from '../../core/Models/Severity';
         TableModule,
         ButtonModule,
         DialogModule,
+        DialogModule,
         ReactiveFormsModule,
+        FormsModule,
         InputTextModule,
         TagModule,
         ToastModule,
         ConfirmDialogModule,
         TextareaModule,
-        SelectModule
+        SelectModule,
+        IconFieldModule,
+        InputIconModule,
+        TreeSelectModule
     ],
     providers: [MessageService, ConfirmationService],
     templateUrl: './reports-view.component.html'
@@ -63,7 +76,91 @@ export class ReportsViewComponent implements OnInit {
 
     currentEnvIdForList = '';
 
+    projectsService = inject(ProjectsService);
+    route = inject(ActivatedRoute);
+
+    nodes = signal<TreeNode[]>([]);
+    selectedNode: any;
+
+    // ... (rest of props)
+
     ngOnInit() {
+        this.loadTreeNodes();
+    }
+
+    loadTreeNodes() {
+        this.projectsService.getProjects().pipe(
+            switchMap(data => {
+                const projects = (data as any).projects || (data as any).items || (Array.isArray(data) ? data : []);
+                if (projects.length === 0) return of([]);
+
+                const requests = projects.map((p: any) =>
+                    this.projectsService.getEnvironments(p.projectId).pipe(
+                        map(envData => ({
+                            project: p,
+                            environments: (envData as any).environments || (envData as any).items || (Array.isArray(envData) ? envData : [])
+                        })),
+                        // Handle errors for individual project env fetches so one failure doesn't break all
+                        catchError(() => of({ project: p, environments: [] }))
+                    )
+                );
+
+                return forkJoin(requests);
+            })
+        ).subscribe(results => {
+            const treeNodes: TreeNode[] = (results as any[]).map((item: any) => ({
+                label: item.project.name,
+                data: item.project.projectId,
+                expandedIcon: 'pi pi-folder-open',
+                collapsedIcon: 'pi pi-folder',
+                selectable: false,
+                children: item.environments.map((e: any) => ({
+                    label: e.name,
+                    data: { envId: e.environmentId, projectName: item.project.name },
+                    icon: 'pi pi-cloud',
+                    key: e.environmentId,
+                    leaf: true
+                }))
+            }));
+
+            this.nodes.set(treeNodes);
+
+            // Handle Query param selection
+            this.route.queryParams.subscribe(params => {
+                const envId = params['envId'];
+                if (envId) {
+                    this.selectNodeByEnvId(treeNodes, envId);
+                }
+            });
+        });
+    }
+
+    selectNodeByEnvId(nodes: TreeNode[], envId: string) {
+        for (const node of nodes) {
+            if (node.children) {
+                const child = node.children.find(c => c.data?.envId === envId);
+                if (child) {
+                    this.selectedNode = child;
+                    node.expanded = true; // Expand parent
+                    this.loadReports(envId);
+                    return;
+                }
+            }
+        }
+    }
+
+    onNodeSelect(event: any) {
+        // PrimeNG TreeSelect event can sometimes be the node itself or have a node property
+        const node = event.node || event;
+        const envId = node.data?.envId;
+        if (envId) {
+            this.loadReports(envId);
+            this.router.navigate([], {
+                relativeTo: this.route,
+                queryParams: { envId: envId },
+                queryParamsHandling: 'merge'
+            });
+        }
     }
 
     loadReports(envId: string) {

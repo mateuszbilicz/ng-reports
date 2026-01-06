@@ -7,6 +7,8 @@ import { TagModule } from 'primeng/tag';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
 import { UsersService, User, UserFilteredList } from '../../core/Services/UsersService/UsersService';
 import { UserMini } from '../../core/swagger/model/userMini';
 import { Role } from '../../core/Models/Role';
@@ -20,7 +22,9 @@ import { Role } from '../../core/Models/Role';
         ButtonModule,
         TagModule,
         ToastModule,
-        ConfirmDialogModule
+        ConfirmDialogModule,
+        IconFieldModule,
+        InputIconModule
     ],
     providers: [MessageService, ConfirmationService],
     templateUrl: './users-view.component.html'
