@@ -1,5 +1,4 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { UserView as User } from '../../swagger/model/userView';
 import { UserCreate } from '../../swagger/model/userCreate';
@@ -14,15 +13,14 @@ export { User, UserCreate, UserUpdateInformation };
     providedIn: 'root'
 })
 export class UsersService {
-    private apiUsersService = inject(ApiUsersService);
-    private http = inject(HttpClient);
+    protected readonly apiUsersService = inject(ApiUsersService);
 
     getUser(username: string): Observable<User> {
         return this.apiUsersService.usersControllerFindOne(username);
     }
 
     getUsers(filter?: string, limit?: number, skip?: number): Observable<UserFilteredList> {
-        return this.apiUsersService.usersControllerGetList(filter, limit, skip);
+        return this.apiUsersService.usersControllerGetList(filter, skip, limit);
     }
 
     createUser(user: UserCreate): Observable<User> {

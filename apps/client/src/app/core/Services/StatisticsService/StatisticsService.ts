@@ -6,7 +6,7 @@ import { StatisticsService as ApiStatisticsService } from '../../swagger/api/sta
     providedIn: 'root'
 })
 export class StatisticsService {
-    private apiStatisticsService = inject(ApiStatisticsService);
+    protected readonly apiStatisticsService = inject(ApiStatisticsService);
 
     getStatistics(sampling: string, dateFrom: Date, dateTo: Date, projectId?: string, environmentId?: string, textFilter?: string, severity?: number, fixed?: boolean): Observable<any> {
         return this.apiStatisticsService.statisticsControllerGetStatistics(

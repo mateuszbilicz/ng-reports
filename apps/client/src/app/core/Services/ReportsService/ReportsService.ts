@@ -9,7 +9,7 @@ import { ReportsService as ApiReportsService } from '../../swagger/api/reports.s
     providedIn: 'root'
 })
 export class ReportsService {
-    private apiReportsService = inject(ApiReportsService);
+    protected readonly apiReportsService = inject(ApiReportsService);
 
     getReports(environmentId: string, filter?: string, limit?: number, skip?: number): Observable<any> {
         return this.apiReportsService.reportsControllerFindAll(environmentId, filter, limit, skip);

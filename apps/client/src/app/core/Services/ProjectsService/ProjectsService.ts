@@ -13,8 +13,8 @@ import { UpdateEnvironment } from '../../swagger';
     providedIn: 'root'
 })
 export class ProjectsService {
-    private apiProjectsService = inject(ApiProjectsService);
-    private apiEnvironmentsService = inject(ApiEnvironmentsService);
+    protected readonly apiProjectsService = inject(ApiProjectsService);
+    protected readonly apiEnvironmentsService = inject(ApiEnvironmentsService);
 
     projectsControllerFindAll(filter?: string, limit?: number, skip?: number): Observable<any> {
         return this.apiProjectsService.projectsControllerFindAll(filter, limit, skip);

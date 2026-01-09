@@ -1,6 +1,8 @@
 import { Routes } from '@angular/router';
 import { AuthGuard } from './core/Guards/AuthGuard';
 import { MainLayout } from './core/Elements/Layout/MainLayout';
+import { RoleGuard } from './core/Guards/RoleGuard';
+import { Role } from './core/Models/Role';
 
 export const routes: Routes = [
     {
@@ -41,14 +43,20 @@ export const routes: Routes = [
             {
                 path: 'users',
                 loadComponent: () => import('./Views/users/users-view.component').then((m) => m.UsersViewComponent),
+                canActivate: [RoleGuard],
+                data: { minRole: Role.Admin }
             },
             {
                 path: 'users/:username',
                 loadComponent: () => import('./Views/users/user-details/user-details.component').then((m) => m.UserDetailsComponent),
+                canActivate: [RoleGuard],
+                data: { minRole: Role.Admin }
             },
             {
                 path: 'statistics',
                 loadComponent: () => import('./Views/statistics/statistics-view.component').then((m) => m.StatisticsViewComponent),
+                canActivate: [RoleGuard],
+                data: { minRole: Role.Analyst }
             },
         ],
     },

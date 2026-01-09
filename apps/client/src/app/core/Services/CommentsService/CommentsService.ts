@@ -9,7 +9,7 @@ import { CommentsService as ApiCommentsService } from '../../swagger/api/comment
     providedIn: 'root'
 })
 export class CommentsService {
-    private apiCommentsService = inject(ApiCommentsService);
+    protected readonly apiCommentsService = inject(ApiCommentsService);
 
     getComments(reportId: string, dateFrom?: Date, dateTo?: Date, filter?: string, limit?: number, skip?: number): Observable<any> {
         return this.apiCommentsService.commentsControllerFindAll(reportId, dateFrom, dateTo, filter, limit, skip);
