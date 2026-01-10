@@ -1,12 +1,12 @@
 systemLog:
   destination: file
-  path: "/data/log/ng-reports.yaml"
+  path: "/data/log/ng-reports.log"
   logAppend: false
   quiet: true
 processManagement:
   fork: true
 net:
   bindIp: 127.0.0.1
-  port: 27019
+  port: 27017
 storage:
   dbPath: /data/db/ng-reports

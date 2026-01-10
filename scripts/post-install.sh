@@ -1,4 +1,3 @@
-sudo -i
 mkdir /data
 sudo chmod -R 777 /data
 echo "Created /data directory with access for all users"
