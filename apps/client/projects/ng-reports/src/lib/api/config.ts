@@ -2,6 +2,7 @@
 export interface NgReportsConfig {
   environment: string;
   projectId: string;
+  apiUrl: string;
   appVersion: string;
   language: string;
   collectHttpErrors: boolean;
@@ -29,6 +30,7 @@ export interface NgReportsConfig {
 export const NG_REPORTS_CONFIG_DEFAULT: NgReportsConfig = {
   environment: 'testing',
   projectId: 'unknown-project',
+  apiUrl: '/api',
   appVersion: 'unknown',
   language: 'en',
   collectHttpErrors: true,

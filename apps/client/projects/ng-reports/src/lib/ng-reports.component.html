@@ -1,0 +1,89 @@
+<div class="ng-reports-overlay" [class.open]="isOpen()">
+  <div class="ng-reports-dialog" (click)="$event.stopPropagation()">
+    
+    @if (!isSent()) {
+      <div class="dialog-header">
+        <h2>Report an Issue</h2>
+        <button class="close-btn" (click)="close()">&times;</button>
+      </div>
+
+      <div class="dialog-body" [formGroup]="formService.formGroup">
+        <!-- Title -->
+        <div class="form-group">
+          <label for="title">Title *</label>
+          <input id="title" type="text" formControlName="title" placeholder="Brief summary of the issue">
+        </div>
+
+        <!-- Details -->
+        <div class="form-group">
+          <label for="details">Details *</label>
+          <textarea id="details" formControlName="details" placeholder="Please describe what happened..."></textarea>
+        </div>
+
+        <!-- User Info (if not from Auth Service) -->
+        @if (!formService.formGroup.controls.dataIsFromAuthService.value) {
+           <div class="form-group" formGroupName="user">
+             <label for="email">Contact Email (Optional)</label>
+             <input id="email" type="email" formControlName="email" placeholder="your@email.com">
+           </div>
+        }
+
+        <!-- Options -->
+        <div class="form-group">
+          <div class="checkbox-group">
+            <input id="attachLogs" type="checkbox" formControlName="attachLogs">
+            <label for="attachLogs">Include Console Logs</label>
+          </div>
+          <div class="hint">Helps developers understand what happened technically.</div>
+        </div>
+
+        @if (config().allowAttachments) {
+          <div class="form-group">
+            <div class="checkbox-group">
+              <input id="attachScreenshots" type="checkbox" formControlName="attachScreenshots">
+              <label for="attachScreenshots">Include Screenshots/Attachments</label>
+            </div>
+            
+            @if (formService.formGroup.controls.attachScreenshots.value) {
+              <div class="attachments-section">
+                <input type="file" accept="image/png, image/jpeg" (change)="onFileSelected($event)" #fileInput style="display: none;">
+                <button type="button" class="btn-cancel" (click)="fileInput.click()" [disabled]="formService.attachmentFormGroups.length >= config().attachmentsLimit">
+                   Add Image ({{formService.attachmentFormGroups.length}}/{{config().attachmentsLimit}})
+                </button>
+                
+                <div class="attachments-list">
+                  @for (att of formService.attachmentFormGroups; track formService.attachmentTrackBy($index, att); let i = $index) {
+                    <div class="attachment-item">
+                      <img [src]="formService.getImage(att.controls.uid.value!)" [alt]="att.controls.name.value">
+                       <button type="button" class="remove-btn" (click)="formService.removeAttachment(i)">&times;</button>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        }
+
+      </div>
+
+      <div class="dialog-footer">
+        <button type="button" class="btn-cancel" (click)="close()">Cancel</button>
+        <button type="button" class="btn-submit" (click)="submit()" [disabled]="formService.formGroup.invalid || isSending()">
+          @if (isSending()) {
+            Sending...
+          } @else {
+            Send Report
+          }
+        </button>
+      </div>
+    } @else {
+      <!-- Success State -->
+      <div class="dialog-body success-message">
+        <div class="icon">&#10004;</div>
+        <h3>Report Sent!</h3>
+        <p>Thank you for your feedback.</p>
+      </div>
+    }
+
+  </div>
+</div>

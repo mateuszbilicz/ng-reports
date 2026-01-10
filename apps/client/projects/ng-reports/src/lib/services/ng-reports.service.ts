@@ -1,4 +1,4 @@
-import {DestroyRef, inject, Injectable, signal} from '@angular/core';
+import { DestroyRef, inject, Injectable, signal } from '@angular/core';
 import {
   NgReportsAuthUserPartial, NgReportsConsoleError, NgReportsConsoleLog,
   NgReportsEnvironment,
@@ -6,10 +6,10 @@ import {
   NgReportsLog,
   NgReportsRouteChange, NgReportsUserInteraction
 } from '../api/api';
-import {NG_REPORTS_CONFIG_DEFAULT, NgReportsConfig} from '../api/config';
-import {BehaviorSubject, fromEvent, Subscription, takeUntil, throttleTime} from 'rxjs';
-import {ResolveEnd, Router} from '@angular/router';
-import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import { NG_REPORTS_CONFIG_DEFAULT, NgReportsConfig } from '../api/config';
+import { BehaviorSubject, fromEvent, Subscription, takeUntil, throttleTime } from 'rxjs';
+import { ResolveEnd, Router } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Injectable({
   providedIn: 'root'
@@ -23,6 +23,9 @@ export class NgReportsService {
   isCreatingReport: boolean = false;
   // config as constant to prevent changes
   config = signal<NgReportsConfig>(NG_REPORTS_CONFIG_DEFAULT);
+  // controls visibility of the report dialog
+  isOpen = signal<boolean>(false);
+
   // default console.log function
   private defaultConsoleLog = console.log;
   // for tracking invalid forms
@@ -94,15 +97,11 @@ export class NgReportsService {
     return {
       userAgent: navigator.userAgent,
       // all of them are deprecated, but in some browsers it will work
-      browserAppName: `${
-        navigator.appName ?? 'N/A'
-      } | ${
-        navigator.appVersion ?? 'N/A'
-      } | ${
-        navigator.platform ?? 'N/A'
-      } | ${
-        navigator.appVersion ?? 'N/A'
-      }`,
+      browserAppName: `${navigator.appName ?? 'N/A'
+        } | ${navigator.appVersion ?? 'N/A'
+        } | ${navigator.platform ?? 'N/A'
+        } | ${navigator.appVersion ?? 'N/A'
+        }`,
       extensions: extensions,
       // @ts-ignore
       connectionType: navigator['connection']?.effectiveType ?? '0',
@@ -266,8 +265,8 @@ export class NgReportsService {
     this.addLog({
       type: 'route',
       path,
-      ...(fragment ? {fragment} : {}),
-      ...(queryParams ? {queryParams} : {}),
+      ...(fragment ? { fragment } : {}),
+      ...(queryParams ? { queryParams } : {}),
       timestamp: this.timestamp
     });
   }
@@ -285,7 +284,7 @@ export class NgReportsService {
     this.addLog({
       type: 'click',
       target,
-      pagePos: {x, y},
+      pagePos: { x, y },
       timestamp: this.timestamp
     });
   }
@@ -309,5 +308,13 @@ export class NgReportsService {
       ...previousConfig,
       ...config
     }));
+  }
+
+  public open() {
+    this.isOpen.set(true);
+  }
+
+  public close() {
+    this.isOpen.set(false);
   }
 }

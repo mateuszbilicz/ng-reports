@@ -1,12 +1,12 @@
-import {DestroyRef, inject, Injectable} from '@angular/core';
-import {NgReportsService} from './ng-reports.service';
-import {FormArray, FormControl, FormGroup, Validators} from '@angular/forms';
-import {IForm} from '../utils/form';
-import {NgReportsAttachmentImage, NgReportsAuthUserPartial, NgReportsReport} from '../api/api';
-import {from, switchMap, tap} from 'rxjs';
-import {Jimp, JimpMime} from 'jimp';
-import {readFile} from '../utils/file-reader';
-import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import { DestroyRef, inject, Injectable } from '@angular/core';
+import { NgReportsService } from './ng-reports.service';
+import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
+import { IForm } from '../utils/form';
+import { NgReportsAttachmentImage, NgReportsAuthUserPartial, NgReportsReport } from '../api/api';
+import { from, switchMap, tap } from 'rxjs';
+import { Jimp, JimpMime } from 'jimp';
+import { readFile } from '../utils/file-reader';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 /** Service for report form functionality */
 @Injectable({
@@ -120,7 +120,7 @@ export class NgReportsFormService {
             file: new FormControl<Blob | null>(null, [Validators.required])
           });
           const blob = new Blob(
-            [buff],
+            [buff as any],
             {
               type: 'image/png'
             }
