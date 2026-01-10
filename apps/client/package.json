@@ -34,6 +34,7 @@
     "@ng-reports/shared-types": "workspace:*",
     "@primeng/themes": "^21.0.2",
     "apexcharts": "^5.3.6",
+    "jimp": "^1.6.0",
     "ng-apexcharts": "^2.0.4",
     "primeflex": "^4.0.0",
     "primeicons": "^7.0.0",
