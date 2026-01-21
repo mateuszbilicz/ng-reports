@@ -3,19 +3,13 @@ import {InjectConnection, InjectModel} from '@nestjs/mongoose';
 import {Connection, Model} from 'mongoose';
 import {filter, forkJoin, from, map, Observable, of, switchMap, tap} from 'rxjs';
 import {AsFilteredListOf} from '../../database/filtered-list';
-import {
-    Comment,
-    CommentDocument,
-} from '../../database/schemas/comment.schema';
-import {
-    Environment,
-    EnvironmentDocument,
-} from '../../database/schemas/environment.schema';
+import {Comment, CommentDocument,} from '../../database/schemas/comment.schema';
+import {Environment, EnvironmentDocument,} from '../../database/schemas/environment.schema';
 import {
     Report,
-    ReportDocument,
     REPORT_DETAILS_PROJECTION,
     REPORT_LIST_PROJECTION,
+    ReportDocument,
 } from '../../database/schemas/report.schema';
 import {Severity} from '../../database/schemas/severity.schema';
 import {MongoGridFS} from 'mongo-gridfs';
@@ -54,12 +48,12 @@ export class ReportsService {
         this.aiService.addProcessReportToQueue(reportId)
             .pipe(
                 map(result => ({
-                        ...(this.systemConfig.enableAIAutoSeverityAssignation ? {
-                            severity: result.severity ?? 0
-                        } : {}),
-                        ...(this.systemConfig.enableAIAutoSummaryGeneration ? {
-                            summary: result.summary ?? ''
-                        } : {}),
+                    ...(this.systemConfig.enableAIAutoSeverityAssignation ? {
+                        severity: result.severity ?? 0
+                    } : {}),
+                    ...(this.systemConfig.enableAIAutoSummaryGeneration ? {
+                        summary: result.summary ?? ''
+                    } : {}),
                 })),
                 filter(({severity, summary}) => typeof severity === 'number' || typeof summary === 'string'),
                 switchMap(updateReport => this.update(reportId, updateReport))
@@ -178,14 +172,19 @@ export class ReportsService {
                 }
 
                 // Prepare cleanup operations
-                const deleteAttachments$ = forkJoin(
-                    ((deletedReport as Report).attachments ?? []).map((attachment) =>
-                        from(this.gridFS.delete(attachment.file)),
-                    ),
-                );
-                const deleteComments$ = this.commentModel
-                    .deleteMany({_id: {$in: (deletedReport as Report).comments}})
-                    .exec();
+                const deleteAttachments$ = (deletedReport as Report)?.attachments?.length ?? 0 > 0
+                    ? forkJoin(
+                        ((deletedReport as Report).attachments ?? []).map((attachment) =>
+                            from(this.gridFS.delete(attachment.file)),
+                        ),
+                    ) : of();
+                const deleteComments$ =
+                    (deletedReport as Report)?.comments?.length > 0
+                        ?
+                        this.commentModel
+                            .deleteMany({_id: {$in: (deletedReport as Report).comments}})
+                            .exec()
+                        : of();
                 const updateEnvironment$ = this.environmentModel
                     .updateOne(
                         {reports: deletedReport._id},

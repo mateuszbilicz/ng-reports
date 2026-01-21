@@ -196,11 +196,16 @@ export class ReportsViewComponent implements OnInit {
       header: 'Confirm',
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
-        this.reportsService.deleteReport(id).subscribe(() => {
-          if (this.currentEnvIdForList) {
-            this.loadReports(this.currentEnvIdForList);
+        this.reportsService.deleteReport(id).subscribe({
+          next: () => {
+            if (this.currentEnvIdForList)
+              this.loadReports(this.currentEnvIdForList);
+            this.messageService.add({severity: 'success', summary: 'Successful', detail: 'Report Deleted', life: 3000});
+          },
+          error: () => {
+            if (this.currentEnvIdForList)
+              this.loadReports(this.currentEnvIdForList);
           }
-          this.messageService.add({severity: 'success', summary: 'Successful', detail: 'Report Deleted', life: 3000});
         });
       }
     });
