@@ -39,7 +39,7 @@
 
     .dialog-header {
       padding: 1rem;
-      border-bottom: 1px solid var(--surface-border, rgba(0,0,0,0.1));
+      border-bottom: 1px solid var(--surface-border, rgba(0, 0, 0, 0.1));
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -58,6 +58,7 @@
         line-height: 1;
         color: inherit;
         opacity: 0.7;
+
         &:hover {
           opacity: 1;
         }
@@ -107,13 +108,13 @@
           display: flex;
           align-items: center;
           gap: 0.5rem;
-          
+
           input[type="checkbox"] {
             width: 1.2rem;
             height: 1.2rem;
           }
         }
-        
+
         .hint {
           font-size: 0.8rem;
           color: var(--text-color-secondary, #666);
@@ -145,7 +146,7 @@
             position: absolute;
             top: 2px;
             right: 2px;
-            background: rgba(0,0,0,0.6);
+            background: rgba(0, 0, 0, 0.6);
             color: white;
             border: none;
             border-radius: 50%;
@@ -156,9 +157,9 @@
             justify-content: center;
             cursor: pointer;
             font-size: 12px;
-            
+
             &:hover {
-               background: rgba(200, 50, 50, 0.9);
+              background: rgba(200, 50, 50, 0.9);
             }
           }
         }
@@ -167,7 +168,7 @@
 
     .dialog-footer {
       padding: 1rem;
-      border-top: 1px solid var(--surface-border, rgba(0,0,0,0.1));
+      border-top: 1px solid var(--surface-border, rgba(0, 0, 0, 0.1));
       display: flex;
       justify-content: flex-end;
       gap: 0.5rem;
@@ -184,9 +185,9 @@
           background: transparent;
           color: inherit;
           border: 1px solid currentColor;
-          
+
           &:hover {
-            background: rgba(0,0,0,0.05);
+            background: rgba(0, 0, 0, 0.05);
           }
         }
 
@@ -197,7 +198,7 @@
           &:hover {
             filter: brightness(1.1);
           }
-          
+
           &:disabled {
             opacity: 0.6;
             cursor: not-allowed;
@@ -211,17 +212,17 @@
   .success-message {
     text-align: center;
     padding: 2rem;
-    
+
     .icon {
       font-size: 3rem;
       color: #22c55e;
       margin-bottom: 1rem;
     }
-    
+
     h3 {
       margin: 0 0 0.5rem 0;
     }
-    
+
     p {
       margin: 0;
       opacity: 0.8;

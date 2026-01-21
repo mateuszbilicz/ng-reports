@@ -1,10 +1,10 @@
-import { TestBed } from '@angular/core/testing';
-import { HttpInterceptorFn } from '@angular/common/http';
+import {TestBed} from '@angular/core/testing';
+import {HttpInterceptorFn} from '@angular/common/http';
 
-import { ngReportsHttpInterceptor } from './ng-reports-http.interceptor';
+import {ngReportsHttpInterceptor} from './ng-reports-http.interceptor';
 
 describe('ngReportsHttpInterceptor', () => {
-  const interceptor: HttpInterceptorFn = (req, next) => 
+  const interceptor: HttpInterceptorFn = (req, next) =>
     TestBed.runInInjectionContext(() => ngReportsHttpInterceptor(req, next));
 
   beforeEach(() => {

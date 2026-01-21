@@ -94,7 +94,11 @@ export class SystemConfigComponent implements AfterViewInit {
           this.messageService.add({severity: 'success', summary: 'Success', detail: 'System configuration updated'});
         },
         error: () => {
-          this.messageService.add({severity: 'error', summary: 'Error', detail: 'Failed to update system configuration'});
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Failed to update system configuration'
+          });
         },
         complete: () => {
           this.loading.set(false);

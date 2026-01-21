@@ -21,7 +21,7 @@
       "ng-reports": [
         "./dist/ng-reports"
       ]
-    },
+    }
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,

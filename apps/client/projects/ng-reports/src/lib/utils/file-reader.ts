@@ -19,11 +19,18 @@ export function readFile(
   readAs: FileReaderReadAs
 ): Observable<string | ArrayBuffer> {
   const reader = new FileReader();
-  switch(readAs) {
-    case 'url': reader.readAsDataURL(file); break;
-    case 'text': reader.readAsText(file); break;
-    case 'array-buffer': reader.readAsArrayBuffer(file); break;
-    default: throw new Error(`Unknown readAs argument in readFile(blob, '${readAs}')`);
+  switch (readAs) {
+    case 'url':
+      reader.readAsDataURL(file);
+      break;
+    case 'text':
+      reader.readAsText(file);
+      break;
+    case 'array-buffer':
+      reader.readAsArrayBuffer(file);
+      break;
+    default:
+      throw new Error(`Unknown readAs argument in readFile(blob, '${readAs}')`);
   }
   return new Observable(sub => {
     reader.onload = () => {

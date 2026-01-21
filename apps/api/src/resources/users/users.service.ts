@@ -23,6 +23,7 @@ export type UserFilteredList = InstanceType<typeof UserFilteredListClass>;
 @Injectable()
 export class UsersService {
     _aiAccountId: string = '';
+
     constructor(@InjectModel(User.name) private userModel: Model<User>) {
         this.checkForAdmin();
         this.checkForAI();

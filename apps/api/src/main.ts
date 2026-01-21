@@ -1,20 +1,15 @@
-import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
-import { ValidationPipe } from '@nestjs/common';
-import { writeFile } from 'fs/promises';
-import { ExpressAdapter } from '@nestjs/platform-express';
-import * as express from 'express';
-import { ShutdownObserver } from './shutdown-observer';
+import {NestFactory} from '@nestjs/core';
+import {AppModule} from './app.module';
+import {ValidationPipe} from '@nestjs/common';
+import {writeFile} from 'fs/promises';
+import {ShutdownObserver} from './shutdown-observer';
 import * as http from 'http';
 import * as https from 'https';
-import { readFileSync } from 'fs';
-import { HttpsOptions } from '@nestjs/common/interfaces/external/https-options.interface';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import {
-    http as httpConfig,
-    https as httpsConfig,
-} from '../ng-reports.config.json';
-import { CORSController } from './resources/cors-controller';
+import {readFileSync} from 'fs';
+import {HttpsOptions} from '@nestjs/common/interfaces/external/https-options.interface';
+import {DocumentBuilder, SwaggerModule} from '@nestjs/swagger';
+import {http as httpConfig, https as httpsConfig,} from '../ng-reports.config.json';
+import {CORSController} from './resources/cors-controller';
 import cors from 'cors';
 
 async function bootstrap() {
@@ -49,7 +44,7 @@ async function bootstrap() {
     const document = SwaggerModule.createDocument(app, config);
     SwaggerModule.setup('api', app, document);
 
-    writeFile('swagger.json', JSON.stringify(document), { encoding: 'utf8' })
+    writeFile('swagger.json', JSON.stringify(document), {encoding: 'utf8'})
         .then(() => {
             console.log('Successfully written swagger.json');
         })
@@ -87,4 +82,5 @@ async function bootstrap() {
         }
     }
 }
+
 bootstrap();

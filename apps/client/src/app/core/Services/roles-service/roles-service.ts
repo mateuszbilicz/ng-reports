@@ -1,6 +1,6 @@
-import { computed, inject, Injectable } from '@angular/core';
-import { Role } from '../../Models/Role';
-import { AuthService } from '../AuthService/AuthService';
+import {computed, inject, Injectable} from '@angular/core';
+import {Role} from '../../Models/Role';
+import {AuthService} from '../AuthService/AuthService';
 
 @Injectable({
   providedIn: 'root',

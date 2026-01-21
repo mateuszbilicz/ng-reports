@@ -1,6 +1,6 @@
 <div class="ng-reports-overlay" [class.open]="isOpen()">
   <div class="ng-reports-dialog" (click)="$event.stopPropagation()">
-    
+
     @if (!isSent()) {
       <div class="dialog-header">
         <h2>Report an Issue</h2>
@@ -22,10 +22,10 @@
 
         <!-- User Info (if not from Auth Service) -->
         @if (!formService.formGroup.controls.dataIsFromAuthService.value) {
-           <div class="form-group" formGroupName="user">
-             <label for="email">Contact Email (Optional)</label>
-             <input id="email" type="email" formControlName="email" placeholder="your@email.com">
-           </div>
+          <div class="form-group" formGroupName="user">
+            <label for="email">Contact Email (Optional)</label>
+            <input id="email" type="email" formControlName="email" placeholder="your@email.com">
+          </div>
         }
 
         <!-- Options -->
@@ -43,19 +43,22 @@
               <input id="attachScreenshots" type="checkbox" formControlName="attachScreenshots">
               <label for="attachScreenshots">Include Screenshots/Attachments</label>
             </div>
-            
+
             @if (formService.formGroup.controls.attachScreenshots.value) {
               <div class="attachments-section">
-                <input type="file" accept="image/png, image/jpeg" (change)="onFileSelected($event)" #fileInput style="display: none;">
-                <button type="button" class="btn-cancel" (click)="fileInput.click()" [disabled]="formService.attachmentFormGroups.length >= config().attachmentsLimit">
-                   Add Image ({{formService.attachmentFormGroups.length}}/{{config().attachmentsLimit}})
+                <input type="file" accept="image/png, image/jpeg" (change)="onFileSelected($event)" #fileInput
+                       style="display: none;">
+                <button type="button" class="btn-cancel" (click)="fileInput.click()"
+                        [disabled]="formService.attachmentFormGroups.length >= config().attachmentsLimit">
+                  Add Image ({{ formService.attachmentFormGroups.length }}/{{ config().attachmentsLimit }})
                 </button>
-                
+
                 <div class="attachments-list">
                   @for (att of formService.attachmentFormGroups; track formService.attachmentTrackBy($index, att); let i = $index) {
                     <div class="attachment-item">
                       <img [src]="formService.getImage(att.controls.uid.value!)" [alt]="att.controls.name.value">
-                       <button type="button" class="remove-btn" (click)="formService.removeAttachment(i)">&times;</button>
+                      <button type="button" class="remove-btn" (click)="formService.removeAttachment(i)">&times;
+                      </button>
                     </div>
                   }
                 </div>
@@ -68,7 +71,8 @@
 
       <div class="dialog-footer">
         <button type="button" class="btn-cancel" (click)="close()">Cancel</button>
-        <button type="button" class="btn-submit" (click)="submit()" [disabled]="formService.formGroup.invalid || isSending()">
+        <button type="button" class="btn-submit" (click)="submit()"
+                [disabled]="formService.formGroup.invalid || isSending()">
           @if (isSending()) {
             Sending...
           } @else {

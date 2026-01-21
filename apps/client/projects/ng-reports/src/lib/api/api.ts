@@ -66,7 +66,12 @@ export interface NgReportsUserInteraction
 }
 
 /** Log type for NgReports */
-export type NgReportsLog = NgReportsHttpError | NgReportsConsoleError | NgReportsConsoleLog | NgReportsRouteChange | NgReportsUserInteraction;
+export type NgReportsLog =
+  NgReportsHttpError
+  | NgReportsConsoleError
+  | NgReportsConsoleLog
+  | NgReportsRouteChange
+  | NgReportsUserInteraction;
 
 /** Environment information interface for NgReports */
 export interface NgReportsEnvironment {

@@ -1,4 +1,4 @@
-import { HttpInterceptorFn } from '@angular/common/http';
+import {HttpInterceptorFn} from '@angular/common/http';
 import {inject} from '@angular/core';
 import {NgReportsService} from '../services/ng-reports.service';
 import {catchError, throwError} from 'rxjs';

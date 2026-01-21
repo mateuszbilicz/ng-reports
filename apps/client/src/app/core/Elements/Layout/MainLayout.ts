@@ -1,13 +1,13 @@
-import { Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
-import { AuthService } from '../../Services/AuthService/AuthService';
-import { ButtonModule } from 'primeng/button';
-import { TooltipModule } from 'primeng/tooltip';
-import { AvatarModule } from 'primeng/avatar';
-import { MenuModule } from 'primeng/menu';
-import { RolesService } from '../../Services/roles-service/roles-service';
-import { Role } from '../../Models/Role';
+import {Component, inject} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {RouterLink, RouterLinkActive, RouterOutlet} from '@angular/router';
+import {AuthService} from '../../Services/AuthService/AuthService';
+import {ButtonModule} from 'primeng/button';
+import {TooltipModule} from 'primeng/tooltip';
+import {AvatarModule} from 'primeng/avatar';
+import {MenuModule} from 'primeng/menu';
+import {RolesService} from '../../Services/roles-service/roles-service';
+import {Role} from '../../Models/Role';
 import {NgReportsComponent, NgReportsService} from 'ng-reports-form';
 
 @Component({
@@ -86,11 +86,11 @@ export class MainLayout {
   isAdmin = this.rolesService.isAdmin.bind(this.rolesService);
 
   readonly links: { label: string, icon: string, route: string, minRole?: Role }[] = [
-    { label: 'Projects', icon: 'pi pi-briefcase', route: '/projects' },
-    { label: 'Reports', icon: 'pi pi-file', route: '/reports' },
-    { label: 'Statistics', icon: 'pi pi-chart-line', route: '/statistics', minRole: Role.Analyst },
-    { label: 'Users', icon: 'pi pi-users', route: '/users', minRole: Role.Admin },
-    { label: 'System config', icon: 'pi pi-shield', route: '/system-config', minRole: Role.Admin }
+    {label: 'Projects', icon: 'pi pi-briefcase', route: '/projects'},
+    {label: 'Reports', icon: 'pi pi-file', route: '/reports'},
+    {label: 'Statistics', icon: 'pi pi-chart-line', route: '/statistics', minRole: Role.Analyst},
+    {label: 'Users', icon: 'pi pi-users', route: '/users', minRole: Role.Admin},
+    {label: 'System config', icon: 'pi pi-shield', route: '/system-config', minRole: Role.Admin}
   ];
 
   openReportDialog() {

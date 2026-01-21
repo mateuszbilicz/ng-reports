@@ -2,20 +2,20 @@
 @import "primeflex/primeflex.css";
 
 body {
-    margin: 0;
-    font-family: Arial, Helvetica, sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    background-color: var(--surface-b);
-    color: var(--text-color);
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--surface-b);
+  color: var(--text-color);
 }
 
 form {
-    .field {
-        display: flex;
-        flex-direction: column;
-        gap: 0;
-    }
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
 }
 
 .surface-hover {

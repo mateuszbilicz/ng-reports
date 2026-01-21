@@ -1,20 +1,29 @@
 import {
-  ApplicationConfig, provideBrowserGlobalErrorListeners, importProvidersFrom, provideAppInitializer, inject,
-  ErrorHandler
+  ApplicationConfig,
+  ErrorHandler,
+  importProvidersFrom,
+  inject,
+  provideAppInitializer,
+  provideBrowserGlobalErrorListeners
 } from '@angular/core';
-import { provideRouter } from '@angular/router';
-import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import {provideRouter} from '@angular/router';
+import {provideHttpClient, withInterceptors} from '@angular/common/http';
 
-import { routes } from './app.routes';
-import { authInterceptor } from './core/Interceptors/AuthInterceptor';
-import { providePrimeNG } from 'primeng/config';
+import {routes} from './app.routes';
+import {authInterceptor} from './core/Interceptors/AuthInterceptor';
+import {providePrimeNG} from 'primeng/config';
 import Aura from '@primeng/themes/aura';
-import { ApiModule } from './core/swagger/api.module';
-import { Configuration } from './core/swagger/configuration';
-import { environment } from '../environments/environment';
-import { AuthService } from './core/Services/AuthService/AuthService';
-import { RolesService } from './core/Services/roles-service/roles-service';
-import { NgReportsService, NG_REPORTS_CONFIG_DEFAULT, NgReportsConsoleService, ngReportsHttpInterceptor } from 'ng-reports-form';
+import {ApiModule} from './core/swagger/api.module';
+import {Configuration} from './core/swagger/configuration';
+import {environment} from '../environments/environment';
+import {AuthService} from './core/Services/AuthService/AuthService';
+import {RolesService} from './core/Services/roles-service/roles-service';
+import {
+  NG_REPORTS_CONFIG_DEFAULT,
+  NgReportsConsoleService,
+  ngReportsHttpInterceptor,
+  NgReportsService
+} from 'ng-reports-form';
 import {version} from '../../package.json';
 
 export const appConfig: ApplicationConfig = {
@@ -36,7 +45,7 @@ export const appConfig: ApplicationConfig = {
       }
     }),
     NgReportsService,
-    importProvidersFrom(ApiModule.forRoot(() => new Configuration({ basePath: environment.apiUrl }))),
+    importProvidersFrom(ApiModule.forRoot(() => new Configuration({basePath: environment.apiUrl}))),
     provideAppInitializer(() => {
       const authService = inject(AuthService);
       const ngReportsService = inject(NgReportsService);

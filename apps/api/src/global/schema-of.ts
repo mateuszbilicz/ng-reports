@@ -1,9 +1,9 @@
-import { getSchemaPath } from '@nestjs/swagger';
+import {getSchemaPath} from '@nestjs/swagger';
 
 export function schemaOf(cl: any) {
-  return {
-    schema: {
-      allOf: [{ $ref: getSchemaPath(cl) }],
-    },
-  };
+    return {
+        schema: {
+            allOf: [{$ref: getSchemaPath(cl)}],
+        },
+    };
 }

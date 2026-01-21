@@ -1,24 +1,24 @@
 <div class="flex align-items-center justify-content-center min-h-screen surface-ground">
-    <p-toast></p-toast>
-    <div class="w-full md:w-5 lg:w-4 xl:w-3 p-4">
-        <p-card header="NgReports Login" styleClass="w-full shadow-2">
-            <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="flex flex-column gap-3">
+  <p-toast></p-toast>
+  <div class="w-full md:w-5 lg:w-4 xl:w-3 p-4">
+    <p-card header="NgReports Login" styleClass="w-full shadow-2">
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="flex flex-column gap-3">
 
-                <div class="flex flex-column gap-2">
-                    <label for="username">Username</label>
-                    <input pInputText id="username" formControlName="username" class="w-full"
-                        placeholder="Enter your username" />
-                </div>
+        <div class="flex flex-column gap-2">
+          <label for="username">Username</label>
+          <input pInputText id="username" formControlName="username" class="w-full"
+                 placeholder="Enter your username"/>
+        </div>
 
-                <div class="flex flex-column gap-2">
-                    <label for="password">Password</label>
-                    <p-password id="password" formControlName="password" [feedback]="false" [toggleMask]="true"
-                        styleClass="w-full" inputStyleClass="w-full" placeholder="Enter your password"></p-password>
-                </div>
+        <div class="flex flex-column gap-2">
+          <label for="password">Password</label>
+          <p-password id="password" formControlName="password" [feedback]="false" [toggleMask]="true"
+                      styleClass="w-full" inputStyleClass="w-full" placeholder="Enter your password"></p-password>
+        </div>
 
-                <p-button label="Sign In" type="submit" [loading]="loading" styleClass="w-full"></p-button>
+        <p-button label="Sign In" type="submit" [loading]="loading" styleClass="w-full"></p-button>
 
-            </form>
-        </p-card>
-    </div>
+      </form>
+    </p-card>
+  </div>
 </div>

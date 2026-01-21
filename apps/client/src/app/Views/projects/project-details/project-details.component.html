@@ -1,164 +1,166 @@
 <div class="card p-3 surface-card shadow-2 border-round">
-    <p-toast></p-toast>
-    <p-confirmDialog></p-confirmDialog>
+  <p-toast></p-toast>
+  <p-confirmDialog></p-confirmDialog>
 
-    <div *ngIf="project()" class="mb-4">
-        @if (!isProjectEditMode()) {
-        <!-- View Mode -->
-        <div class="flex justify-content-between align-items-center mb-3">
-            <div>
-                <h2 class="m-0 text-900">{{ project()!.name }}</h2>
-                <p class="text-600 mt-1">{{ project()!.description || 'No description provided.' }}</p>
-            </div>
-            <div class="flex gap-2">
-                <p-button label="Edit Project" icon="pi pi-pencil" styleClass="p-button-outlined"
+  <div *ngIf="project()" class="mb-4">
+    @if (!isProjectEditMode()) {
+      <!-- View Mode -->
+      <div class="flex justify-content-between align-items-center mb-3">
+        <div>
+          <h2 class="m-0 text-900">{{ project()!.name }}</h2>
+          <p class="text-600 mt-1">{{ project()!.description || 'No description provided.' }}</p>
+        </div>
+        <div class="flex gap-2">
+          <p-button label="Edit Project" icon="pi pi-pencil" styleClass="p-button-outlined"
                     (onClick)="editProject()"></p-button>
-                <p-button label="Back" icon="pi pi-arrow-left" styleClass="p-button-secondary p-button-text"
+          <p-button label="Back" icon="pi pi-arrow-left" styleClass="p-button-secondary p-button-text"
                     (onClick)="goBack()"></p-button>
-            </div>
         </div>
-        } @else {
-        <!-- Edit Mode -->
-        <div class="card p-4 border-blue-500 border-2 shadow-2 border-round surface-card">
-            <form [formGroup]="projectForm" class="flex flex-column gap-3">
-                <div class="field">
-                    <label for="pName" class="font-medium">Project Name</label>
-                    <input type="text" pInputText id="pName" formControlName="name" class="w-full text-xl" />
-                </div>
-                <div class="field">
-                    <label for="pDesk" class="font-medium">Description</label>
-                    <textarea pInputTextarea id="pDesk" formControlName="description" rows="3" [autoResize]="true"
-                        class="w-full"></textarea>
-                </div>
-                <div class="flex justify-content-end gap-2">
-                    <p-button label="Cancel" icon="pi pi-times" styleClass="p-button-text"
-                        (onClick)="cancelEditProject()"></p-button>
-                    <p-button label="Save Changes" icon="pi pi-check" (onClick)="saveProject()"
-                        [disabled]="projectForm.invalid" [loading]="loadingProject()"></p-button>
-                </div>
-            </form>
-        </div>
-        }
-    </div>
-
-    <!-- Environments Section -->
-    <div class="card p-0 border-none">
-        <div class="flex justify-content-between align-items-center mb-3">
-            <h3 class="m-0 text-800">Environments</h3>
-            <p-button label="New Environment" icon="pi pi-plus" (onClick)="startNewEnv()" styleClass="p-button-sm"
-                [disabled]="editingEnvId() !== null"></p-button>
-        </div>
-
-        <div class="flex flex-column gap-3">
-            <!-- New Environment Editor -->
-            @if (editingEnvId() === 'new') {
-            <div class="card p-3 surface-card shadow-2 border-round border-blue-500 border-2">
-                <ng-container *ngTemplateOutlet="envEditForm"></ng-container>
-            </div>
-            }
-
-            <!-- Environments List -->
-            @for (env of environments(); track env.environmentId) {
-            @if (editingEnvId() === env.environmentId) {
-            <!-- Edit Mode -->
-            <div class="card p-3 surface-card shadow-2 border-round border-blue-500 border-2">
-                <ng-container *ngTemplateOutlet="envEditForm"></ng-container>
-            </div>
-            } @else {
-            <!-- View Mode -->
-            <div class="card p-3 surface-card shadow-2 border-round">
-                <div class="flex justify-content-between align-items-start">
-                    <div class="flex-1">
-                        <div class="flex align-items-center gap-2 mb-1">
-                            <div class="text-xl font-bold text-900">{{ env.name }}</div>
-                            <span class="text-sm text-600 bg-gray-100 border-round px-2 py-1">ID: {{ env.environmentId
-                                }}</span>
-                        </div>
-                        <div class="text-500 mb-2">{{ env.description || 'No description' }}</div>
-
-                        @if (env.urls && env.urls.length > 0) {
-                        <div class="flex flex-wrap gap-2 mt-3">
-                            @for (url of env.urls; track $index) {
-                            <div class="surface-ground border-round px-2 py-1 flex align-items-center gap-2 text-sm">
-                                <span class="font-semibold">{{ url.name }}:</span>
-                                <a [href]="url.url" target="_blank" class="text-primary no-underline hover:underline">{{
-                                    url.url }}</a>
-                            </div>
-                            }
-                        </div>
-                        }
-                    </div>
-                    <div class="flex gap-2">
-                        <p-button icon="pi pi-list" styleClass="p-button-text p-button-info"
-                            (onClick)="viewReports(env)" pTooltip="View Reports"></p-button>
-                        <p-button icon="pi pi-pencil" styleClass="p-button-text p-button-warning"
-                            (onClick)="editEnv(env)" [disabled]="editingEnvId() !== null" pTooltip="Edit"></p-button>
-                        <p-button icon="pi pi-trash" styleClass="p-button-text p-button-danger"
-                            (onClick)="deleteEnv(env)" [disabled]="editingEnvId() !== null"
-                            pTooltip="Delete"></p-button>
-                    </div>
-                </div>
-            </div>
-            }
-            }
-
-            @if (environments().length === 0 && editingEnvId() !== 'new') {
-            <div class="text-center p-4 text-600 surface-card border-round shadow-1">
-                No environments found. Click "New Environment" to add one.
-            </div>
-            }
-        </div>
-    </div>
-
-    <!-- Inline Form Template -->
-    <ng-template #envEditForm>
-        <form [formGroup]="envForm" class="flex flex-column gap-3">
-            <div class="formgrid grid">
-                <div class="field col-12 md:col-6">
-                    <label for="eName">Name</label>
-                    <input type="text" pInputText id="eName" formControlName="name" class="w-full" autofocus />
-                </div>
-                <div class="field col-12 md:col-6">
-                    <label for="eId">Environment ID</label>
-                    <input type="text" pInputText id="eId" formControlName="environmentId"
-                        [readonly]="editingEnvId() !== 'new'" class="w-full"
-                        [placeholder]="editingEnvId() === 'new' ? 'Auto-generated' : ''" />
-                </div>
-            </div>
-
-            <div class="field">
-                <label for="eDesc">Description</label>
-                <textarea pInputTextarea id="eDesc" formControlName="description" rows="2" class="w-full"
-                    [autoResize]="true"></textarea>
-            </div>
-
-            <div class="field">
-                <label class="mb-2 block font-medium">URLs</label>
-                <div formArrayName="urls" class="flex flex-column gap-2">
-                    @for (urlControl of urls.controls; track $index) {
-                    <div [formGroupName]="$index" class="flex gap-2 align-items-center">
-                        <div class="flex-1">
-                            <input type="text" pInputText formControlName="name" placeholder="Name" class="w-full" />
-                        </div>
-                        <div class="flex-2">
-                            <input type="text" pInputText formControlName="url" placeholder="https://example.com"
-                                class="w-full" />
-                        </div>
-                        <button pButton icon="pi pi-trash" class="p-button-danger p-button-text"
-                            (click)="removeUrl($index)"></button>
-                    </div>
-                    }
-                    <button pButton label="Add URL" icon="pi pi-plus"
-                        class="p-button-outlined p-button-sm align-self-start mt-1" (click)="addUrl()"></button>
-                </div>
-            </div>
-
-            <div class="flex justify-content-end gap-2 mt-2">
-                <p-button label="Cancel" icon="pi pi-times" styleClass="p-button-text"
-                    (onClick)="cancelEditEnv()"></p-button>
-                <p-button label="Save" icon="pi pi-check" (onClick)="saveEnv()" [disabled]="envForm.invalid"
-                    [loading]="loadingEnvId() === editingEnvId()"></p-button>
-            </div>
+      </div>
+    } @else {
+      <!-- Edit Mode -->
+      <div class="card p-4 border-blue-500 border-2 shadow-2 border-round surface-card">
+        <form [formGroup]="projectForm" class="flex flex-column gap-3">
+          <div class="field">
+            <label for="pName" class="font-medium">Project Name</label>
+            <input type="text" pInputText id="pName" formControlName="name" class="w-full text-xl"/>
+          </div>
+          <div class="field">
+            <label for="pDesk" class="font-medium">Description</label>
+            <textarea pInputTextarea id="pDesk" formControlName="description" rows="3" [autoResize]="true"
+                      class="w-full"></textarea>
+          </div>
+          <div class="flex justify-content-end gap-2">
+            <p-button label="Cancel" icon="pi pi-times" styleClass="p-button-text"
+                      (onClick)="cancelEditProject()"></p-button>
+            <p-button label="Save Changes" icon="pi pi-check" (onClick)="saveProject()"
+                      [disabled]="projectForm.invalid" [loading]="loadingProject()"></p-button>
+          </div>
         </form>
-    </ng-template>
+      </div>
+    }
+  </div>
+
+  <!-- Environments Section -->
+  <div class="card p-0 border-none">
+    <div class="flex justify-content-between align-items-center mb-3">
+      <h3 class="m-0 text-800">Environments</h3>
+      <p-button label="New Environment" icon="pi pi-plus" (onClick)="startNewEnv()" styleClass="p-button-sm"
+                [disabled]="editingEnvId() !== null"></p-button>
+    </div>
+
+    <div class="flex flex-column gap-3">
+      <!-- New Environment Editor -->
+      @if (editingEnvId() === 'new') {
+        <div class="card p-3 surface-card shadow-2 border-round border-blue-500 border-2">
+          <ng-container *ngTemplateOutlet="envEditForm"></ng-container>
+        </div>
+      }
+
+      <!-- Environments List -->
+      @for (env of environments(); track env.environmentId) {
+        @if (editingEnvId() === env.environmentId) {
+          <!-- Edit Mode -->
+          <div class="card p-3 surface-card shadow-2 border-round border-blue-500 border-2">
+            <ng-container *ngTemplateOutlet="envEditForm"></ng-container>
+          </div>
+        } @else {
+          <!-- View Mode -->
+          <div class="card p-3 surface-card shadow-2 border-round">
+            <div class="flex justify-content-between align-items-start">
+              <div class="flex-1">
+                <div class="flex align-items-center gap-2 mb-1">
+                  <div class="text-xl font-bold text-900">{{ env.name }}</div>
+                  <span class="text-sm text-600 bg-gray-100 border-round px-2 py-1">ID: {{
+                      env.environmentId
+                    }}</span>
+                </div>
+                <div class="text-500 mb-2">{{ env.description || 'No description' }}</div>
+
+                @if (env.urls && env.urls.length > 0) {
+                  <div class="flex flex-wrap gap-2 mt-3">
+                    @for (url of env.urls; track $index) {
+                      <div class="surface-ground border-round px-2 py-1 flex align-items-center gap-2 text-sm">
+                        <span class="font-semibold">{{ url.name }}:</span>
+                        <a [href]="url.url" target="_blank" class="text-primary no-underline hover:underline">{{
+                            url.url
+                          }}</a>
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+              <div class="flex gap-2">
+                <p-button icon="pi pi-list" styleClass="p-button-text p-button-info"
+                          (onClick)="viewReports(env)" pTooltip="View Reports"></p-button>
+                <p-button icon="pi pi-pencil" styleClass="p-button-text p-button-warning"
+                          (onClick)="editEnv(env)" [disabled]="editingEnvId() !== null" pTooltip="Edit"></p-button>
+                <p-button icon="pi pi-trash" styleClass="p-button-text p-button-danger"
+                          (onClick)="deleteEnv(env)" [disabled]="editingEnvId() !== null"
+                          pTooltip="Delete"></p-button>
+              </div>
+            </div>
+          </div>
+        }
+      }
+
+      @if (environments().length === 0 && editingEnvId() !== 'new') {
+        <div class="text-center p-4 text-600 surface-card border-round shadow-1">
+          No environments found. Click "New Environment" to add one.
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Inline Form Template -->
+  <ng-template #envEditForm>
+    <form [formGroup]="envForm" class="flex flex-column gap-3">
+      <div class="formgrid grid">
+        <div class="field col-12 md:col-6">
+          <label for="eName">Name</label>
+          <input type="text" pInputText id="eName" formControlName="name" class="w-full" autofocus/>
+        </div>
+        <div class="field col-12 md:col-6">
+          <label for="eId">Environment ID</label>
+          <input type="text" pInputText id="eId" formControlName="environmentId"
+                 [readonly]="editingEnvId() !== 'new'" class="w-full"
+                 [placeholder]="editingEnvId() === 'new' ? 'Auto-generated' : ''"/>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="eDesc">Description</label>
+        <textarea pInputTextarea id="eDesc" formControlName="description" rows="2" class="w-full"
+                  [autoResize]="true"></textarea>
+      </div>
+
+      <div class="field">
+        <label class="mb-2 block font-medium">URLs</label>
+        <div formArrayName="urls" class="flex flex-column gap-2">
+          @for (urlControl of urls.controls; track $index) {
+            <div [formGroupName]="$index" class="flex gap-2 align-items-center">
+              <div class="flex-1">
+                <input type="text" pInputText formControlName="name" placeholder="Name" class="w-full"/>
+              </div>
+              <div class="flex-2">
+                <input type="text" pInputText formControlName="url" placeholder="https://example.com"
+                       class="w-full"/>
+              </div>
+              <button pButton icon="pi pi-trash" class="p-button-danger p-button-text"
+                      (click)="removeUrl($index)"></button>
+            </div>
+          }
+          <button pButton label="Add URL" icon="pi pi-plus"
+                  class="p-button-outlined p-button-sm align-self-start mt-1" (click)="addUrl()"></button>
+        </div>
+      </div>
+
+      <div class="flex justify-content-end gap-2 mt-2">
+        <p-button label="Cancel" icon="pi pi-times" styleClass="p-button-text"
+                  (onClick)="cancelEditEnv()"></p-button>
+        <p-button label="Save" icon="pi pi-check" (onClick)="saveEnv()" [disabled]="envForm.invalid"
+                  [loading]="loadingEnvId() === editingEnvId()"></p-button>
+      </div>
+    </form>
+  </ng-template>
 </div>

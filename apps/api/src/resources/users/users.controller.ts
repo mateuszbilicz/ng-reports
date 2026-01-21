@@ -1,12 +1,12 @@
-import { InitializeController } from '../../global/initialize-controller';
-import { Body, Delete, Get, Param, Post, Put, Query, Req } from '@nestjs/common';
-import { UserFilteredList, UserFilteredListClass, UsersService, } from './users.service';
-import { ApiBody, ApiOkResponse, ApiQuery } from '@nestjs/swagger';
-import { UserCreate, UserUpdateInformation, UserView } from '../../database/schemas/user.schema';
-import { Role } from '../../database/schemas/roles.schema';
-import { map, Observable } from 'rxjs';
-import { operationSuccessPipe, throwPipe } from '../../global/error-responses';
-import { MinRole } from "../auth/min-role";
+import {InitializeController} from '../../global/initialize-controller';
+import {Body, Delete, Get, Param, Post, Put, Query, Req} from '@nestjs/common';
+import {UserFilteredList, UserFilteredListClass, UsersService,} from './users.service';
+import {ApiBody, ApiOkResponse, ApiQuery} from '@nestjs/swagger';
+import {UserCreate, UserUpdateInformation, UserView} from '../../database/schemas/user.schema';
+import {Role} from '../../database/schemas/roles.schema';
+import {map, Observable} from 'rxjs';
+import {operationSuccessPipe, throwPipe} from '../../global/error-responses';
+import {MinRole} from "../auth/min-role";
 
 @InitializeController('users')
 export class UsersController {
