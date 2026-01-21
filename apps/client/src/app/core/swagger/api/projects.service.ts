@@ -17,9 +17,9 @@ import { CustomHttpUrlEncodingCodec }                        from '../encoder';
 
 import { Observable }                                        from 'rxjs';
 
-import { Cee1f22fa54004b7349a3 } from '../model/cee1f22fa54004b7349a3';
 import { CreateProject } from '../model/createProject';
 import { InlineResponse400 } from '../model/inlineResponse400';
+import { Model197b6ba1b921e66a33cf3 } from '../model/model197b6ba1b921e66a33cf3';
 import { Project } from '../model/project';
 import { UpdateProject } from '../model/updateProject';
 
@@ -115,9 +115,9 @@ export class ProjectsService {
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public projectsControllerFindAll(filter?: string, limit?: number, skip?: number, observe?: 'body', reportProgress?: boolean): Observable<Cee1f22fa54004b7349a3>;
-    public projectsControllerFindAll(filter?: string, limit?: number, skip?: number, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Cee1f22fa54004b7349a3>>;
-    public projectsControllerFindAll(filter?: string, limit?: number, skip?: number, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Cee1f22fa54004b7349a3>>;
+    public projectsControllerFindAll(filter?: string, limit?: number, skip?: number, observe?: 'body', reportProgress?: boolean): Observable<Model197b6ba1b921e66a33cf3>;
+    public projectsControllerFindAll(filter?: string, limit?: number, skip?: number, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Model197b6ba1b921e66a33cf3>>;
+    public projectsControllerFindAll(filter?: string, limit?: number, skip?: number, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Model197b6ba1b921e66a33cf3>>;
     public projectsControllerFindAll(filter?: string, limit?: number, skip?: number, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
 
 
@@ -149,7 +149,7 @@ export class ProjectsService {
         const consumes: string[] = [
         ];
 
-        return this.httpClient.request<Cee1f22fa54004b7349a3>('get',`${this.basePath}/projects`,
+        return this.httpClient.request<Model197b6ba1b921e66a33cf3>('get',`${this.basePath}/projects`,
             {
                 params: queryParameters,
                 withCredentials: this.configuration.withCredentials,

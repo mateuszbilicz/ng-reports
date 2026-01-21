@@ -65,6 +65,7 @@ export class AuthService {
     }
 
     logout() {
+      console.log('LOGOUT')
         localStorage.removeItem('access_token');
         localStorage.removeItem('refresh_token');
         this._tkn.set(null);

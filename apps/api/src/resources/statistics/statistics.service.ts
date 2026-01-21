@@ -6,14 +6,7 @@ import {Environment, EnvironmentDocument} from '../../database/schemas/environme
 import {Project, ProjectDocument} from '../../database/schemas/project.schema';
 import {Report, ReportDocument} from '../../database/schemas/report.schema';
 import {Severity} from '../../database/schemas/severity.schema';
-
-// Define the structure of the final statistics object as per AGENTS.md
-export interface Statistics {
-    sampling: 'hour' | 'day' | 'week' | 'month';
-    samples: { label: string; value: number }[];
-    totalReports: number;
-    avgReportsPerSample: number;
-}
+import {Statistics} from "../../database/schemas/statistics.schema";
 
 @Injectable()
 export class StatisticsService {

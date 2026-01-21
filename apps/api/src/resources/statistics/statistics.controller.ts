@@ -1,13 +1,18 @@
 import { Get, Query } from '@nestjs/common';
-import { ApiOkResponse, ApiQuery } from '@nestjs/swagger';
+import {ApiExtraModels, ApiOkResponse, ApiQuery} from '@nestjs/swagger';
 import { Observable } from 'rxjs';
 import { Role } from '../../database/schemas/roles.schema';
 import { Severity } from '../../database/schemas/severity.schema';
 import { throwPipe } from '../../global/error-responses';
 import { InitializeController } from '../../global/initialize-controller';
-import { Statistics, StatisticsService } from './statistics.service';
+import { StatisticsService } from './statistics.service';
 import {MinRole} from "../auth/min-role";
+import {Statistics, StatisticsSample} from "../../database/schemas/statistics.schema";
 
+@ApiExtraModels(
+    Statistics,
+    StatisticsSample
+)
 @InitializeController('statistics')
 export class StatisticsController {
   constructor(private readonly statisticsService: StatisticsService) {}

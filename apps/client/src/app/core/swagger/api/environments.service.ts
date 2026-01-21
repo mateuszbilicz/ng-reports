@@ -20,7 +20,7 @@ import { Observable }                                        from 'rxjs';
 import { CreateEnvironment } from '../model/createEnvironment';
 import { Environment } from '../model/environment';
 import { InlineResponse400 } from '../model/inlineResponse400';
-import { Model85d170abb92c2cee1f22f } from '../model/model85d170abb92c2cee1f22f';
+import { Model0051354ffb817197b6ba1 } from '../model/model0051354ffb817197b6ba1';
 import { UpdateEnvironment } from '../model/updateEnvironment';
 
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
@@ -116,9 +116,9 @@ export class EnvironmentsService {
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public environmentsControllerFindAll(projectId: string, filter?: string, limit?: number, skip?: number, observe?: 'body', reportProgress?: boolean): Observable<Model85d170abb92c2cee1f22f>;
-    public environmentsControllerFindAll(projectId: string, filter?: string, limit?: number, skip?: number, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Model85d170abb92c2cee1f22f>>;
-    public environmentsControllerFindAll(projectId: string, filter?: string, limit?: number, skip?: number, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Model85d170abb92c2cee1f22f>>;
+    public environmentsControllerFindAll(projectId: string, filter?: string, limit?: number, skip?: number, observe?: 'body', reportProgress?: boolean): Observable<Model0051354ffb817197b6ba1>;
+    public environmentsControllerFindAll(projectId: string, filter?: string, limit?: number, skip?: number, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Model0051354ffb817197b6ba1>>;
+    public environmentsControllerFindAll(projectId: string, filter?: string, limit?: number, skip?: number, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Model0051354ffb817197b6ba1>>;
     public environmentsControllerFindAll(projectId: string, filter?: string, limit?: number, skip?: number, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
 
         if (projectId === null || projectId === undefined) {
@@ -157,7 +157,7 @@ export class EnvironmentsService {
         const consumes: string[] = [
         ];
 
-        return this.httpClient.request<Model85d170abb92c2cee1f22f>('get',`${this.basePath}/environments`,
+        return this.httpClient.request<Model0051354ffb817197b6ba1>('get',`${this.basePath}/environments`,
             {
                 params: queryParameters,
                 withCredentials: this.configuration.withCredentials,

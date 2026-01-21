@@ -8,20 +8,32 @@ import { TableModule } from 'primeng/table';
 import { StatisticsService } from '../../core/Services/StatisticsService/StatisticsService';
 import { Role } from '../../core/Models/Role';
 import { Severity } from '../../core/Models/Severity';
+import {ChartComponent} from 'ng-apexcharts';
+import {Select} from 'primeng/select';
+import {StyleClass} from 'primeng/styleclass';
+import {InputIcon} from 'primeng/inputicon';
+import {IconField} from 'primeng/iconfield';
+import {DatePicker} from 'primeng/datepicker';
 
 export type ChartOptions = any;
 
 @Component({
     selector: 'app-statistics-view',
     standalone: true,
-    imports: [
-        CommonModule,
-        ReactiveFormsModule,
-        ButtonModule,
-        InputTextModule,
-        SelectButtonModule,
-        TableModule,
-    ],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    ButtonModule,
+    InputTextModule,
+    SelectButtonModule,
+    TableModule,
+    ChartComponent,
+    Select,
+    StyleClass,
+    InputIcon,
+    IconField,
+    DatePicker,
+  ],
     templateUrl: './statistics-view.component.html'
 })
 export class StatisticsViewComponent {
