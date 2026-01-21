@@ -8,33 +8,33 @@ import { TableModule } from 'primeng/table';
 import { StatisticsService } from '../../core/Services/StatisticsService/StatisticsService';
 import { Role } from '../../core/Models/Role';
 import { Severity } from '../../core/Models/Severity';
-import {ChartComponent} from 'ng-apexcharts';
-import {Select} from 'primeng/select';
-import {StyleClass} from 'primeng/styleclass';
-import {InputIcon} from 'primeng/inputicon';
-import {IconField} from 'primeng/iconfield';
-import {DatePicker} from 'primeng/datepicker';
-import {Statistics} from '../../core/swagger';
+import { ChartComponent } from 'ng-apexcharts';
+import { Select } from 'primeng/select';
+import { StyleClass } from 'primeng/styleclass';
+import { InputIcon } from 'primeng/inputicon';
+import { IconField } from 'primeng/iconfield';
+import { DatePicker } from 'primeng/datepicker';
+import { Statistics } from '../../core/swagger';
 
 export type ChartOptions = any;
 
 @Component({
     selector: 'app-statistics-view',
     standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    ButtonModule,
-    InputTextModule,
-    SelectButtonModule,
-    TableModule,
-    ChartComponent,
-    Select,
-    StyleClass,
-    InputIcon,
-    IconField,
-    DatePicker,
-  ],
+    imports: [
+        CommonModule,
+        ReactiveFormsModule,
+        ButtonModule,
+        InputTextModule,
+        SelectButtonModule,
+        TableModule,
+        ChartComponent,
+        Select,
+        StyleClass,
+        InputIcon,
+        IconField,
+        DatePicker,
+    ],
     templateUrl: './statistics-view.component.html'
 })
 export class StatisticsViewComponent {
@@ -73,17 +73,24 @@ export class StatisticsViewComponent {
         { label: 'Critical', value: 4 }
     ];
 
-    public chartOptions: any = {
+    public chartOptions: Partial<ChartOptions> | any = { // Using any to avoid strict type checks for now as ChartOptions type is 'any' alias
         series: [],
         chart: {
             height: 350,
-            type: 'bar'
+            type: 'bar',
+            fontFamily: 'Inter, sans-serif',
+            toolbar: {
+                show: false
+            }
         },
         title: {
             text: 'Reports Statistics'
         },
         xaxis: {
             categories: []
+        },
+        dataLabels: {
+            enabled: false
         }
     };
 
@@ -120,19 +127,32 @@ export class StatisticsViewComponent {
         const tableItems: any[] = [];
 
         data.samples.forEach(sample => {
-          tableItems.push({
-            date: sample.label,
-            value: sample.value
-          });
-          seriesData.push(sample.value);
+            tableItems.push({
+                date: sample.label,
+                value: sample.value
+            });
+            categories.push(sample.label);
+            seriesData.push(sample.value);
         });
 
-        this.chartOptions.series = [{
-            name: 'Reports',
-            data: seriesData
-        }];
-        this.chartOptions.xaxis = {
-            categories: categories
+        // Update chart options triggering change detection
+        this.chartOptions = {
+            ...this.chartOptions,
+            series: [{
+                name: 'Reports',
+                data: seriesData
+            }],
+            xaxis: {
+                type: 'category',
+                categories: categories,
+                labels: {
+                    style: {
+                        colors: '#64748b',
+                        fontSize: '12px',
+                        fontFamily: 'Inter, sans-serif'
+                    }
+                }
+            }
         };
 
         this.tableData.set(tableItems);
