@@ -19,6 +19,16 @@ export class CreateComment {
 }
 
 /**
+ * Class used for requesting AI summary comment.
+ */
+export class RequestAiSummaryComment {
+  @ApiProperty({
+    description: 'The ID of the report to which this comment belongs.',
+  })
+  reportId: string;
+}
+
+/**
  * Class used for updating an existing comment.
  */
 export class UpdateComment extends PartialType(CreateComment) {

@@ -1,5 +1,5 @@
-import { Injectable } from '@nestjs/common';
-import { catchError, filter, forkJoin, from, map, Observable, of, switchMap, tap, throwError } from 'rxjs';
+import {Injectable} from '@nestjs/common';
+import {catchError, filter, forkJoin, from, map, Observable, of, switchMap, tap, throwError} from 'rxjs';
 import {
     User,
     USER_DEFAULT_PROJECTION,
@@ -9,12 +9,12 @@ import {
     UserUpdateInformation,
     UserView,
 } from '../../database/schemas/user.schema';
-import { DeleteResult, Model, UpdateWriteOpResult } from 'mongoose';
-import { argon2Hash, argon2Verify } from '../../global/rx-argon';
-import { InjectModel } from '@nestjs/mongoose';
-import { AsFilteredListOf } from '../../database/filtered-list';
-import { defaultAdmin } from '../../../ng-reports.config.json';
-import { Role } from "../../database/schemas/roles.schema";
+import {DeleteResult, Model, UpdateWriteOpResult} from 'mongoose';
+import {argon2Hash, argon2Verify} from '../../global/rx-argon';
+import {InjectModel} from '@nestjs/mongoose';
+import {AsFilteredListOf} from '../../database/filtered-list';
+import {defaultAdmin} from '../../../ng-reports.config.json';
+import {Role} from "../../database/schemas/roles.schema";
 
 export const UserFilteredListClass = AsFilteredListOf(UserMini);
 
@@ -22,8 +22,10 @@ export type UserFilteredList = InstanceType<typeof UserFilteredListClass>;
 
 @Injectable()
 export class UsersService {
+    _aiAccountId: string = '';
     constructor(@InjectModel(User.name) private userModel: Model<User>) {
         this.checkForAdmin();
+        this.checkForAI();
     }
 
     private checkForAdmin() {
@@ -59,6 +61,47 @@ export class UsersService {
             .subscribe();
     }
 
+    private checkForAI() {
+        from(
+            this.userModel.findOne({
+                username: 'system-ai'
+            })
+        )
+            .pipe(
+                tap(user => {
+                    if (user) {
+                        this._aiAccountId = (user.hasOwnProperty('_doc') ? (user as any)._doc._id : user._id) + '';
+                    }
+                }),
+                filter(user => !user),
+                switchMap(() =>
+                    argon2Hash(`${Date.now()}-${Math.floor(Math.random() * Date.now()).toString(36)}_${Math.floor(Math.random() * 9999).toString(36)}`)
+                ),
+                switchMap(hashedPassword =>
+                    from(
+                        this.userModel.create({
+                            username: 'system-ai',
+                            password: hashedPassword,
+                            name: 'System AI',
+                            description: 'Default system AI account. Don\'t delete this account cause it might generate problems with AI',
+                            role: Role.Admin,
+                            createDate: new Date(),
+                            isActive: true
+                        })
+                    )
+                ),
+                tap((user) => {
+                    console.log('Default AI account created!');
+                    this._aiAccountId = user._id + '';
+                }),
+                catchError(err => {
+                    console.error('An error occurred while creating default AI account!', err);
+                    return throwError(() => err);
+                })
+            )
+            .subscribe();
+    }
+
     create(userCreate: UserCreate) {
         const newUser: User = {
             ...userCreate,
@@ -77,13 +120,13 @@ export class UsersService {
                 ),
                 map(
                     ({
-                        username,
-                        name,
-                        description,
-                        role,
-                        createDate,
-                        isActive,
-                    }): UserView => {
+                         username,
+                         name,
+                         description,
+                         role,
+                         createDate,
+                         isActive,
+                     }): UserView => {
                         return {
                             username,
                             name,
@@ -98,7 +141,7 @@ export class UsersService {
     }
 
     get(username: string) {
-        return from(this.userModel.findOne({ username }, USER_DEFAULT_PROJECTION));
+        return from(this.userModel.findOne({username}, USER_DEFAULT_PROJECTION));
     }
 
     updateInformation(
@@ -107,7 +150,7 @@ export class UsersService {
     ): Observable<UpdateWriteOpResult> {
         return from(
             this.userModel.updateOne(
-                { username },
+                {username},
                 {
                     $set: update,
                 },
@@ -123,9 +166,9 @@ export class UsersService {
                 switchMap(hashedPassword =>
                     from(
                         this.userModel.updateOne(
-                            { username },
+                            {username},
                             {
-                                $set: { password },
+                                $set: {password},
                             },
                         ),
                     )
@@ -134,7 +177,7 @@ export class UsersService {
     }
 
     getAuth(username: string, password: string): Observable<UserView> {
-        return from(this.userModel.findOne({ username })).pipe(
+        return from(this.userModel.findOne({username})).pipe(
             switchMap((user) => {
                 if (!user) {
                     throw new Error(`User not found`);
@@ -147,7 +190,7 @@ export class UsersService {
                     user: of(user),
                 });
             }),
-            map(({ user, isValid }) => {
+            map(({user, isValid}) => {
                 if (!isValid) {
                     throw new Error(`Invalid password`);
                 }
@@ -167,11 +210,11 @@ export class UsersService {
         username: string,
         isActive: boolean,
     ): Observable<UpdateWriteOpResult> {
-        return from(this.userModel.updateOne({ username }, { $set: { isActive } }));
+        return from(this.userModel.updateOne({username}, {$set: {isActive}}));
     }
 
     deleteUser(username: string): Observable<DeleteResult> {
-        return from(this.userModel.deleteOne({ username }));
+        return from(this.userModel.deleteOne({username}));
     }
 
     listUsers(
@@ -182,24 +225,24 @@ export class UsersService {
         const filters = {
             ...(
                 filter ? {
-                    $or: [
-                        {
-                            username: {
-                                $regex: `.*${filter}.*`,
+                        $or: [
+                            {
+                                username: {
+                                    $regex: `.*${filter}.*`,
+                                },
                             },
-                        },
-                        {
-                            name: {
-                                $regex: `.*${filter}.*`,
+                            {
+                                name: {
+                                    $regex: `.*${filter}.*`,
+                                },
                             },
-                        },
-                        {
-                            description: {
-                                $regex: `.*${filter}.*`,
+                            {
+                                description: {
+                                    $regex: `.*${filter}.*`,
+                                },
                             },
-                        },
-                    ],
-                }
+                        ],
+                    }
                     : {}
             )
         };
@@ -219,7 +262,7 @@ export class UsersService {
                     }),
                 ),
             ),
-            map(({ list, count }) => {
+            map(({list, count}) => {
                 return {
                     items: list,
                     totalItemsCount: count,

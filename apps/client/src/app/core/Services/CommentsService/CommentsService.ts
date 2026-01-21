@@ -26,4 +26,8 @@ export class CommentsService {
     deleteComment(commentId: string): Observable<Comment> {
         return this.apiCommentsService.commentsControllerRemove(commentId);
     }
+
+    requestAiSummary(reportId: string): Observable<Comment | undefined> {
+      return this.apiCommentsService.commentsControllerRequestAiSummary({reportId});
+    }
 }

@@ -1,19 +1,24 @@
 import {ForbiddenException, Injectable, NotFoundException,} from '@nestjs/common';
 import {InjectModel} from '@nestjs/mongoose';
 import {Model} from 'mongoose';
-import {from, map, Observable, of, switchMap} from 'rxjs';
+import {from, map, Observable, of, switchMap, tap, throwError} from 'rxjs';
 import {AsFilteredListOf} from '../../database/filtered-list';
 import {
     Comment,
     COMMENT_LIST_PROJECTION,
     CommentDocument,
-    CreateComment,
+    CreateComment, RequestAiSummaryComment,
     UpdateComment,
 } from '../../database/schemas/comment.schema';
 import {Report, ReportDocument} from '../../database/schemas/report.schema';
 import {Role} from '../../database/schemas/roles.schema';
 import {User, UserDocument, UserView,} from '../../database/schemas/user.schema';
 import {nanoid} from 'nanoid';
+import {GridFSBucketReadStream} from "mongodb";
+import {ReportFilteredList} from "../reports/reports.service";
+import {AiService} from "../ai/ai.service";
+import {UsersService} from "../users/users.service";
+import {Severity} from "../../database/schemas/severity.schema";
 
 export const CommentFilteredListClass = AsFilteredListOf(Comment);
 export type CommentFilteredList = InstanceType<typeof CommentFilteredListClass>;
@@ -26,6 +31,8 @@ export class CommentsService {
         @InjectModel(Report.name)
         private readonly reportModel: Model<ReportDocument>,
         @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
+        private readonly aiService: AiService,
+        private readonly usersService: UsersService
     ) {
     }
 
@@ -105,6 +112,56 @@ export class CommentsService {
                 );
             }),
         );
+    }
+
+    generateSummary(req: RequestAiSummaryComment, requester: string): Observable<Comment | undefined> {
+        if (!this.usersService._aiAccountId) {
+            console.error(new Error('Couldn\'t find default AI account to post comment. Please, restart NG Reports server.'));
+            return of(undefined);
+        }
+        return this.aiService.processReport(req.reportId)
+            .pipe(
+                switchMap((result) => {
+                    let severity = '';
+                    switch (+(result.severity ?? 99)) {
+                        case Severity.Information:
+                            severity = 'Info';
+                            break;
+                        case Severity.Warning:
+                            severity = 'Warning';
+                            break;
+                        case Severity.Error:
+                            severity = 'Error';
+                            break;
+                        case Severity.CriticalError:
+                            severity = 'Critical';
+                            break;
+                        default:
+                            severity = 'Unknown';
+                    }
+
+                    const newComment = new this.commentModel({
+                        reportId: req.reportId,
+                        content: `@${requester}, report severity: ${severity};    ${result.summary}`,
+                        commentId: nanoid(),
+                        author: this.usersService._aiAccountId,
+                        date: new Date(),
+                    });
+
+                    return from(newComment.save()).pipe(
+                        switchMap((savedComment) =>
+                            from(
+                                this.reportModel
+                                    .updateOne(
+                                        {_id: req.reportId},
+                                        {$push: {comments: savedComment._id}},
+                                    )
+                                    .exec(),
+                            ).pipe(map(() => savedComment)),
+                        )
+                    );
+                })
+            );
     }
 
     update(

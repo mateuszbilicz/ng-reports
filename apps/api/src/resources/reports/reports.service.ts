@@ -1,7 +1,7 @@
 import {Injectable, NotFoundException} from '@nestjs/common';
 import {InjectConnection, InjectModel} from '@nestjs/mongoose';
 import {Connection, Model} from 'mongoose';
-import {forkJoin, from, map, Observable, of, switchMap} from 'rxjs';
+import {filter, forkJoin, from, map, Observable, of, switchMap, tap} from 'rxjs';
 import {AsFilteredListOf} from '../../database/filtered-list';
 import {
     Comment,
@@ -20,6 +20,9 @@ import {
 import {Severity} from '../../database/schemas/severity.schema';
 import {MongoGridFS} from 'mongo-gridfs';
 import {GridFSBucketReadStream} from 'mongodb';
+import {AiService} from "../ai/ai.service";
+import {SystemConfigurationService} from "../system-configuration/system-configuration.service";
+import {SystemConfig} from "../system-configuration/system-config";
 
 export const ReportFilteredListClass = AsFilteredListOf(Report);
 export type ReportFilteredList = InstanceType<typeof ReportFilteredListClass>;
@@ -27,6 +30,7 @@ export type ReportFilteredList = InstanceType<typeof ReportFilteredListClass>;
 @Injectable()
 export class ReportsService {
     gridFS: MongoGridFS;
+    private systemConfig: SystemConfig;
 
     constructor(
         @InjectModel(Report.name)
@@ -36,8 +40,31 @@ export class ReportsService {
         @InjectModel(Comment.name)
         private readonly commentModel: Model<CommentDocument>,
         @InjectConnection() private readonly connection: Connection,
+        private readonly aiService: AiService,
+        private readonly systemConfigurationService: SystemConfigurationService
     ) {
         this.gridFS = new MongoGridFS(connection.db as any, 'fs');
+        this.systemConfig = systemConfigurationService.config.getValue();
+        this.systemConfigurationService.config.subscribe((config) => {
+            this.systemConfig = config;
+        });
+    }
+
+    private autoRunAiOn(reportId: string) {
+        this.aiService.addProcessReportToQueue(reportId)
+            .pipe(
+                map(result => ({
+                        ...(this.systemConfig.enableAIAutoSeverityAssignation ? {
+                            severity: result.severity ?? 0
+                        } : {}),
+                        ...(this.systemConfig.enableAIAutoSummaryGeneration ? {
+                            summary: result.summary ?? ''
+                        } : {}),
+                })),
+                filter(({severity, summary}) => typeof severity === 'number' || typeof summary === 'string'),
+                switchMap(updateReport => this.update(reportId, updateReport))
+            )
+            .subscribe()
     }
 
     readStream(id: string): Observable<GridFSBucketReadStream> {
@@ -100,7 +127,13 @@ export class ReportsService {
                             {$push: {reports: savedReport._id}},
                         )
                         .exec(),
-                ).pipe(map(() => savedReport)),
+                ).pipe(
+                    tap((res) => {
+                        if (res.upsertedId)
+                            this.autoRunAiOn(res.upsertedId + '');
+                    }),
+                    map(() => savedReport),
+                ),
             ),
         ) as Observable<Report>;
     }

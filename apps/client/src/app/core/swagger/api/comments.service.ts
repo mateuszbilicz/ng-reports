@@ -19,8 +19,9 @@ import { Observable }                                        from 'rxjs';
 
 import { Comment } from '../model/comment';
 import { CreateComment } from '../model/createComment';
+import { Fe9d085f83949de3e9e8c } from '../model/fe9d085f83949de3e9e8c';
 import { InlineResponse400 } from '../model/inlineResponse400';
-import { Model76d70324b85dc52481909 } from '../model/model76d70324b85dc52481909';
+import { RequestAiSummaryComment } from '../model/requestAiSummaryComment';
 import { UpdateComment } from '../model/updateComment';
 
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
@@ -118,9 +119,9 @@ export class CommentsService {
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public commentsControllerFindAll(reportId: string, dateFrom?: Date, dateTo?: Date, filter?: string, limit?: number, skip?: number, observe?: 'body', reportProgress?: boolean): Observable<Model76d70324b85dc52481909>;
-    public commentsControllerFindAll(reportId: string, dateFrom?: Date, dateTo?: Date, filter?: string, limit?: number, skip?: number, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Model76d70324b85dc52481909>>;
-    public commentsControllerFindAll(reportId: string, dateFrom?: Date, dateTo?: Date, filter?: string, limit?: number, skip?: number, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Model76d70324b85dc52481909>>;
+    public commentsControllerFindAll(reportId: string, dateFrom?: Date, dateTo?: Date, filter?: string, limit?: number, skip?: number, observe?: 'body', reportProgress?: boolean): Observable<Fe9d085f83949de3e9e8c>;
+    public commentsControllerFindAll(reportId: string, dateFrom?: Date, dateTo?: Date, filter?: string, limit?: number, skip?: number, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Fe9d085f83949de3e9e8c>>;
+    public commentsControllerFindAll(reportId: string, dateFrom?: Date, dateTo?: Date, filter?: string, limit?: number, skip?: number, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Fe9d085f83949de3e9e8c>>;
     public commentsControllerFindAll(reportId: string, dateFrom?: Date, dateTo?: Date, filter?: string, limit?: number, skip?: number, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
 
         if (reportId === null || reportId === undefined) {
@@ -167,7 +168,7 @@ export class CommentsService {
         const consumes: string[] = [
         ];
 
-        return this.httpClient.request<Model76d70324b85dc52481909>('get',`${this.basePath}/comments`,
+        return this.httpClient.request<Fe9d085f83949de3e9e8c>('get',`${this.basePath}/comments`,
             {
                 params: queryParameters,
                 withCredentials: this.configuration.withCredentials,
@@ -211,6 +212,53 @@ export class CommentsService {
 
         return this.httpClient.request<Comment>('delete',`${this.basePath}/comments/${encodeURIComponent(String(commentId))}`,
             {
+                withCredentials: this.configuration.withCredentials,
+                headers: headers,
+                observe: observe,
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * 
+     * 
+     * @param body 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     */
+    public commentsControllerRequestAiSummary(body: RequestAiSummaryComment, observe?: 'body', reportProgress?: boolean): Observable<Comment>;
+    public commentsControllerRequestAiSummary(body: RequestAiSummaryComment, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Comment>>;
+    public commentsControllerRequestAiSummary(body: RequestAiSummaryComment, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Comment>>;
+    public commentsControllerRequestAiSummary(body: RequestAiSummaryComment, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+
+        if (body === null || body === undefined) {
+            throw new Error('Required parameter body was null or undefined when calling commentsControllerRequestAiSummary.');
+        }
+
+        let headers = this.defaultHeaders;
+
+        // to determine the Accept header
+        let httpHeaderAccepts: string[] = [
+            'application/json'
+        ];
+        const httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+        if (httpHeaderAcceptSelected != undefined) {
+            headers = headers.set('Accept', httpHeaderAcceptSelected);
+        }
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/json'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected != undefined) {
+            headers = headers.set('Content-Type', httpContentTypeSelected);
+        }
+
+        return this.httpClient.request<Comment>('post',`${this.basePath}/comments/request-ai`,
+            {
+                body: body,
                 withCredentials: this.configuration.withCredentials,
                 headers: headers,
                 observe: observe,

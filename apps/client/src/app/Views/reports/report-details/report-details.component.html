@@ -129,7 +129,15 @@
     }
 
     <div class="card p-0 border-none">
+      <div class="flex flex-row gap-3 align-items-center justify-content-between">
         <h3 class="m-0 mb-3 text-800">Comments</h3>
+        <p-button icon="pi pi-bolt"
+                  label="AI Summary"
+                  severity="help"
+                  size="small"
+                  [loading]="isGeneratingAiSummary()"
+                  (onClick)="requestAiSummary()"/>
+      </div>
 
         <div class="flex flex-column gap-3 mb-4">
             @for (comment of comments(); track comment.commentId) {

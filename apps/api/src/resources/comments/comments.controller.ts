@@ -12,7 +12,7 @@ import { ApiBody, ApiOkResponse, ApiQuery } from '@nestjs/swagger';
 import { Observable } from 'rxjs';
 import {
   Comment,
-  CreateComment,
+  CreateComment, RequestAiSummaryComment,
   UpdateComment,
 } from '../../database/schemas/comment.schema';
 import { User } from '../../database/schemas/user.schema';
@@ -25,6 +25,7 @@ import {
 } from './comments.service';
 import {MinRole} from "../auth/min-role";
 import {Role} from "../../database/schemas/roles.schema";
+import {AIProcessResponse} from "../../database/schemas/ai.schema";
 
 @InitializeController('comments')
 @MinRole(Role.Analyst)
@@ -73,6 +74,24 @@ export class CommentsController {
   ): Observable<Comment> {
     return this.commentsService
       .create(createComment, req.user.username)
+      .pipe(throwPipe('Failed to create comment'));
+  }
+
+  /**
+   * Requests AI summary comment for a specific report.
+   */
+  @ApiOkResponse({
+    description: 'AI writed comment successfully.',
+    type: Comment,
+  })
+  @ApiBody({ type: RequestAiSummaryComment })
+  @Post('/request-ai')
+  requestAiSummary(
+    @Body() reqAi: RequestAiSummaryComment,
+    @Req() req: { user: User },
+  ): Observable<Comment | undefined> {
+    return this.commentsService
+      .generateSummary(reqAi, req.user.username)
       .pipe(throwPipe('Failed to create comment'));
   }
 

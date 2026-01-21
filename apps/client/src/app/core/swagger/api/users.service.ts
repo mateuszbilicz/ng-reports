@@ -18,7 +18,7 @@ import { CustomHttpUrlEncodingCodec }                        from '../encoder';
 import { Observable }                                        from 'rxjs';
 
 import { InlineResponse400 } from '../model/inlineResponse400';
-import { Model62d737259458d5dc95861 } from '../model/model62d737259458d5dc95861';
+import { Model79c715aa4e7a738420edb } from '../model/model79c715aa4e7a738420edb';
 import { UserCreate } from '../model/userCreate';
 import { UserUpdateInformation } from '../model/userUpdateInformation';
 import { UserView } from '../model/userView';
@@ -197,9 +197,9 @@ export class UsersService {
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public usersControllerGetList(filter?: string, skip?: number, limit?: number, observe?: 'body', reportProgress?: boolean): Observable<Model62d737259458d5dc95861>;
-    public usersControllerGetList(filter?: string, skip?: number, limit?: number, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Model62d737259458d5dc95861>>;
-    public usersControllerGetList(filter?: string, skip?: number, limit?: number, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Model62d737259458d5dc95861>>;
+    public usersControllerGetList(filter?: string, skip?: number, limit?: number, observe?: 'body', reportProgress?: boolean): Observable<Model79c715aa4e7a738420edb>;
+    public usersControllerGetList(filter?: string, skip?: number, limit?: number, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Model79c715aa4e7a738420edb>>;
+    public usersControllerGetList(filter?: string, skip?: number, limit?: number, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Model79c715aa4e7a738420edb>>;
     public usersControllerGetList(filter?: string, skip?: number, limit?: number, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
 
 
@@ -231,7 +231,7 @@ export class UsersService {
         const consumes: string[] = [
         ];
 
-        return this.httpClient.request<Model62d737259458d5dc95861>('get',`${this.basePath}/users/list`,
+        return this.httpClient.request<Model79c715aa4e7a738420edb>('get',`${this.basePath}/users/list`,
             {
                 params: queryParameters,
                 withCredentials: this.configuration.withCredentials,

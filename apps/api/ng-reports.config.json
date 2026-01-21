@@ -19,5 +19,8 @@
     "secret": "TEMPORARY_SECRET_LATER_INSERT_SOMETHING_HERE_123!@#",
     "expiresInMinutes": 10
   },
-  "googleAPI": {}
+  "googleAPI": {
+    "generativeAiKey": "",
+    "model": "gemini-3-flash-preview"
+  }
 }

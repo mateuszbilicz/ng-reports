@@ -22,6 +22,7 @@ import {UpdateComment} from '../../../core/swagger/model/updateComment';
 import {Accordion, AccordionContent, AccordionHeader, AccordionPanel} from 'primeng/accordion';
 import {Tooltip} from 'primeng/tooltip';
 import {getSeverityText} from '../../../core/Utils/severity-to-text';
+import {filter, tap} from 'rxjs';
 
 @Component({
   selector: 'app-report-details',
@@ -72,6 +73,7 @@ export class ReportDetailsComponent implements OnInit {
   attachments = computed(() => this.report()?.attachments);
   expandedLogs = new Map<string, boolean>();
   allExpanded = signal<boolean>(false);
+  isGeneratingAiSummary = signal<boolean>(false);
 
   getSeverityText = getSeverityText;
 
@@ -129,6 +131,17 @@ export class ReportDetailsComponent implements OnInit {
       },
       error: () => this.messageService.add({severity: 'error', summary: 'Error', detail: 'Failed to load report'})
     });
+  }
+
+  requestAiSummary() {
+    this.isGeneratingAiSummary.set(true);
+    this.commentsService.requestAiSummary(this.reportId)
+      .pipe(
+        tap(() => this.isGeneratingAiSummary.set(false)),
+        filter(res => !!res),
+        tap(() => this.loadComments())
+      )
+      .subscribe();
   }
 
   loadComments() {

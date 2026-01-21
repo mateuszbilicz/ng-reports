@@ -20,6 +20,7 @@ import { CommentsService } from './resources/comments/comments.service';
 import { StatisticsService } from './resources/statistics/statistics.service';
 import { StatisticsController } from './resources/statistics/statistics.controller';
 import { SystemConfigurationController } from './resources/system-configuration/system-configuration.controller';
+import { AiService } from './resources/ai/ai.service';
 
 @Module({
     imports: [JWT_REGISTER_IMPORT, ...databaseImports],
@@ -41,6 +42,7 @@ import { SystemConfigurationController } from './resources/system-configuration/
         SystemConfigurationService,
         CORSController,
         EnvironmentsService,
+        AiService,
         ReportsService,
         ProjectsService,
         CommentsService,
