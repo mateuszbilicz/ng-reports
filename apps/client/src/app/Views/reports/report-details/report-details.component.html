@@ -61,6 +61,13 @@
             <p-accordion-header>Logs</p-accordion-header>
             <p-accordion-content>
               @if (logs()) {
+                <div class="flex flex-row justify-content-end">
+                  <p-button icon="pi pi-caret-{{allExpanded() ? 'down' : 'up'}}"
+                            label="{{allExpanded() ? 'Collapse' : 'Expand' }} all logs"
+                            severity="help"
+                            size="small"
+                            (onClick)="allExpanded() ? collapseAllLogs() : expandAllLogs()"/>
+                </div>
                 <table class="w-full">
                   <tr>
                     <th class="w-8rem text-left">Type</th><th class="w-10rem text-left">Date</th><th></th>
@@ -85,7 +92,7 @@
                       <tr>
                         <td></td>
                         <td colspan="2">
-                          <pre>{{ log | json }}</pre>
+                          <pre style="overflow-x: auto; max-width:calc(100vw - 30rem)">{{ log | json }}</pre>
                         </td>
                       </tr>
                     }

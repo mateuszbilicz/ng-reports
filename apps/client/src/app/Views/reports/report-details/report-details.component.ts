@@ -71,6 +71,7 @@ export class ReportDetailsComponent implements OnInit {
   formData = computed(() => this.report()?.formData);
   attachments = computed(() => this.report()?.attachments);
   expandedLogs = new Map<string, boolean>();
+  allExpanded = signal<boolean>(false);
 
   getSeverityText = getSeverityText;
 
@@ -108,6 +109,16 @@ export class ReportDetailsComponent implements OnInit {
     this.expandedLogs.has(_uid)
       ? this.expandedLogs.delete(_uid)
       : this.expandedLogs.set(_uid, true);
+  }
+
+  expandAllLogs() {
+    this.allExpanded.set(true);
+    this.expandedLogs = new Map(this.logs().map((log: any) => [log._uid, true]));
+  }
+
+  collapseAllLogs() {
+    this.allExpanded.set(false);
+    this.expandedLogs = new Map();
   }
 
   loadData() {
