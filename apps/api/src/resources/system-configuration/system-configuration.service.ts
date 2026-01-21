@@ -30,7 +30,7 @@ export class SystemConfigurationService {
             ).map((field) => field.fieldName),
             allDefaultFields = [...Object.keys(DEFAULT_SYSTEM_CONFIG)],
             missingFieldsInDatabase = allDefaultFields.filter((field) =>
-                allFieldsFromDatabase.includes(field),
+                !allFieldsFromDatabase.includes(field),
             );
         await this.configFieldModel.insertMany(
             missingFieldsInDatabase.map((fieldName) => ({
