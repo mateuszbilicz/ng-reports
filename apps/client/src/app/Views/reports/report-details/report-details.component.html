@@ -1,31 +1,125 @@
 <div class="card p-3 surface-card shadow-2 border-round">
     <p-toast></p-toast>
     <p-confirmDialog></p-confirmDialog>
-
-    <div *ngIf="report()" class="mb-4">
+    @if (report()) {
+      <div class="mb-4">
         <div class="flex justify-content-between align-items-start mb-3">
-            <div>
-                <h2 class="m-0 text-900">{{ report()!.title }}</h2>
-                <div class="flex align-items-center gap-2 mt-2">
-                    <p-tag [value]="report()!.severity" [severity]="getSeverityColor(report()!.severity)"></p-tag>
-                    <p-tag [value]="report()!.fixed ? 'Fixed' : 'Open'"
-                        [severity]="report()!.fixed ? 'success' : 'danger'"></p-tag>
-                    <span class="text-500 text-sm ml-2">ID: {{ report()!.id }}</span>
-                </div>
+          <div>
+            <h2 class="m-0 text-900">{{ report()!.title }}</h2>
+            <div class="flex align-items-center gap-2 mt-2">
+              <p-tag [value]="getSeverityText(report()!.severity)" [severity]="getSeverityColor(report()!.severity)"></p-tag>
+              <p-tag [value]="report()!.fixed ? 'Fixed' : 'Open'"
+                     [severity]="report()!.fixed ? 'success' : 'danger'"></p-tag>
+              <span class="text-500 text-sm ml-2">ID: {{ report()!._id }}</span>
+              <span class="text-500 text-sm ml-2">Date: {{ date() | date:'dd/MM/yyyy HH:mm' }}</span>
             </div>
-            <div class="flex gap-2">
-                <p-button label="Edit Report" icon="pi pi-pencil" styleClass="p-button-outlined"
-                    (onClick)="editReport()"></p-button>
-                <p-button label="Back" icon="pi pi-arrow-left" styleClass="p-button-secondary p-button-text"
-                    (onClick)="goBack()"></p-button>
-            </div>
+          </div>
+          <div class="flex gap-2">
+            <p-button label="Edit Report" icon="pi pi-pencil" styleClass="p-button-outlined"
+                      (onClick)="editReport()"></p-button>
+            <p-button label="Back" icon="pi pi-arrow-left" styleClass="p-button-secondary p-button-text"
+                      (onClick)="goBack()"></p-button>
+          </div>
         </div>
 
         <div class="surface-ground p-3 border-round mb-3">
-            <h4 class="m-0 mb-2">Details</h4>
-            <p class="white-space-pre-wrap m-0">{{ report()!.details || 'No details provided.' }}</p>
+          <h4 class="m-0 mb-2">Details</h4>
+          <p class="white-space-pre-wrap m-0">{{ report()!.details || 'No details provided.' }}</p>
         </div>
-    </div>
+
+        <p-accordion>
+          <p-accordion-panel value="0">
+            <p-accordion-header>Environment</p-accordion-header>
+            <p-accordion-content>
+              <div class="flex flex-column gap-1 w-full">
+                <div><span class="font-semibold">App Environment:&nbsp;</span><span>{{environment().appEnvironment}}</span></div>
+                <div><span class="font-semibold">App Version:&nbsp;</span><span>{{environment().appVersion ?? 'unknown'}}</span></div>
+                <div><span class="font-semibold">App Language:&nbsp;</span><span>{{environment().appLanguage}}</span></div>
+                <div><span class="font-semibold">UserAgent:&nbsp;</span><span>{{environment().userAgent}}</span></div>
+                <div><span class="font-semibold">Browser Name:&nbsp;</span><span>{{environment().browserAppName}}</span></div>
+                <div class="flex flex-column gap-1 w-full">
+                  <span class="font-semibold">Browser Extensions:&nbsp;</span>
+                  @if (environment().extensions?.length > 0) {
+                    <ul>
+                      @for (ext of (environment().extensions ?? []); track ext) {
+                        <li>{{ext}}</li>
+                      }
+                    </ul>
+                  } @else {
+                    <span class="ml-3">No extensions found.</span>
+                  }
+                </div>
+                <div><span class="font-semibold">Panel URL:&nbsp;</span><span>{{environment().panelUrl}}</span></div>
+                <div><span class="font-semibold">Route:&nbsp;</span><span>{{environment().route}}</span></div>
+                <div><span class="font-semibold">Connection type:&nbsp;</span><span>{{environment().connectionType}}</span></div>
+                <div><span class="font-semibold">RAM:&nbsp;</span><span>{{environment().ram ?? '??'}} GB</span></div>
+                <div><span class="font-semibold">Window size:&nbsp;</span><span>{{environment().windowSize.width}}x{{environment().windowSize.height}}</span></div>
+              </div>
+            </p-accordion-content>
+          </p-accordion-panel>
+          <p-accordion-panel value="1">
+            <p-accordion-header>Logs</p-accordion-header>
+            <p-accordion-content>
+              @if (logs()) {
+                <table class="w-full">
+                  <tr>
+                    <th class="w-8rem text-left">Type</th><th class="w-10rem text-left">Date</th><th></th>
+                  </tr>
+                  @for (log of logs(); track log._uid) {
+                    <tr class="hover:bg-black-alpha-10">
+                      <td class="w-8rem">{{ log.type }}</td>
+                      <td class="w-10rem">{{ log.timestamp | date:'dd/MM/yyyy HH:mm' }}</td>
+                      <td>
+                        <div class="flex justify-content-end w-full">
+                          <p-button icon="pi pi-chevron-{{ expandedLogs.has(log._uid) ? 'down' : 'up' }}"
+                                    text
+                                    severity="help"
+                                    size="small"
+                                    pTooltip="Details"
+                                    tooltipPosition="left"
+                                    (onClick)="toggleLogExpand(log._uid)"/>
+                        </div>
+                      </td>
+                    </tr>
+                    @if (expandedLogs.has(log._uid)) {
+                      <tr>
+                        <td></td>
+                        <td colspan="2">
+                          <pre>{{ log | json }}</pre>
+                        </td>
+                      </tr>
+                    }
+                  }
+                </table>
+
+              } @else {
+                <span>No logs found.</span>
+              }
+            </p-accordion-content>
+          </p-accordion-panel>
+          @if (formData()) {
+            <p-accordion-panel value="2">
+              <p-accordion-header>Form Data</p-accordion-header>
+              <p-accordion-content>
+                <pre>{{ formData | json }}</pre>
+              </p-accordion-content>
+            </p-accordion-panel>
+          }
+          @if (formData()) {
+            <p-accordion-panel value="3">
+              <p-accordion-header>Attachments</p-accordion-header>
+              <p-accordion-content></p-accordion-content>
+            </p-accordion-panel>
+          }
+          <p-accordion-panel value="4">
+            <p-accordion-header>User</p-accordion-header>
+            <p-accordion-content>
+              <pre>{{user() | json}}</pre>
+            </p-accordion-content>
+          </p-accordion-panel>
+        </p-accordion>
+      </div>
+    }
 
     <div class="card p-0 border-none">
         <h3 class="m-0 mb-3 text-800">Comments</h3>
@@ -97,7 +191,7 @@
     <p-dialog [(visible)]="commentEditDialog" [style]="{ width: '450px' }" header="Edit Comment" [modal]="true"
         styleClass="p-fluid">
         <ng-template pTemplate="content">
-            <div class="field mt-3">
+            <div class="field flex flex-column gap-2mt-3">
                 <label for="editCommentText">Content</label>
                 <textarea pInputTextarea id="editCommentText" [(ngModel)]="editingCommentText" rows="3"
                     [autoResize]="true"></textarea>
