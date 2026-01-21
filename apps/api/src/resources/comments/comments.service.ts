@@ -1,21 +1,20 @@
 import {ForbiddenException, Injectable, NotFoundException,} from '@nestjs/common';
 import {InjectModel} from '@nestjs/mongoose';
 import {Model} from 'mongoose';
-import {from, map, Observable, of, switchMap, tap, throwError} from 'rxjs';
+import {from, map, Observable, of, switchMap} from 'rxjs';
 import {AsFilteredListOf} from '../../database/filtered-list';
 import {
     Comment,
     COMMENT_LIST_PROJECTION,
     CommentDocument,
-    CreateComment, RequestAiSummaryComment,
+    CreateComment,
+    RequestAiSummaryComment,
     UpdateComment,
 } from '../../database/schemas/comment.schema';
 import {Report, ReportDocument} from '../../database/schemas/report.schema';
 import {Role} from '../../database/schemas/roles.schema';
 import {User, UserDocument, UserView,} from '../../database/schemas/user.schema';
 import {nanoid} from 'nanoid';
-import {GridFSBucketReadStream} from "mongodb";
-import {ReportFilteredList} from "../reports/reports.service";
 import {AiService} from "../ai/ai.service";
 import {UsersService} from "../users/users.service";
 import {Severity} from "../../database/schemas/severity.schema";
@@ -139,10 +138,13 @@ export class CommentsService {
                         default:
                             severity = 'Unknown';
                     }
+                    const content = (typeof result.severity !== "number" && typeof result.summary !== 'string')
+                        ? 'AI Summary is not enabled for this NG Reports instance or Gemini API key is not provided in the server configuration file.'
+                        : `@${requester}, report severity: ${severity};    ${result.summary}`;
 
                     const newComment = new this.commentModel({
                         reportId: req.reportId,
-                        content: `@${requester}, report severity: ${severity};    ${result.summary}`,
+                        content,
                         commentId: nanoid(),
                         author: this.usersService._aiAccountId,
                         date: new Date(),
@@ -201,7 +203,7 @@ export class CommentsService {
     remove(commentId: string, user: User): Observable<Comment> {
         return from(
             this.commentModel
-                .findById<Comment>(commentId)
+                .findOne<Comment>({commentId})
                 .populate<{ author: UserView }>('author')
                 .exec(),
         ).pipe(
@@ -219,7 +221,7 @@ export class CommentsService {
                     );
                 }
 
-                return from(this.commentModel.findByIdAndDelete(commentId).exec()).pipe(
+                return from(this.commentModel.findOneAndDelete({commentId}).exec()).pipe(
                     switchMap((deletedComment) => {
                         if (!deletedComment) return of(null);
                         // Find the report by checking its comments array for the deleted comment's _id

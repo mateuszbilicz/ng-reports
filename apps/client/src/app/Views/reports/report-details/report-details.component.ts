@@ -229,7 +229,7 @@ export class ReportDetailsComponent implements OnInit {
 
   deleteComment(comment: Comment) {
     this.confirmationService.confirm({
-      message: 'Delete comment?',
+      header: 'Delete comment?',
       accept: () => {
         this.commentsService.deleteComment(comment.commentId!).subscribe(() => {
           this.loadComments();

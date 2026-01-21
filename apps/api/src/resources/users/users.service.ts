@@ -83,7 +83,7 @@ export class UsersService {
                             username: 'system-ai',
                             password: hashedPassword,
                             name: 'System AI',
-                            description: 'Default system AI account. Don\'t delete this account cause it might generate problems with AI',
+                            description: 'Default system AI account. Don\'t delete this account, cause it might generate problems with AI',
                             role: Role.Admin,
                             createDate: new Date(),
                             isActive: true
