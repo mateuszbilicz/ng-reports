@@ -26,8 +26,7 @@ export class NgReportsComponent {
     isSent = signal(false);
 
     constructor() {
-        // Reset state when opening
-        // We can effect on isOpen signal but simple setter manual logic usage is also fine
+        this.formService.loadData();
     }
 
     close() {
