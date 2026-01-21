@@ -79,7 +79,7 @@ importers:
         specifier: ^9.18.0
         version: 9.39.1
       '@nestjs/cli':
-        specifier: ^11.0.0
+        specifier: ^11.0.14
         version: 11.0.14(@types/node@22.19.1)
       '@nestjs/schematics':
         specifier: ^11.0.0
@@ -2127,6 +2127,7 @@ packages:
 
   '@primeng/themes@21.0.2':
     resolution: {integrity: sha512-wSw8BtrNUZBmgU5umzMj9WQKVyrLRQkAYORnRYI4wD6+TXVb/J2kQLHCA26vHbXfI6pO4fruft9mySFWlzXk0Q==}
+    deprecated: 'Deprecated. This package is no longer maintained. Please migrate to @primeuix/themes: https://www.npmjs.com/package/@primeuix/themes'
 
   '@primeuix/motion@0.0.10':
     resolution: {integrity: sha512-PsZwOPq79Scp7/ionshRcQ5xKVf9+zuLcyY5mf6onK8chHT5C9JGphmcIZ4CzcqxuGEpsm8AIbTGy+zS3RtzLA==}

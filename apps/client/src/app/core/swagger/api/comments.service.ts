@@ -20,7 +20,7 @@ import { Observable }                                        from 'rxjs';
 import { Comment } from '../model/comment';
 import { CreateComment } from '../model/createComment';
 import { InlineResponse400 } from '../model/inlineResponse400';
-import { Model0d129e8b02714c63d79f0 } from '../model/model0d129e8b02714c63d79f0';
+import { Model76d70324b85dc52481909 } from '../model/model76d70324b85dc52481909';
 import { UpdateComment } from '../model/updateComment';
 
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
@@ -118,9 +118,9 @@ export class CommentsService {
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public commentsControllerFindAll(reportId: string, dateFrom?: Date, dateTo?: Date, filter?: string, limit?: number, skip?: number, observe?: 'body', reportProgress?: boolean): Observable<Model0d129e8b02714c63d79f0>;
-    public commentsControllerFindAll(reportId: string, dateFrom?: Date, dateTo?: Date, filter?: string, limit?: number, skip?: number, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Model0d129e8b02714c63d79f0>>;
-    public commentsControllerFindAll(reportId: string, dateFrom?: Date, dateTo?: Date, filter?: string, limit?: number, skip?: number, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Model0d129e8b02714c63d79f0>>;
+    public commentsControllerFindAll(reportId: string, dateFrom?: Date, dateTo?: Date, filter?: string, limit?: number, skip?: number, observe?: 'body', reportProgress?: boolean): Observable<Model76d70324b85dc52481909>;
+    public commentsControllerFindAll(reportId: string, dateFrom?: Date, dateTo?: Date, filter?: string, limit?: number, skip?: number, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Model76d70324b85dc52481909>>;
+    public commentsControllerFindAll(reportId: string, dateFrom?: Date, dateTo?: Date, filter?: string, limit?: number, skip?: number, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Model76d70324b85dc52481909>>;
     public commentsControllerFindAll(reportId: string, dateFrom?: Date, dateTo?: Date, filter?: string, limit?: number, skip?: number, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
 
         if (reportId === null || reportId === undefined) {
@@ -167,7 +167,7 @@ export class CommentsService {
         const consumes: string[] = [
         ];
 
-        return this.httpClient.request<Model0d129e8b02714c63d79f0>('get',`${this.basePath}/comments`,
+        return this.httpClient.request<Model76d70324b85dc52481909>('get',`${this.basePath}/comments`,
             {
                 params: queryParameters,
                 withCredentials: this.configuration.withCredentials,

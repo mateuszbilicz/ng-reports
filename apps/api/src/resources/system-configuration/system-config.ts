@@ -7,9 +7,9 @@ export interface SystemConfig {
   allowReportsIncomeFromUnknownSources: boolean;
   /** enables AI summary generation */
   enableAISummary: boolean;
-  /** enabled AI auto summary generation */
+  /** enabled AI auto severity assignation */
   enableAIAutoSeverityAssignation: boolean;
-  /** enabled AU auto summary generation */
+  /** enabled AI auto summary generation */
   enableAIAutoSummaryGeneration: boolean;
   /** enables including project description to the summary generation context for AI */
   summaryGenerationIncludeProjectDescription: boolean;

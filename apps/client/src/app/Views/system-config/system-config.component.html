@@ -1,0 +1,137 @@
+<h1><i class="pi pi-shield mr-2 text-2xl"></i>System configuration</h1>
+<p-message severity="warn"
+           class="mb-3">
+  WARNING! Changing system configuration might affect current and incoming reports. Edit these settings with caution!
+</p-message>
+<form class="flex flex-column gap-2 w-full"
+      [formGroup]="configForm">
+  <div class="flex flex-column gap-1 w-full m-1 surface-200 border-round-xl p-3 shadow-2">
+    <label for="reportsRetentionInMonths"><h2 class="m-0 p-0">Reports retention time</h2></label>
+    <p class="m-0 p-0">
+      Delete reports after N months.
+    </p>
+    <p-inputNumber formControlName="reportsRetentionInMonths"
+                   inputId="reportsRetentionInMonths"
+                   [step]="1"
+                   [min]="0"
+                   suffix=" months"
+                   showButtons
+                   inputStyleClass="w-10rem"/>
+  </div>
+  <div class="flex flex-column gap-1 w-full m-1 surface-200 border-round-xl p-3 shadow-2">
+    <label for="inactiveUsersRetentionInMonths"><h2 class="m-0 p-0">Inactive users retention time</h2></label>
+    <p class="m-0 p-0">
+      Delete inactive users after N months.
+    </p>
+    <p-inputNumber formControlName="inactiveUsersRetentionInMonths"
+                   inputId="inactiveUsersRetentionInMonths"
+                   [step]="1"
+                   [min]="0"
+                   suffix=" months"
+                   showButtons
+                   inputStyleClass="w-10rem"/>
+  </div>
+  <div class="flex flex-column gap-1 w-full m-1 surface-200 border-round-xl p-3 shadow-2">
+    <label for="allowReportsIncomeFromUnknownSources"><h2  class="m-0 p-0">Allow reports from unknown sources</h2></label>
+    <p class="m-0 p-0">
+      Enable CORS any.
+    </p>
+    <p-toggle-switch formControlName="allowReportsIncomeFromUnknownSources"
+                     inputId="allowReportsIncomeFromUnknownSources"/>
+  </div>
+  <div class="flex flex-column gap-1 w-full m-1 surface-200 border-round-xl p-3 shadow-2">
+    <label for="enableAISummary"><h2  class="m-0 p-0">Enable AI summary</h2></label>
+    <p class="m-0 p-0">
+      Enables AI summary generation.
+    </p>
+    <p-toggle-switch formControlName="enableAISummary"
+                     inputId="enableAISummary"/>
+  </div>
+  <div class="flex flex-column gap-1 w-full m-1 surface-200 border-round-xl p-3 shadow-2">
+    <label for="enableAIAutoSeverityAssignation"><h2  class="m-0 p-0">Enable automated AI severity assignation.</h2></label>
+    <p class="m-0 p-0">
+      Enables AI auto severity assignation.
+    </p>
+    <p-toggle-switch formControlName="enableAIAutoSeverityAssignation"
+                     inputId="enableAIAutoSeverityAssignation"/>
+  </div>
+  <div class="flex flex-column gap-1 w-full m-1 surface-200 border-round-xl p-3 shadow-2">
+    <label for="enableAIAutoSummaryGeneration"><h2  class="m-0 p-0">Enable automated AI summary generation</h2></label>
+    <p class="m-0 p-0">
+      Enables AI auto summary generation
+    </p>
+    <p-toggle-switch formControlName="enableAIAutoSummaryGeneration"
+                     inputId="enableAIAutoSummaryGeneration"/>
+  </div>
+  <div class="flex flex-column gap-1 w-full m-1 surface-200 border-round-xl p-3 shadow-2">
+    <label for="summaryGenerationIncludeProjectDescription"><h2  class="m-0 p-0">Attach project description to AI context</h2></label>
+    <p class="m-0 p-0">
+      Enables including project description to the summary generation context for AI.
+    </p>
+    <p-toggle-switch formControlName="summaryGenerationIncludeProjectDescription"
+                     inputId="summaryGenerationIncludeProjectDescription"/>
+  </div>
+  <div class="flex flex-column gap-1 w-full m-1 surface-200 border-round-xl p-3 shadow-2">
+    <label for="summaryGenerationIncludeProjectEnvironment"><h2  class="m-0 p-0">Attach project environment to AI context</h2></label>
+    <p class="m-0 p-0">
+      Enables including project environment to the summary generation context for AI.
+    </p>
+    <p-toggle-switch formControlName="summaryGenerationIncludeProjectEnvironment"
+                     inputId="summaryGenerationIncludeProjectEnvironment"/>
+  </div>
+  <div class="flex flex-column gap-1 w-full m-1 surface-200 border-round-xl p-3 shadow-2">
+    <label for="summaryGenerationIncludeReportDetails"><h2  class="m-0 p-0">Attach report details to AI context</h2></label>
+    <p class="m-0 p-0">
+      Enables including report details to the summary generation context for AI.
+    </p>
+    <p-toggle-switch formControlName="summaryGenerationIncludeReportDetails"
+                     inputId="summaryGenerationIncludeReportDetails"/>
+  </div>
+  <div class="flex flex-column gap-1 w-full m-1 surface-200 border-round-xl p-3 shadow-2">
+    <label for="summaryGenerationIncludeReportLogs"><h2  class="m-0 p-0">Attach report logs to AI context</h2></label>
+    <p class="m-0 p-0">
+      Enables including report logs to the summary generation context for AI.
+    </p>
+    <p-toggle-switch formControlName="summaryGenerationIncludeReportLogs"
+                     inputId="summaryGenerationIncludeReportLogs"/>
+  </div>
+  <div class="flex flex-column gap-1 w-full m-1 surface-200 border-round-xl p-3 shadow-2">
+    <label for="summaryGenerationIncludeReportFormData"><h2  class="m-0 p-0">Attach form data to AI context</h2></label>
+    <p class="m-0 p-0">
+      Enables including report form data to the summary generation context for AI.
+    </p>
+    <p-toggle-switch formControlName="summaryGenerationIncludeReportFormData"
+                     inputId="summaryGenerationIncludeReportFormData"/>
+  </div>
+  <div class="flex flex-column gap-1 w-full m-1 surface-200 border-round-xl p-3 shadow-2">
+    <label for="summaryGenerationIncludeReportEnvironment"><h2  class="m-0 p-0">Attach report environment to AI context</h2></label>
+    <p class="m-0 p-0">
+      Enables including report environment to the summary generation context for AI.
+    </p>
+    <p-toggle-switch formControlName="summaryGenerationIncludeReportEnvironment"
+                     inputId="summaryGenerationIncludeReportEnvironment"/>
+  </div>
+  <div class="flex flex-column gap-1 w-full m-1 surface-200 border-round-xl p-3 shadow-2">
+    <label for="summaryGenerationIncludeComments"><h2  class="m-0 p-0">Attach report comments to AI context</h2></label>
+    <p class="m-0 p-0">
+      Enables including comments to the summary generation context for AI.
+    </p>
+    <p-toggle-switch formControlName="summaryGenerationIncludeComments"
+                     inputId="summaryGenerationIncludeComments"/>
+  </div>
+  <div class="flex flex-row gap-2 w-full justify-content-end align-items-center">
+    <p-button icon="pi pi-times"
+              label="Reset"
+              severity="secondary"
+              text
+              [disabled]="loading()"
+              (onClick)="load()"/>
+    <p-button icon="pi pi-save"
+              label="Save"
+              severity="warn"
+              [disabled]="configForm.invalid"
+              [loading]="loading()"
+              (onClick)="save()"/>
+  </div>
+</form>
+<p-toast/>

@@ -19,6 +19,7 @@ import { CommentsController } from './resources/comments/comments.controller';
 import { CommentsService } from './resources/comments/comments.service';
 import { StatisticsService } from './resources/statistics/statistics.service';
 import { StatisticsController } from './resources/statistics/statistics.controller';
+import { SystemConfigurationController } from './resources/system-configuration/system-configuration.controller';
 
 @Module({
     imports: [JWT_REGISTER_IMPORT, ...databaseImports],
@@ -30,6 +31,7 @@ import { StatisticsController } from './resources/statistics/statistics.controll
         ProjectsController,
         CommentsController,
         StatisticsController,
+        SystemConfigurationController,
     ],
     providers: [
         ShutdownObserver,

@@ -18,9 +18,9 @@ import { CustomHttpUrlEncodingCodec }                        from '../encoder';
 import { Observable }                                        from 'rxjs';
 
 import { Comment } from '../model/comment';
-import { Fa182c91546200d129e8b } from '../model/fa182c91546200d129e8b';
 import { GridFSBucketReadStream } from '../model/gridFSBucketReadStream';
 import { InlineResponse400 } from '../model/inlineResponse400';
+import { Model458d5dc95861976d70324 } from '../model/model458d5dc95861976d70324';
 import { NgReportsAttachmentImage } from '../model/ngReportsAttachmentImage';
 import { NgReportsAuthUserPartial } from '../model/ngReportsAuthUserPartial';
 import { NgReportsEnvironment } from '../model/ngReportsEnvironment';
@@ -348,9 +348,9 @@ export class ReportsService {
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public reportsControllerFindAll(environmentId: string, filter?: string, limit?: number, skip?: number, observe?: 'body', reportProgress?: boolean): Observable<Fa182c91546200d129e8b>;
-    public reportsControllerFindAll(environmentId: string, filter?: string, limit?: number, skip?: number, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Fa182c91546200d129e8b>>;
-    public reportsControllerFindAll(environmentId: string, filter?: string, limit?: number, skip?: number, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Fa182c91546200d129e8b>>;
+    public reportsControllerFindAll(environmentId: string, filter?: string, limit?: number, skip?: number, observe?: 'body', reportProgress?: boolean): Observable<Model458d5dc95861976d70324>;
+    public reportsControllerFindAll(environmentId: string, filter?: string, limit?: number, skip?: number, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Model458d5dc95861976d70324>>;
+    public reportsControllerFindAll(environmentId: string, filter?: string, limit?: number, skip?: number, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Model458d5dc95861976d70324>>;
     public reportsControllerFindAll(environmentId: string, filter?: string, limit?: number, skip?: number, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
 
         if (environmentId === null || environmentId === undefined) {
@@ -389,7 +389,7 @@ export class ReportsService {
         const consumes: string[] = [
         ];
 
-        return this.httpClient.request<Fa182c91546200d129e8b>('get',`${this.basePath}/reports`,
+        return this.httpClient.request<Model458d5dc95861976d70324>('get',`${this.basePath}/reports`,
             {
                 params: queryParameters,
                 withCredentials: this.configuration.withCredentials,

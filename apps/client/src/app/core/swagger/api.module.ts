@@ -9,6 +9,7 @@ import { EnvironmentsService } from './api/environments.service';
 import { ProjectsService } from './api/projects.service';
 import { ReportsService } from './api/reports.service';
 import { StatisticsService } from './api/statistics.service';
+import { SystemConfigurationService } from './api/systemConfiguration.service';
 import { UsersService } from './api/users.service';
 
 @NgModule({
@@ -22,6 +23,7 @@ import { UsersService } from './api/users.service';
     ProjectsService,
     ReportsService,
     StatisticsService,
+    SystemConfigurationService,
     UsersService ]
 })
 export class ApiModule {
