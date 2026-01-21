@@ -14,6 +14,7 @@ import {StyleClass} from 'primeng/styleclass';
 import {InputIcon} from 'primeng/inputicon';
 import {IconField} from 'primeng/iconfield';
 import {DatePicker} from 'primeng/datepicker';
+import {Statistics} from '../../core/swagger';
 
 export type ChartOptions = any;
 
@@ -113,19 +114,18 @@ export class StatisticsViewComponent {
         });
     }
 
-    private processData(data: any) {
+    private processData(data: Statistics) {
         const categories: string[] = [];
         const seriesData: number[] = [];
         const tableItems: any[] = [];
 
-        if (typeof data === 'object' && data !== null) {
-            Object.keys(data).forEach(key => {
-                categories.push(key);
-                const val = data[key];
-                seriesData.push(val);
-                tableItems.push({ date: key, count: val });
-            });
-        }
+        data.samples.forEach(sample => {
+          tableItems.push({
+            date: sample.label,
+            value: sample.value
+          });
+          seriesData.push(sample.value);
+        });
 
         this.chartOptions.series = [{
             name: 'Reports',

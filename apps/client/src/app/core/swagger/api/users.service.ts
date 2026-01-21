@@ -17,7 +17,7 @@ import { CustomHttpUrlEncodingCodec }                        from '../encoder';
 
 import { Observable }                                        from 'rxjs';
 
-import { Fb65a0051354ffb817197 } from '../model/fb65a0051354ffb817197';
+import { Cd27b9e7dfa182c915462 } from '../model/cd27b9e7dfa182c915462';
 import { InlineResponse400 } from '../model/inlineResponse400';
 import { UserCreate } from '../model/userCreate';
 import { UserUpdateInformation } from '../model/userUpdateInformation';
@@ -197,9 +197,9 @@ export class UsersService {
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public usersControllerGetList(filter?: string, skip?: number, limit?: number, observe?: 'body', reportProgress?: boolean): Observable<Fb65a0051354ffb817197>;
-    public usersControllerGetList(filter?: string, skip?: number, limit?: number, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Fb65a0051354ffb817197>>;
-    public usersControllerGetList(filter?: string, skip?: number, limit?: number, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Fb65a0051354ffb817197>>;
+    public usersControllerGetList(filter?: string, skip?: number, limit?: number, observe?: 'body', reportProgress?: boolean): Observable<Cd27b9e7dfa182c915462>;
+    public usersControllerGetList(filter?: string, skip?: number, limit?: number, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Cd27b9e7dfa182c915462>>;
+    public usersControllerGetList(filter?: string, skip?: number, limit?: number, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Cd27b9e7dfa182c915462>>;
     public usersControllerGetList(filter?: string, skip?: number, limit?: number, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
 
 
@@ -231,7 +231,7 @@ export class UsersService {
         const consumes: string[] = [
         ];
 
-        return this.httpClient.request<Fb65a0051354ffb817197>('get',`${this.basePath}/users/list`,
+        return this.httpClient.request<Cd27b9e7dfa182c915462>('get',`${this.basePath}/users/list`,
             {
                 params: queryParameters,
                 withCredentials: this.configuration.withCredentials,

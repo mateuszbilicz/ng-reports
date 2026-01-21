@@ -19,7 +19,7 @@ export class StatisticsController {
 
   @ApiOkResponse({
     description: 'Statistics generated successfully.',
-    type: Object, // The Statistics interface is not a class, so we use Object for Swagger
+    type: () => Statistics,
   })
   @ApiQuery({ name: 'sampling', enum: ['hour', 'day', 'week', 'month'], required: true })
   @ApiQuery({ name: 'dateFrom', type: Date, required: true })

@@ -18,6 +18,7 @@ import { CustomHttpUrlEncodingCodec }                        from '../encoder';
 import { Observable }                                        from 'rxjs';
 
 import { InlineResponse400 } from '../model/inlineResponse400';
+import { Statistics } from '../model/statistics';
 
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
 import { Configuration }                                     from '../configuration';
@@ -69,9 +70,9 @@ export class StatisticsService {
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public statisticsControllerGetStatistics(sampling: string, dateFrom: Date, dateTo: Date, projectId?: string, environmentId?: string, textFilter?: string, severity?: number, fixed?: boolean, observe?: 'body', reportProgress?: boolean): Observable<any>;
-    public statisticsControllerGetStatistics(sampling: string, dateFrom: Date, dateTo: Date, projectId?: string, environmentId?: string, textFilter?: string, severity?: number, fixed?: boolean, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<any>>;
-    public statisticsControllerGetStatistics(sampling: string, dateFrom: Date, dateTo: Date, projectId?: string, environmentId?: string, textFilter?: string, severity?: number, fixed?: boolean, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<any>>;
+    public statisticsControllerGetStatistics(sampling: string, dateFrom: Date, dateTo: Date, projectId?: string, environmentId?: string, textFilter?: string, severity?: number, fixed?: boolean, observe?: 'body', reportProgress?: boolean): Observable<Statistics>;
+    public statisticsControllerGetStatistics(sampling: string, dateFrom: Date, dateTo: Date, projectId?: string, environmentId?: string, textFilter?: string, severity?: number, fixed?: boolean, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Statistics>>;
+    public statisticsControllerGetStatistics(sampling: string, dateFrom: Date, dateTo: Date, projectId?: string, environmentId?: string, textFilter?: string, severity?: number, fixed?: boolean, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Statistics>>;
     public statisticsControllerGetStatistics(sampling: string, dateFrom: Date, dateTo: Date, projectId?: string, environmentId?: string, textFilter?: string, severity?: number, fixed?: boolean, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
 
         if (sampling === null || sampling === undefined) {
@@ -132,7 +133,7 @@ export class StatisticsService {
         const consumes: string[] = [
         ];
 
-        return this.httpClient.request<any>('get',`${this.basePath}/statistics`,
+        return this.httpClient.request<Statistics>('get',`${this.basePath}/statistics`,
             {
                 params: queryParameters,
                 withCredentials: this.configuration.withCredentials,
