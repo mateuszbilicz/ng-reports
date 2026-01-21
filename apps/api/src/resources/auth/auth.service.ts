@@ -19,7 +19,7 @@ export class AuthService {
       switchMap((user: UserView) => {
         const expiresAt = addMinutes(new Date(), jwt.expiresInMinutes);
         return forkJoin({
-          accessToken: from(this.jwtService.signAsync({ ...user, expiresAt })),
+          accessToken: from(this.jwtService.signAsync({ ...(user.hasOwnProperty('_doc') ? (user as any)._doc : user), expiresAt })),
           refreshToken: from(
             this.jwtService.signAsync(
               { username: user.username, expiresAt },
@@ -53,7 +53,7 @@ export class AuthService {
                 }
                 const expiresAt = addMinutes(new Date(), jwt.expiresInMinutes);
                 return forkJoin({
-                    accessToken: from(this.jwtService.signAsync({ ...user, expiresAt })),
+                    accessToken: from(this.jwtService.signAsync({ ...(user.hasOwnProperty('_doc') ? (user as any)._doc : user), expiresAt })),
                     refreshToken: from(
                         this.jwtService.signAsync(
                             { username: user.username, expiresAt },
