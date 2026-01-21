@@ -125,6 +125,13 @@
             </p-accordion-content>
           </p-accordion-panel>
         </p-accordion>
+
+        @if (report()!.summary) {
+          <div class="surface-ground p-3 border-round mb-3 mt-3">
+            <h4 class="m-0 mb-2"><i class="pi pi-bolt mr-2"></i>Auto-Generated AI Summary</h4>
+            <p class="white-space-pre-wrap m-0">{{ report()!.summary! }}</p>
+          </div>
+        }
       </div>
     }
 

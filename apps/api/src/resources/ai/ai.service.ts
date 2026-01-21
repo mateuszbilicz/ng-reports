@@ -102,10 +102,15 @@ export class AiService {
                         )
                 ),
                 switchMap(({project, report}) =>
-                    forkJoin(
-                        report!.comments.map(commentId =>
-                            this.commentModel.findOne<Comment>({_id: commentId})
+                    iif(
+                        () => report!.comments.length > 0,
+                        forkJoin(
+                            report!.comments.map(commentId =>
+                                this.commentModel.findOne<Comment>({_id: commentId})
+                            )
                         )
+                            .pipe(map(comments => comments.filter(c => !!c))),
+                        of([] as Comment[])
                     )
                         .pipe(
                             map(comments => ({project, report, comments: comments.filter(c => !!c)}))
@@ -126,8 +131,8 @@ export class AiService {
             ...(this.systemConfig.summaryGenerationIncludeReportDetails
                 ? {
                     reportDetails: {
-                        title: report.title,
-                        details: report.details
+                        title: report?.title,
+                        details: report?.details
                     }
                 } : {}),
             ...(this.systemConfig.summaryGenerationIncludeReportLogs

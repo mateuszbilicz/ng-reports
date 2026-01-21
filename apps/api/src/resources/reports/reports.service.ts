@@ -129,8 +129,8 @@ export class ReportsService {
                         .exec(),
                 ).pipe(
                     tap((res) => {
-                        if (res.upsertedId)
-                            this.autoRunAiOn(res.upsertedId + '');
+                        if (savedReport._id)
+                            this.autoRunAiOn(savedReport._id + '');
                     }),
                     map(() => savedReport),
                 ),

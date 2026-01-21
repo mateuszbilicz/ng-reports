@@ -137,11 +137,12 @@ export class ReportDetailsComponent implements OnInit {
     this.isGeneratingAiSummary.set(true);
     this.commentsService.requestAiSummary(this.reportId)
       .pipe(
-        tap(() => this.isGeneratingAiSummary.set(false)),
         filter(res => !!res),
         tap(() => this.loadComments())
       )
-      .subscribe();
+      .subscribe({
+        complete: () => this.isGeneratingAiSummary.set(false)
+      });
   }
 
   loadComments() {
