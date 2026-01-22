@@ -1,5 +1,5 @@
 import {Component, inject, signal} from '@angular/core';
-import {CommonModule} from '@angular/common';
+import {CommonModule, formatDate} from '@angular/common';
 import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule} from '@angular/forms';
 import {ButtonModule} from 'primeng/button';
 import {InputTextModule} from 'primeng/inputtext';
@@ -13,6 +13,8 @@ import {InputIcon} from 'primeng/inputicon';
 import {IconField} from 'primeng/iconfield';
 import {DatePicker} from 'primeng/datepicker';
 import {Statistics} from '../../core/swagger';
+import {Severity} from '../../core/Models/Severity';
+import {downloadFile} from '../../core/Utils/download-file';
 
 export type ChartOptions = any;
 
@@ -64,21 +66,39 @@ export class StatisticsViewComponent {
   ];
 
   severityOptions = [
-    {label: 'Debug', value: 0},
-    {label: 'Info', value: 1},
-    {label: 'Warning', value: 2},
-    {label: 'Error', value: 3},
-    {label: 'Critical', value: 4}
+    {label: 'Any', value: null},
+    {label: 'Info', value: 0},
+    {label: 'Warning', value: 1},
+    {label: 'Error', value: 2},
+    {label: 'Critical', value: 3}
   ];
 
   public chartOptions: Partial<ChartOptions> | any = { // Using any to avoid strict type checks for now as ChartOptions type is 'any' alias
     series: [],
     chart: {
       height: 350,
-      type: 'bar',
+      type: 'area',
       fontFamily: 'Inter, sans-serif',
       toolbar: {
         show: false
+      },
+      stroke: {
+        curve: 'smooth',
+        color: '#ff0000'
+      },
+      fill: {
+        type: 'gradient',
+        gradient: {
+          shade: 'dark',
+          type: "vertical",
+          shadeIntensity: 0.5,
+          gradientToColors: ['#ff0000', '#ffaa00', '#ffaa00'], // optional, if not defined - uses the shades of same color in series
+          inverseColors: true,
+          opacityFrom: 1,
+          opacityTo: 0,
+          stops: [0, 75, 100],
+          colorStops: []
+        }
       }
     },
     title: {
@@ -92,11 +112,32 @@ export class StatisticsViewComponent {
     }
   };
 
+  updateChartOptionsDependingOnSeverity() {
+    this.chartOptions.chart.fill.gradient.gradientToColors = [
+      (() => {
+        switch (+(this.filterForm.get('severity')!.value)) {
+          case Severity.Info:
+            return '#558dae';
+          case Severity.Warning:
+            return '#ffae00';
+          case Severity.Error:
+            return '#ff5500';
+          case Severity.Critical:
+            return '#ff0000';
+          default:
+            return '#0994dd';
+        }
+      })()
+    ];
+  }
+
   loadStatistics() {
     this.isLoading.set(true);
     const {sampling, dateRange, severity, textFilter, fixed} = this.filterForm.value;
     const dateFrom = dateRange && dateRange[0] ? dateRange[0] : new Date();
-    const dateTo = dateRange && dateRange[1] ? dateRange[1] : new Date();
+    const rawDateTo = dateRange && dateRange[1] ? dateRange[1] : new Date();
+    const dateTo = new Date(rawDateTo);
+    dateTo.setHours(23, 59, 59, 999);
 
     this.statisticsService.getStatistics(
       sampling,
@@ -110,6 +151,7 @@ export class StatisticsViewComponent {
     ).subscribe({
       next: (data) => {
         this.processData(data);
+        this.updateChartOptionsDependingOnSeverity();
         this.isLoading.set(false);
       },
       error: (err) => {
@@ -124,14 +166,16 @@ export class StatisticsViewComponent {
     const seriesData: number[] = [];
     const tableItems: any[] = [];
 
-    data.samples.forEach(sample => {
-      tableItems.push({
-        date: sample.label,
-        value: sample.value
+    if (data?.samples) {
+      data.samples.forEach(sample => {
+        tableItems.push({
+          date: sample.label,
+          value: sample.value
+        });
+        categories.push(sample.label);
+        seriesData.push(sample.value);
       });
-      categories.push(sample.label);
-      seriesData.push(sample.value);
-    });
+    }
 
     // Update chart options triggering change detection
     this.chartOptions = {
@@ -154,5 +198,20 @@ export class StatisticsViewComponent {
     };
 
     this.tableData.set(tableItems);
+  }
+
+  exportToCSV() {
+    const data = this.tableData() as unknown as {date: string, value: string}[];
+    let csv = `"NG Reports Statistics data"\nTime,"${formatDate(new Date(), 'yyyy/MM/dd HH:mm:ss', 'en-US')}"\n`;
+    csv += `"Filters:"\n"Sampling","${this.filterForm.get('sampling')?.value}"\n"Date Range","${formatDate(this.filterForm.get('dateRange')?.value[0], 'yyyy/MM/dd HH:mm:ss', 'en-US')}","${formatDate(this.filterForm.get('dateRange')?.value[1], 'yyyy/MM/dd HH:mm:ss', 'en-US')}"\n`
+    csv += `"Severity","${this.filterForm.get('severity')?.value}"\n"Text filter","${this.filterForm.get('textFilter')?.value}"\n`;
+    csv += `"Fixed","${this.filterForm.get('fixed')?.value}"\n`;
+    csv += `\n"Data:"\n`;
+    csv += `"Date","Value"\n`;
+    data.forEach(item => {
+      csv += `"${item.date}","${item.value}"\n`;
+    });
+    const blob = new Blob([csv], {type: 'text/csv'});
+    downloadFile(blob, `ng-reports-stats-${formatDate(new Date(), 'yyyyMMddHHmmss', 'en-US')}.csv`);
   }
 }

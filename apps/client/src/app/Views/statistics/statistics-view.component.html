@@ -10,6 +10,11 @@
             <i [class]="item.icon + ' mr-2'"></i> {{ item.label }}
           </ng-template>
         </p-selectButton>
+        <p-button icon="pi pi-download"
+                  label="Export"
+                  severity="info"
+                  size="small"
+                  (onClick)="exportToCSV()"/>
       </div>
     </div>
     <form [formGroup]="filterForm" class="grid formgrid p-fluid">
@@ -49,10 +54,21 @@
       </div>
     }
     @if (viewControl.value === 'chart') {
-      <div class="h-full w-full">
-        <apx-chart [series]="chartOptions.series" [chart]="chartOptions.chart" [xaxis]="chartOptions.xaxis"
-                   [title]="chartOptions.title" [autoUpdateSeries]="true"/>
-      </div>
+      @if (tableData().length > 0) {
+        <div class="h-full w-full">
+          <apx-chart [series]="chartOptions.series"
+                     [chart]="chartOptions.chart"
+                     [fill]="chartOptions.chart.fill"
+                     [stroke]="chartOptions.chart.stroke"
+                     [xaxis]="chartOptions.xaxis"
+                     [title]="chartOptions.title"
+                     [autoUpdateSeries]="true"/>
+        </div>
+      } @else {
+        <div class="flex align-items-center justify-content-center h-full">
+          <span class="text-color-secondary font-medium">No stats found.</span>
+        </div>
+      }
     } @else {
       <p-table [value]="tableData()" [scrollable]="true" scrollHeight="flex" styleClass="p-datatable-sm">
         <ng-template pTemplate="header">
@@ -64,7 +80,7 @@
         <ng-template pTemplate="body" let-item>
           <tr>
             <td>{{ item.date }}</td>
-            <td>{{ item.count }}</td>
+            <td>{{ item.value }}</td>
           </tr>
         </ng-template>
         <ng-template pTemplate="emptymessage">
