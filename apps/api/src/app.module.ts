@@ -21,6 +21,7 @@ import {StatisticsService} from './resources/statistics/statistics.service';
 import {StatisticsController} from './resources/statistics/statistics.controller';
 import {SystemConfigurationController} from './resources/system-configuration/system-configuration.controller';
 import {AiService} from './resources/ai/ai.service';
+import { DevelopersController } from './resources/developers/developers.controller';
 
 @Module({
     imports: [JWT_REGISTER_IMPORT, ...databaseImports],
@@ -33,6 +34,7 @@ import {AiService} from './resources/ai/ai.service';
         CommentsController,
         StatisticsController,
         SystemConfigurationController,
+        DevelopersController,
     ],
     providers: [
         ShutdownObserver,

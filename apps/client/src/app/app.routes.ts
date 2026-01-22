@@ -63,6 +63,12 @@ export const routes: Routes = [
         loadComponent: () => import('./Views/system-config/system-config.component').then((m) => m.SystemConfigComponent),
         canActivate: [RoleGuard],
         data: {minRole: Role.Admin}
+      },
+      {
+        path: 'developers',
+        loadComponent: () => import('./Views/developers/developers-view.component').then((m) => m.DevelopersViewComponent),
+        canActivate: [RoleGuard],
+        data: {minRole: Role.Developer}
       }
     ],
   },

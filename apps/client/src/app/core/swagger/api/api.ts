@@ -1,25 +1,19 @@
 export * from './auth.service';
-import {AuthService} from './auth.service';
-import {CommentsService} from './comments.service';
-import {EnvironmentsService} from './environments.service';
-import {ProjectsService} from './projects.service';
-import {ReportsService} from './reports.service';
-import {StatisticsService} from './statistics.service';
-import {SystemConfigurationService} from './systemConfiguration.service';
-import {UsersService} from './users.service';
-
+import { AuthService } from './auth.service';
 export * from './comments.service';
-
+import { CommentsService } from './comments.service';
+export * from './developers.service';
+import { DevelopersService } from './developers.service';
 export * from './environments.service';
-
+import { EnvironmentsService } from './environments.service';
 export * from './projects.service';
-
+import { ProjectsService } from './projects.service';
 export * from './reports.service';
-
+import { ReportsService } from './reports.service';
 export * from './statistics.service';
-
+import { StatisticsService } from './statistics.service';
 export * from './systemConfiguration.service';
-
+import { SystemConfigurationService } from './systemConfiguration.service';
 export * from './users.service';
-
-export const APIS = [AuthService, CommentsService, EnvironmentsService, ProjectsService, ReportsService, StatisticsService, SystemConfigurationService, UsersService];
+import { UsersService } from './users.service';
+export const APIS = [AuthService, CommentsService, DevelopersService, EnvironmentsService, ProjectsService, ReportsService, StatisticsService, SystemConfigurationService, UsersService];

@@ -105,5 +105,16 @@
         }
       }
     }
+  },
+  "schematics": {
+    "@schematics/angular:component": {
+      "standalone": true,
+      "type": "component",
+      "changeDetection": "OnPush",
+      "viewEncapsulation": "None"
+    },
+    "@schematics/angular:service": {
+      "type": "service"
+    }
   }
 }

@@ -19,8 +19,8 @@ echo "Packing library..."
 npm pack
 
 # Move to root releases folder (create if not exists)
-mkdir -p ../../../../releases
-mv *.tgz ../../../../releases/
+mkdir -p ../../../api/lib-releases
+mv *.tgz ../../../api/lib-releases/
 
 echo "Library packed successfully!"
-echo "Find the package in releases/ directory."
+echo "Find the package in apps/api/lib-releases directory."

@@ -90,7 +90,8 @@ export class MainLayout {
     {label: 'Reports', icon: 'pi pi-file', route: '/reports'},
     {label: 'Statistics', icon: 'pi pi-chart-line', route: '/statistics', minRole: Role.Analyst},
     {label: 'Users', icon: 'pi pi-users', route: '/users', minRole: Role.Admin},
-    {label: 'System config', icon: 'pi pi-shield', route: '/system-config', minRole: Role.Admin}
+    {label: 'System config', icon: 'pi pi-shield', route: '/system-config', minRole: Role.Admin},
+    {label: 'Developers', icon: 'pi pi-code\n', route: '/developers', minRole: Role.Developer}
   ];
 
   openReportDialog() {

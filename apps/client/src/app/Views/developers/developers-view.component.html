@@ -1,0 +1,92 @@
+<div class="flex flex-row gap-4 w-full">
+  <div class="w-12rem relative h-auto">
+    <div class="flex flex-column gap-1 w-12rem shadow-2 surface-100 sticky top-0">
+      @for (nav of headers; track nav.id) {
+        <a href="/developers#{{nav.id}}"
+           class="no-underline text-black-alpha-90 p-2 hover:surface-200 p-3">
+          {{ nav.name }}
+        </a>
+      }
+    </div>
+  </div>
+  <div class="flex flex-column flex-grow-1">
+    <h1 id="how-to-use-ng-reports">How to use NG Reports</h1>
+    <p class="text-justify">
+      NG Reports provides you with Angular library that you can import in any Angular 18+ project.
+      There're many configuration options that help you improve your experience as developer and user experience.
+      On this page, we will go through all steps from how to install NG Reports, configure it and how to use it.
+    </p>
+    <h2 id="installation">Installation</h2>
+    <p>
+      First, download NG Reports package .tgz file and put it inside project directory and use npm install command.
+    </p>
+    <a href="/api/developers/lib-file" download>
+      <p-button icon="pi pi-download"
+                label="Download NG Reports"
+                severity="success"
+                text
+                size="small"/>
+    </a>
+    <div class="code">
+      <span>CMD</span>
+      <pre>npm i ./ng-reports.tgz</pre>
+    </div>
+    <h3 id="app-config">App configuration</h3>
+    <p class="text-justify">
+      Depending on your needs, you can enable few different collectors.
+      All collectors gather information to report logs, which can be sent with report form.
+    </p>
+    <ul>
+      <li>NgReportsConsoleService - console errors collector</li>
+      <li>ngReportsHttpInterceptor - http requests collector</li>
+      <li>NgReportsService - contains collectors:
+        <ul>
+          <li>console.log</li>
+          <li>mouse clicks</li>
+          <li>route changes</li>
+          <li>form data</li>
+        </ul>
+      </li>
+    </ul>
+    <h4 id="adding-collectors">Adding collectors</h4>
+    <p class="text-justify">
+      Adding collectors, NG Reports service and configuration must be done inside app.config.ts file.
+      If not, NG Reports wouldn't be able to work.
+    </p>
+    <div class="code">
+      <span>app.config.ts</span>
+      <pre><code>{{addingCollectorsCode}}</code></pre>
+    </div>
+    <h4 id="configuration">Configuration</h4>
+    <p>
+      You might have noticed that we've used NG_REPORTS_CONFIG variable in appConfig.
+      Now, we will enable necessary collectors and describe each config variable.
+    </p>
+    <div class="code">
+      <span>app.config.ts</span>
+      <pre><code>{{addingCollectorsCodeNG_REPORTS_CONFIG}}</code></pre>
+    </div>
+    <h3 id="usage">Usage</h3>
+    <p class="text-justify">
+      After you've added collectors and properly configured NG Reports - it's working in the background and already collecting logs.
+      Now you can bind form data to the service or show report form dialog.
+    </p>
+    <h4 id="display-dialog">Display the dialog</h4>
+    <p class="text-justify">
+      First of all, we need the lib-ng-reports (NgReportsComponent) added to the root of the project - app template.
+      This component works with NgReportsService service.
+    </p>
+    <div class="code">
+      <span>app.html</span>
+      <pre>{{ngLibComponentCode}}</pre>
+    </div>
+    <p class="text-justify">
+      Now, we can inject NgReportsService in the component and add form opening function.
+      You can automatically open report dialog, add some toast that opens this dialog or button to open it.
+    </p>
+    <div class="code">
+      <span>app.ts</span>
+      <pre>{{ngLibComponentTSCode}}</pre>
+    </div>
+  </div>
+</div>
