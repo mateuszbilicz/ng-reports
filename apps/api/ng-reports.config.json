@@ -20,7 +20,7 @@
     "expiresInMinutes": 10
   },
   "googleAPI": {
-    "generativeAiKey": "KEY_DELETED",
+    "generativeAiKey": "INSERT_HERE_GOOGLE_API_KEY",
     "model": "gemini-3-flash-preview"
   }
 }
