@@ -80,20 +80,9 @@ File: `./apps/api/ng-reports.config.json`
 
 #### How to get Gemini API Key?
 
-1. Sign-in into https://console.cloud.google.com.
-2. Create project <your_project>.
-3. Navigate into API Interfaces.
-4. Search for "Gemini for Google Cloud API".
-5. Enable this API.
-6. Open API details and credentials, you can
-   use https://console.cloud.google.com/apis/api/cloudaicompanion.googleapis.com/credentials?project=<your_project>
-7. Create login data, select service account.
-8. Fill all the required fields.
-9. Add roles for Gemini and AI platform admin.
-10. Navigate to your created service account and keys tab.
-11. Add new JSON key.
-12. Open downloaded JSON file.
-13. Copy value of `private_key_id` from downloaded JSON into `ng-reports.config.json` `googleAPI.generativeAiKey` field.
+1. Follow instructions from https://support.google.com/googleapi/answer/6158862?hl=en
+2. https://console.cloud.google.com/apis/credentials?project=<project-name>
+3. Insert API Key into `ng-reports.config.json` `googleAPI.generativeAiKey` field.
 
 ### Panel
 
