@@ -11,7 +11,7 @@ import { Comment } from '../../../core/swagger/model/comment';
 import { vi } from 'vitest';
 import { getTestBed } from '@angular/core/testing';
 import { BrowserDynamicTestingModule, platformBrowserDynamicTesting } from '@angular/platform-browser-dynamic/testing';
-import { Environment, NgReportsEnvironment } from '../../../core/swagger';
+import {Environment, NgReportsEnvironment} from '../../../core/swagger';
 
 describe('ReportDetailsComponent', () => {
     beforeAll(() => {
@@ -47,10 +47,7 @@ describe('ReportDetailsComponent', () => {
             add: vi.fn()
         };
         const confirmSpy = {
-            confirm: vi.fn(),
-            close: vi.fn(),
-            requireConfirmation$: of(null),
-            acceptConfirmation$: of(null)
+            confirm: vi.fn()
         };
 
         await TestBed.configureTestingModule({
@@ -83,10 +80,10 @@ describe('ReportDetailsComponent', () => {
         const mockReport: Partial<Report> = {
             title: 'Report 1',
             environment: {
-                userAgent: 'ua',
-                browserAppName: 'b',
-                extensions: [],
-                appEnvironment: ''
+              userAgent: 'ua',
+              browserAppName: 'b',
+              extensions: [],
+              appEnvironment: ''
             } as unknown as NgReportsEnvironment,
             logs: [],
             user: undefined,

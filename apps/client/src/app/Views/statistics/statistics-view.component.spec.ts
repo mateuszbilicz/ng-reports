@@ -55,7 +55,7 @@ describe('StatisticsViewComponent', () => {
         expect(component).toBeTruthy();
     });
 
-    it('should load statistics', async () => {
+    it('should load statistics', () => {
         const mockStats: any = {
             samples: [
                 { label: '2023-01-01', value: 10 },
@@ -65,7 +65,6 @@ describe('StatisticsViewComponent', () => {
         statisticsServiceSpy.getStatistics.mockReturnValue(of(mockStats));
 
         component.loadStatistics();
-        await fixture.whenStable();
 
         expect(component.isLoading()).toBe(false);
         expect(statisticsServiceSpy.getStatistics).toHaveBeenCalled();
@@ -74,11 +73,10 @@ describe('StatisticsViewComponent', () => {
         expect(component.chartOptions.xaxis.categories).toEqual(['2023-01-01', '2023-01-02']);
     });
 
-    it('should handle load error', async () => {
+    it('should handle load error', () => {
         statisticsServiceSpy.getStatistics.mockReturnValue(throwError(() => new Error('Error')));
 
         component.loadStatistics();
-        await fixture.whenStable();
 
         expect(component.isLoading()).toBe(false);
         expect(statisticsServiceSpy.getStatistics).toHaveBeenCalled();
