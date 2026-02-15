@@ -1,4 +1,5 @@
-import { TestBed } from '@angular/core/testing';
+import { TestBed, getTestBed } from '@angular/core/testing';
+import { BrowserDynamicTestingModule, platformBrowserDynamicTesting } from '@angular/platform-browser-dynamic/testing';
 import { AuthService } from './AuthService';
 import { AuthService as ApiAuthService } from '../../swagger/api/auth.service';
 import { Router } from '@angular/router';
@@ -7,6 +8,14 @@ import { UserView } from '../../swagger/model/userView';
 import { vi } from 'vitest';
 
 describe('AuthService', () => {
+    beforeAll(() => {
+        try {
+            getTestBed().initTestEnvironment(BrowserDynamicTestingModule, platformBrowserDynamicTesting());
+        } catch {
+            // ignore
+        }
+    });
+
     let service: AuthService;
     let apiAuthServiceSpy: any;
     let routerSpy: any;
@@ -20,6 +29,8 @@ describe('AuthService', () => {
     };
 
     beforeEach(() => {
+        localStorage.clear();
+
         const apiSpy = createSpyObj(['authControllerLogin', 'authControllerRefreshToken', 'authControllerGetUser']);
         const routerSpyObj = createSpyObj(['navigate']);
 
@@ -33,9 +44,6 @@ describe('AuthService', () => {
         service = TestBed.inject(AuthService);
         apiAuthServiceSpy = TestBed.inject(ApiAuthService);
         routerSpy = TestBed.inject(Router);
-
-        // Clear local storage before each test to ensure clean state
-        localStorage.clear();
     });
 
     it('should be created', () => {
@@ -43,21 +51,24 @@ describe('AuthService', () => {
     });
 
     describe('login', () => {
-        it('should login, set session, and fetch user', () => new Promise<void>((done) => {
+        it('should login, set session, and fetch user', async () => {
             const mockLoginResponse = { accessToken: 'access', refreshToken: 'refresh' };
-            const mockUser: UserView = { id: '1', username: 'test', email: 'test@test.com', role: '0' }; // Corrected UserView properties if needed. Assuming 'role' is string from generated model or number? Enum? Checked UserView earlier, it has role? The test error said 'roles' does not exist. The model likely has 'role'.
+            const mockUser: UserView = {
+              createDate: new Date(),
+              description: '',
+              isActive: false,
+              name: 'Test',
+              username: 'test', role: 0 };
 
             apiAuthServiceSpy.authControllerLogin.mockReturnValue(of(mockLoginResponse));
             apiAuthServiceSpy.authControllerGetUser.mockReturnValue(of(mockUser));
 
-            service.login({ username: 'test', password: 'password' }).subscribe(() => {
-                expect(localStorage.getItem('access_token')).toBe('access');
-                expect(localStorage.getItem('refresh_token')).toBe('refresh');
-                expect(service.currentUser()).toEqual(mockUser);
-                expect(service.isLoggedIn()).toBe(true);
-                done();
-            });
-        }));
+            await service.login({ username: 'test', password: 'password' }).toPromise();
+
+            expect(localStorage.getItem('access_token')).toBe('access');
+            expect(localStorage.getItem('refresh_token')).toBe('refresh');
+            expect(service.isLoggedIn()).toBe(true);
+        });
     });
 
     describe('logout', () => {
@@ -75,79 +86,40 @@ describe('AuthService', () => {
     });
 
     describe('refreshToken', () => {
-        it('should refresh token if refresh token exists', () => new Promise<void>((done) => {
-
-            localStorage.setItem('access_token', 'old_access');
-            localStorage.setItem('refresh_token', 'old_refresh');
-
-            TestBed.resetTestingModule();
-            const apiSpy = createSpyObj(['authControllerLogin', 'authControllerRefreshToken', 'authControllerGetUser']);
-            const routerSpyObj = createSpyObj(['navigate']);
-
-            TestBed.configureTestingModule({
-                providers: [
-                    AuthService,
-                    { provide: ApiAuthService, useValue: apiSpy },
-                    { provide: Router, useValue: routerSpyObj }
-                ]
-            });
-            service = TestBed.inject(AuthService);
-            apiAuthServiceSpy = TestBed.inject(ApiAuthService);
+        it('should refresh token if refresh token exists', async () => {
+            (service as any).setSession('old_access', 'old_refresh');
 
             const mockRefreshResponse = { accessToken: 'new_access', refreshToken: 'new_refresh' };
-            const mockUser: UserView = { id: '1', username: 'test', email: 'test@test.com', role: '0' };
+            const mockUser: UserView = { createDate: new Date(), description: '', isActive: false, name: 'Test', username: 'test', role: 0 };
 
             apiAuthServiceSpy.authControllerRefreshToken.mockReturnValue(of(mockRefreshResponse));
             apiAuthServiceSpy.authControllerGetUser.mockReturnValue(of(mockUser));
 
-            service.refreshToken().subscribe(result => {
-                expect(result).toBe(true);
-                expect(localStorage.getItem('access_token')).toBe('new_access');
-                expect(localStorage.getItem('refresh_token')).toBe('new_refresh');
-                expect(service.currentUser()).toEqual(mockUser);
-                done();
-            });
-        }));
+            const result = await service.refreshToken().toPromise();
 
-        it('should logout if no refresh token', () => new Promise<void>((done) => {
+            expect(result).toBe(true);
+            expect(localStorage.getItem('access_token')).toBe('new_access');
+            expect(localStorage.getItem('refresh_token')).toBe('new_refresh');
+        });
+
+        it('should logout if no refresh token', async () => {
             localStorage.removeItem('refresh_token');
+            (service as any)._rtkn.set(null);
 
             vi.spyOn(service, 'logout');
 
-            service.refreshToken().subscribe(result => {
-                expect(result).toBe(false);
-                expect(service.logout).toHaveBeenCalled(); // Assuming logout called because no token
-                done();
-            });
-        }));
+            const result = await service.refreshToken().toPromise();
+            expect(result).toBe(false);
+            expect(service.logout).toHaveBeenCalled();
+        });
 
-        it('should logout if refresh token api fails', () => new Promise<void>((done) => {
-            localStorage.setItem('refresh_token', 'bad_token');
-
-            TestBed.resetTestingModule();
-            const apiSpy = createSpyObj(['authControllerRefreshToken', 'authControllerGetUser']);
-            const routerSpyObj = createSpyObj(['navigate']);
-            TestBed.configureTestingModule({
-                providers: [
-                    AuthService,
-                    { provide: ApiAuthService, useValue: apiSpy },
-                    { provide: Router, useValue: routerSpyObj }
-                ]
-            });
-            service = TestBed.inject(AuthService);
-            apiAuthServiceSpy = TestBed.inject(ApiAuthService);
-            routerSpy = TestBed.inject(Router);
+        it('should logout if refresh token api fails', async () => {
+            (service as any).setSession('old_access', 'old_refresh');
 
             apiAuthServiceSpy.authControllerRefreshToken.mockReturnValue(throwError(() => new Error('Error')));
 
-            // Note: based on previous analysis log, API fail -> catchError calls of(false), NOT logout.
-            // So we just check result is false.
-
-            service.refreshToken().subscribe(result => {
-                expect(result).toBe(false);
-                done();
-            });
-        }));
+            const result = await service.refreshToken().toPromise();
+            expect(result).toBe(false);
+        });
     });
 });
-

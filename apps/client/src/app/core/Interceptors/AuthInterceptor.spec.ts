@@ -1,12 +1,19 @@
-import { TestBed } from '@angular/core/testing';
-import { HttpClient, HttpInterceptorFn, provideHttpClient, withInterceptors } from '@angular/common/http';
-import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { authInterceptor } from './AuthInterceptor';
-import { AuthService } from '../Services/AuthService/AuthService';
-import { of, throwError } from 'rxjs';
 import { vi } from 'vitest';
+import {getTestBed, TestBed} from '@angular/core/testing';
+import { BrowserDynamicTestingModule, platformBrowserDynamicTesting } from '@angular/platform-browser-dynamic/testing';
+import {HttpTestingController, provideHttpClientTesting} from '@angular/common/http/testing';
+import {HttpClient, provideHttpClient, withInterceptors} from '@angular/common/http';
+import {authInterceptor} from './AuthInterceptor';
+import {AuthService} from '../swagger';
+import {of} from 'rxjs';
 
 describe('authInterceptor', () => {
+    beforeAll(() => {
+        try {
+            getTestBed().initTestEnvironment(BrowserDynamicTestingModule, platformBrowserDynamicTesting());
+        } catch { }
+    });
+
     let httpTestingController: HttpTestingController;
     let httpClient: HttpClient;
     let authServiceSpy: any;
@@ -78,8 +85,6 @@ describe('authInterceptor', () => {
         const req = httpTestingController.expectOne('/api/data');
         req.flush('Unauthorized', { status: 401, statusText: 'Unauthorized' });
 
-        // Note: The interceptor might retry immediately.
-        // We expect refreshToken to be called.
         expect(authServiceSpy.refreshToken).toHaveBeenCalled();
 
         const retryReq = httpTestingController.expectOne('/api/data');
@@ -101,20 +106,7 @@ describe('authInterceptor', () => {
         req.flush('Unauthorized', { status: 401, statusText: 'Unauthorized' });
 
         expect(authServiceSpy.refreshToken).toHaveBeenCalled();
-        expect(authServiceSpy.logout).toHaveBeenCalled(); // interceptor calls logic that eventually logs out?
-        // Actually AuthInterceptor logic:
-        /*
-        return authService.refreshToken().pipe(
-            switchMap((succeeded: boolean) => {
-                if (succeeded) ...
-                else {
-                    authService.logout();
-                    return throwError ...
-                }
-            }),
-            catchError(...)
-        */
-        // So yes, it calls logout.
+        expect(authServiceSpy.logout).toHaveBeenCalled();
     });
 });
 

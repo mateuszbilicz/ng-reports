@@ -7,8 +7,16 @@ import { of } from 'rxjs';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { Project } from '../../core/swagger/model/project';
 import { vi } from 'vitest';
+import { getTestBed } from '@angular/core/testing';
+import { BrowserDynamicTestingModule, platformBrowserDynamicTesting } from '@angular/platform-browser-dynamic/testing';
 
 describe('ProjectsViewComponent', () => {
+    beforeAll(() => {
+        try {
+            getTestBed().initTestEnvironment(BrowserDynamicTestingModule, platformBrowserDynamicTesting());
+        } catch { }
+    });
+
     let component: ProjectsViewComponent;
     let fixture: ComponentFixture<ProjectsViewComponent>;
     let projectsServiceSpy: any;
@@ -58,7 +66,6 @@ describe('ProjectsViewComponent', () => {
         messageServiceSpy = messageSpy;
         confirmationServiceSpy = confirmSpy;
 
-        // Mock initial load
         projectsServiceSpy.getProjects.mockReturnValue(of([{ id: '1', name: 'p1' }]));
     });
 
@@ -104,7 +111,6 @@ describe('ProjectsViewComponent', () => {
 
     it('should delete project', () => {
         const project: Project = { id: '1', name: 'p1', projectId: 'p1' } as any;
-        // Simulate confirmation accept
         confirmationServiceSpy.confirm.mockImplementation((config: any) => {
             config.accept();
         });

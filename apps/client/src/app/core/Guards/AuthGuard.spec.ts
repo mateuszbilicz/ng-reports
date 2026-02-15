@@ -1,21 +1,26 @@
-import { TestBed } from '@angular/core/testing';
-import { Router, UrlTree } from '@angular/router';
-import { AuthGuard } from './AuthGuard';
-import { AuthService } from '../Services/AuthService/AuthService';
-import { signal } from '@angular/core';
+import { vi } from 'vitest';
+import {getTestBed, TestBed} from '@angular/core/testing';
+import { BrowserDynamicTestingModule, platformBrowserDynamicTesting } from '@angular/platform-browser-dynamic/testing';
+import {signal} from '@angular/core';
+import {AuthService} from '../Services/AuthService/AuthService';
+import {Router, UrlTree} from '@angular/router';
+import {AuthGuard} from './AuthGuard';
 
 describe('AuthGuard', () => {
-    let authServiceSpy: jasmine.SpyObj<AuthService>;
-    let routerSpy: jasmine.SpyObj<Router>;
+    beforeAll(() => {
+        try {
+            getTestBed().initTestEnvironment(BrowserDynamicTestingModule, platformBrowserDynamicTesting());
+        } catch { }
+    });
 
-    // Signal for isLoggedIn
+    let authServiceSpy: any;
+    let routerSpy: any;
+
     const isLoggedInSignal = signal(false);
 
     beforeEach(() => {
-        const authSpy = jasmine.createSpyObj('AuthService', [], {
-            isLoggedIn: isLoggedInSignal
-        });
-        const routerSpyObj = jasmine.createSpyObj('Router', ['createUrlTree']);
+        const authSpy = { isLoggedIn: isLoggedInSignal };
+        const routerSpyObj = { createUrlTree: vi.fn() };
 
         TestBed.configureTestingModule({
             providers: [
@@ -23,25 +28,24 @@ describe('AuthGuard', () => {
                 { provide: Router, useValue: routerSpyObj }
             ]
         });
-        authServiceSpy = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
-        routerSpy = TestBed.inject(Router) as jasmine.SpyObj<Router>;
+        authServiceSpy = TestBed.inject(AuthService);
+        routerSpy = TestBed.inject(Router);
     });
 
     it('should allow navigation if logged in', () => {
         isLoggedInSignal.set(true);
 
-        // Execute guard in injection context
-        const result = TestBed.runInInjectionContext(() => AuthGuard(null as any, null as any));
+        const result = TestBed.runInInjectionContext(() => AuthGuard({} as any, {} as any));
 
-        expect(result).toBeTrue();
+        expect(result).toBe(true);
     });
 
     it('should redirect to login if not logged in', () => {
         isLoggedInSignal.set(false);
         const mockUrlTree = {} as UrlTree;
-        routerSpy.createUrlTree.and.returnValue(mockUrlTree);
+        routerSpy.createUrlTree.mockReturnValue(mockUrlTree);
 
-        const result = TestBed.runInInjectionContext(() => AuthGuard(null as any, null as any));
+        const result = TestBed.runInInjectionContext(() => AuthGuard({} as any, {} as any));
 
         expect(result).toBe(mockUrlTree);
         expect(routerSpy.createUrlTree).toHaveBeenCalledWith(['/auth/login']);

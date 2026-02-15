@@ -1,8 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { DevelopersViewComponent } from './developers-view.component';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { vi } from 'vitest';
+import { getTestBed } from '@angular/core/testing';
+import { BrowserDynamicTestingModule, platformBrowserDynamicTesting } from '@angular/platform-browser-dynamic/testing';
 
 describe('DevelopersViewComponent', () => {
+  beforeAll(() => {
+    try {
+      getTestBed().initTestEnvironment(BrowserDynamicTestingModule, platformBrowserDynamicTesting());
+    } catch { }
+  });
+
   let component: DevelopersViewComponent;
   let fixture: ComponentFixture<DevelopersViewComponent>;
 
@@ -24,10 +33,6 @@ describe('DevelopersViewComponent', () => {
   it('should render headers', () => {
     const compiled = fixture.nativeElement as HTMLElement;
     component.headers.forEach(header => {
-      // Depending on how headers are used in template, check if they exist.
-      // Assuming they are rendered as text or links.
-      // Given the file content, headers seem to be used for a TOC or similar.
-      // Let's check if the text is present.
       expect(compiled.textContent).toContain(header.name);
     });
   });

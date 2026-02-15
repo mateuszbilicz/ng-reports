@@ -8,14 +8,14 @@ describe('ReportsController', () => {
     let controller: ReportsController;
 
     const mockReportsService = {
-        create: jest.fn(),
-        findAll: jest.fn(),
-        findOne: jest.fn(),
-        update: jest.fn(),
-        changeSeverity: jest.fn(),
-        changeFixed: jest.fn(),
-        remove: jest.fn(),
-        readStream: jest.fn(),
+        create: vi.fn(),
+        findAll: vi.fn(),
+        findOne: vi.fn(),
+        update: vi.fn(),
+        changeSeverity: vi.fn(),
+        changeFixed: vi.fn(),
+        remove: vi.fn(),
+        readStream: vi.fn(),
     };
 
     beforeEach(async () => {
@@ -29,7 +29,7 @@ describe('ReportsController', () => {
             ],
         })
             .overrideGuard(AuthGuard)
-            .useValue({ canActivate: jest.fn(() => true) } as CanActivate)
+            .useValue({ canActivate: vi.fn(() => true) } as CanActivate)
             .compile();
 
         controller = module.get<ReportsController>(ReportsController);

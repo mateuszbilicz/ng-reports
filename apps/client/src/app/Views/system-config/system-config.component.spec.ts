@@ -4,19 +4,35 @@ import { SystemConfigurationService } from '../../core/swagger';
 import { MessageService } from 'primeng/api';
 import { of, throwError } from 'rxjs';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { vi } from 'vitest';
+import { getTestBed } from '@angular/core/testing';
+import { BrowserDynamicTestingModule, platformBrowserDynamicTesting } from '@angular/platform-browser-dynamic/testing';
 
 describe('SystemConfigComponent', () => {
+    beforeAll(() => {
+        try {
+            getTestBed().initTestEnvironment(BrowserDynamicTestingModule, platformBrowserDynamicTesting());
+        } catch { }
+    });
+
     let component: SystemConfigComponent;
     let fixture: ComponentFixture<SystemConfigComponent>;
-    let systemConfigServiceSpy: jasmine.SpyObj<SystemConfigurationService>;
-    let messageServiceSpy: jasmine.SpyObj<MessageService>;
+    let systemConfigServiceSpy: any;
+    let messageServiceSpy: any;
+
+    const createSpyObj = (methodNames: string[]) => {
+        const obj: any = {};
+        for (const method of methodNames) {
+            obj[method] = vi.fn();
+        }
+        return obj;
+    };
 
     beforeEach(async () => {
-        const configSpy = jasmine.createSpyObj('SystemConfigurationService', ['systemConfigurationControllerGetConfig', 'systemConfigurationControllerUpdateManyConfigValues']);
-        const messageSpy = jasmine.createSpyObj('MessageService', ['add']);
+        const configSpy = createSpyObj(['systemConfigurationControllerGetConfig', 'systemConfigurationControllerUpdateManyConfigValues']);
+        const messageSpy = createSpyObj(['add']);
 
-        // Mock initial config load
-        configSpy.systemConfigurationControllerGetConfig.and.returnValue(of({
+        configSpy.systemConfigurationControllerGetConfig.mockReturnValue(of({
             reportsRetentionInMonths: 1,
             inactiveUsersRetentionInMonths: 1,
             allowReportsIncomeFromUnknownSources: false,
@@ -49,7 +65,7 @@ describe('SystemConfigComponent', () => {
 
         fixture = TestBed.createComponent(SystemConfigComponent);
         component = fixture.componentInstance;
-        systemConfigServiceSpy = TestBed.inject(SystemConfigurationService) as jasmine.SpyObj<SystemConfigurationService>;
+        systemConfigServiceSpy = TestBed.inject(SystemConfigurationService);
         messageServiceSpy = messageSpy;
     });
 
@@ -62,35 +78,35 @@ describe('SystemConfigComponent', () => {
         fixture.detectChanges(); // triggers ngAfterViewInit
         expect(systemConfigServiceSpy.systemConfigurationControllerGetConfig).toHaveBeenCalled();
         expect(component.configForm.value.reportsRetentionInMonths).toBe(1);
-        expect(component.configForm.value.enableAISummary).toBeTrue();
+        expect(component.configForm.value.enableAISummary).toBe(true);
     });
 
     it('should save config', () => {
         fixture.detectChanges();
 
         component.configForm.patchValue({ reportsRetentionInMonths: 2 });
-        systemConfigServiceSpy.systemConfigurationControllerUpdateManyConfigValues.and.returnValue(of({}));
+        systemConfigServiceSpy.systemConfigurationControllerUpdateManyConfigValues.mockReturnValue(of({}));
 
         component.save();
 
-        expect(component.loading()).toBeFalse(); // finally loads again
+        expect(component.loading()).toBe(false); // finally loads again
         expect(systemConfigServiceSpy.systemConfigurationControllerUpdateManyConfigValues).toHaveBeenCalled();
-        expect(messageServiceSpy.add).toHaveBeenCalledWith(jasmine.objectContaining({ severity: 'success' }));
+        expect(messageServiceSpy.add).toHaveBeenCalledWith(expect.objectContaining({ severity: 'success' }));
         expect(systemConfigServiceSpy.systemConfigurationControllerGetConfig).toHaveBeenCalledTimes(2); // Initial + reload
     });
 
     it('should handle load error', () => {
-        systemConfigServiceSpy.systemConfigurationControllerGetConfig.and.returnValue(throwError(() => new Error('Error')));
+        systemConfigServiceSpy.systemConfigurationControllerGetConfig.mockReturnValue(throwError(() => new Error('Error')));
         fixture.detectChanges();
-        expect(messageServiceSpy.add).toHaveBeenCalledWith(jasmine.objectContaining({ severity: 'error' }));
+        expect(messageServiceSpy.add).toHaveBeenCalledWith(expect.objectContaining({ severity: 'error' }));
     });
 
     it('should handle save error', () => {
         fixture.detectChanges();
-        systemConfigServiceSpy.systemConfigurationControllerUpdateManyConfigValues.and.returnValue(throwError(() => new Error('Error')));
+        systemConfigServiceSpy.systemConfigurationControllerUpdateManyConfigValues.mockReturnValue(throwError(() => new Error('Error')));
 
         component.save();
 
-        expect(messageServiceSpy.add).toHaveBeenCalledWith(jasmine.objectContaining({ severity: 'error' }));
+        expect(messageServiceSpy.add).toHaveBeenCalledWith(expect.objectContaining({ severity: 'error' }));
     });
 });

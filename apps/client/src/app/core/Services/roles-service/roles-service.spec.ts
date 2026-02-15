@@ -1,15 +1,20 @@
-import { TestBed } from '@angular/core/testing';
-import { RolesService } from './roles-service';
-import { AuthService } from '../AuthService/AuthService';
-import { Role } from '../../Models/Role';
-import { signal } from '@angular/core';
 import { vi } from 'vitest';
+import {getTestBed, TestBed} from '@angular/core/testing';
+import { BrowserDynamicTestingModule, platformBrowserDynamicTesting } from '@angular/platform-browser-dynamic/testing';
+import {signal} from '@angular/core';
+import {RolesService} from './roles-service';
+import {AuthService} from '../AuthService/AuthService';
+import {Role} from '../../Models/Role';
 
 describe('RolesService', () => {
-  let service: RolesService;
-  // let authServiceSpy: any;
+  beforeAll(() => {
+    try {
+      getTestBed().initTestEnvironment(BrowserDynamicTestingModule, platformBrowserDynamicTesting());
+    } catch { }
+  });
 
-  // We need a writable signal to simulate currentUser changes
+  let service: RolesService;
+
   const currentUserSignal = signal<any>(null);
 
   beforeEach(() => {
@@ -32,8 +37,6 @@ describe('RolesService', () => {
 
   it('should correctly determine minimal role', () => {
     currentUserSignal.set({ role: Role.Admin });
-    // Trigger computed update if necessary (Angular signals are lazy)
-    // Accessing `service.minRole` should be enough as it calls `this.role()` which is a computed.
 
     expect(service.minRole(Role.Developer)).toBe(true);
     expect(service.minRole(Role.Admin)).toBe(true);

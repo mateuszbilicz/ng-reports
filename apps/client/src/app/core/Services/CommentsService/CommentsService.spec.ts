@@ -1,17 +1,30 @@
-import { TestBed } from '@angular/core/testing';
-import { CommentsService } from './CommentsService';
-import { CommentsService as ApiCommentsService } from '../../swagger/api/comments.service';
-import { of } from 'rxjs';
-import { CreateComment } from '../../swagger/model/createComment';
-import { UpdateComment } from '../../swagger/model/updateComment';
-import { Comment } from '../../swagger/model/comment';
+import { vi } from 'vitest';
+import {getTestBed, TestBed} from '@angular/core/testing';
+import { BrowserDynamicTestingModule, platformBrowserDynamicTesting } from '@angular/platform-browser-dynamic/testing';
+import {Comment, CommentsService as ApiCommentsService, CreateComment, UpdateComment} from '../../swagger';
+import {CommentsService} from './CommentsService';
+import {of} from 'rxjs';
 
 describe('CommentsService', () => {
+    beforeAll(() => {
+        try {
+            getTestBed().initTestEnvironment(BrowserDynamicTestingModule, platformBrowserDynamicTesting());
+        } catch { }
+    });
+
     let service: CommentsService;
-    let apiCommentsServiceSpy: jasmine.SpyObj<ApiCommentsService>;
+    let apiCommentsServiceSpy: any;
+
+    const createSpyObj = (methodNames: string[]) => {
+        const obj: any = {};
+        for (const method of methodNames) {
+            obj[method] = vi.fn();
+        }
+        return obj;
+    };
 
     beforeEach(() => {
-        const spy = jasmine.createSpyObj('ApiCommentsService', ['commentsControllerFindAll', 'commentsControllerCreate', 'commentsControllerUpdate', 'commentsControllerRemove', 'commentsControllerRequestAiSummary']);
+        const spy = createSpyObj(['commentsControllerFindAll', 'commentsControllerCreate', 'commentsControllerUpdate', 'commentsControllerRemove', 'commentsControllerRequestAiSummary']);
         TestBed.configureTestingModule({
             providers: [
                 CommentsService,
@@ -19,77 +32,78 @@ describe('CommentsService', () => {
             ]
         });
         service = TestBed.inject(CommentsService);
-        apiCommentsServiceSpy = TestBed.inject(ApiCommentsService) as jasmine.SpyObj<ApiCommentsService>;
+        apiCommentsServiceSpy = TestBed.inject(ApiCommentsService);
     });
 
     it('should be created', () => {
         expect(service).toBeTruthy();
     });
 
-    it('should get comments', (done) => {
+    it('should get comments', () => new Promise<void>((done) => {
         const expectedComments = [{ id: '1', content: 'test', type: 'text' }];
-        apiCommentsServiceSpy.commentsControllerFindAll.and.returnValue(of(expectedComments));
+        apiCommentsServiceSpy.commentsControllerFindAll.mockReturnValue(of(expectedComments));
 
         service.getComments('report1').subscribe(comments => {
             expect(comments).toEqual(expectedComments);
             expect(apiCommentsServiceSpy.commentsControllerFindAll).toHaveBeenCalledWith('report1', undefined, undefined, undefined, undefined, undefined);
             done();
         });
-    });
+    }));
 
-    it('should create comment', (done) => {
+    it('should create comment', () => new Promise<void>((done) => {
         const newComment: CreateComment = {
             content: 'new comment',
-            type: 'text',
             reportId: 'report1',
-            authorId: 'user1'
         };
         const createdComment: Comment = {
-            id: '1',
-            ...newComment,
-            createdAt: new Date(),
-            updatedAt: new Date()
+          // @ts-ignore
+          author: {}, commentId: '',
+          date: new Date(),
+          ...newComment
         };
-        apiCommentsServiceSpy.commentsControllerCreate.and.returnValue(of(createdComment));
+        apiCommentsServiceSpy.commentsControllerCreate.mockReturnValue(of(createdComment));
 
         service.createComment(newComment).subscribe(comment => {
             expect(comment).toEqual(createdComment);
             expect(apiCommentsServiceSpy.commentsControllerCreate).toHaveBeenCalledWith(newComment);
             done();
         });
-    });
+    }));
 
-    it('should update comment', (done) => {
+    it('should update comment', () => new Promise<void>((done) => {
         const update: UpdateComment = { content: 'updated' };
-        const updatedComment: Comment = { id: '1', content: 'updated', type: 'text', reportId: 'r1', authorId: 'u1', createdAt: new Date(), updatedAt: new Date() };
-        apiCommentsServiceSpy.commentsControllerUpdate.and.returnValue(of(updatedComment));
+        // @ts-ignore
+        const updatedComment: Comment = {author: {}, commentId: "1", content: "updated", date: new Date()};
+        apiCommentsServiceSpy.commentsControllerUpdate.mockReturnValue(of(updatedComment));
 
         service.updateComment('1', update).subscribe(comment => {
             expect(comment).toEqual(updatedComment);
             expect(apiCommentsServiceSpy.commentsControllerUpdate).toHaveBeenCalledWith(update, '1');
             done();
         });
-    });
+    }));
 
-    it('should delete comment', (done) => {
-        const deletedComment: Comment = { id: '1', content: 'deleted', type: 'text', reportId: 'r1', authorId: 'u1', createdAt: new Date(), updatedAt: new Date() };
-        apiCommentsServiceSpy.commentsControllerRemove.and.returnValue(of(deletedComment));
+    it('should delete comment', () => new Promise<void>((done) => {
+      // @ts-ignore
+        const deletedComment: Comment = {author: {}, commentId: '1', content: 'delete me', date: new Date()};
+        apiCommentsServiceSpy.commentsControllerRemove.mockReturnValue(of(deletedComment));
 
         service.deleteComment('1').subscribe(comment => {
             expect(comment).toEqual(deletedComment);
             expect(apiCommentsServiceSpy.commentsControllerRemove).toHaveBeenCalledWith('1');
             done();
         });
-    });
+    }));
 
-    it('should request AI summary', (done) => {
-        const summaryComment: Comment = { id: '2', content: 'summary', type: 'summary', reportId: 'r1', authorId: 'ai', createdAt: new Date(), updatedAt: new Date() };
-        apiCommentsServiceSpy.commentsControllerRequestAiSummary.and.returnValue(of(summaryComment));
+    it('should request AI summary', () => new Promise<void>((done) => {
+      // @ts-ignore
+        const summaryComment: Comment = {author: {}, commentId: '1', content: 'Summary...', date: new Date()};
+        apiCommentsServiceSpy.commentsControllerRequestAiSummary.mockReturnValue(of(summaryComment));
 
         service.requestAiSummary('r1').subscribe(comment => {
             expect(comment).toEqual(summaryComment);
             expect(apiCommentsServiceSpy.commentsControllerRequestAiSummary).toHaveBeenCalledWith({ reportId: 'r1' });
             done();
         });
-    });
+    }));
 });

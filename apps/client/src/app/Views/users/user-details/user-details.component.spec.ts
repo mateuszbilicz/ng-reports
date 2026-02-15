@@ -1,47 +1,87 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { UserDetailsComponent } from './user-details.component';
 import { UsersService } from '../../../core/Services/UsersService/UsersService';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, provideRouter, convertToParamMap } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { of } from 'rxjs';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { Role } from '../../../core/Models/Role';
+import { vi } from 'vitest';
+import { getTestBed } from '@angular/core/testing';
+import { BrowserDynamicTestingModule, platformBrowserDynamicTesting } from '@angular/platform-browser-dynamic/testing';
 
 describe('UserDetailsComponent', () => {
+    beforeAll(() => {
+        try {
+            getTestBed().initTestEnvironment(BrowserDynamicTestingModule, platformBrowserDynamicTesting());
+        } catch { }
+    });
+
     let component: UserDetailsComponent;
     let fixture: ComponentFixture<UserDetailsComponent>;
-    let usersServiceSpy: jasmine.SpyObj<UsersService>;
-    let routerSpy: jasmine.SpyObj<Router>;
-    let messageServiceSpy: jasmine.SpyObj<MessageService>;
+    let usersServiceSpy: any;
+    let routerSpy: any;
+    let messageServiceSpy: any;
+
+    const createSpyObj = (methodNames: string[]) => {
+        const obj: any = {};
+        for (const method of methodNames) {
+            obj[method] = vi.fn().mockReturnValue(of({}));
+        }
+        return obj;
+    };
 
     beforeEach(async () => {
-        const usrSpy = jasmine.createSpyObj('UsersService', ['getUser', 'createUser', 'updateUser']);
-        const routerSpyObj = jasmine.createSpyObj('Router', ['navigate']);
-        const messageSpy = jasmine.createSpyObj('MessageService', ['add']);
+        const usersSpy = createSpyObj(['getUser', 'createUser', 'updateUser']);
+        const routerSpyObj = createSpyObj(['navigate']);
+        const messageSpy = {
+            add: vi.fn(),
+            addAll: vi.fn(),
+            clear: vi.fn(),
+            messageObserver: of(null),
+            clearObserver: of(null)
+        };
+
+        const routeMock = {
+            paramMap: of(convertToParamMap({ username: 'testuser' })),
+            queryParams: of({}),
+            snapshot: {
+                paramMap: convertToParamMap({ username: 'testuser' }),
+                queryParams: {}
+            }
+        };
 
         await TestBed.configureTestingModule({
             imports: [UserDetailsComponent, NoopAnimationsModule],
             providers: [
-                { provide: UsersService, useValue: usrSpy },
+                { provide: UsersService, useValue: usersSpy },
                 { provide: Router, useValue: routerSpyObj },
-                { provide: ActivatedRoute, useValue: { paramMap: of({ get: () => 'testuser' }) } },
-                { provide: MessageService, useValue: messageSpy }
+                { provide: MessageService, useValue: messageSpy },
+                { provide: ActivatedRoute, useValue: routeMock }
             ]
         })
             .overrideComponent(UserDetailsComponent, {
                 set: {
                     providers: [
-                        { provide: MessageService, useValue: messageSpy }
+                        { provide: MessageService, useValue: messageSpy },
+                        { provide: UsersService, useValue: usersSpy },
+                        { provide: Router, useValue: routerSpyObj },
+                        { provide: ActivatedRoute, useValue: routeMock }
                     ]
                 }
             })
             .compileComponents();
 
+        usersServiceSpy = usersSpy;
+        routerSpy = routerSpyObj;
+        messageServiceSpy = messageSpy;
+
+        usersServiceSpy.getUser.mockReturnValue(of({ username: 'testuser', role: Role.Admin }));
+        usersServiceSpy.createUser.mockReturnValue(of({}));
+        usersServiceSpy.updateUser.mockReturnValue(of({}));
+
         fixture = TestBed.createComponent(UserDetailsComponent);
         component = fixture.componentInstance;
-        usersServiceSpy = TestBed.inject(UsersService) as jasmine.SpyObj<UsersService>;
-        routerSpy = TestBed.inject(Router) as jasmine.SpyObj<Router>;
-        messageServiceSpy = messageSpy;
     });
 
     it('should create', () => {
@@ -51,65 +91,39 @@ describe('UserDetailsComponent', () => {
 
     it('should load user in edit mode', () => {
         const user = { username: 'testuser', name: 'Test User', role: Role.Admin, description: 'desc' } as any;
-        usersServiceSpy.getUser.and.returnValue(of(user));
+        usersServiceSpy.getUser.mockReturnValue(of(user));
 
         fixture.detectChanges();
 
-        expect(component.isEditMode).toBeTrue();
+        expect(component.isEditMode).toBe(true);
         expect(usersServiceSpy.getUser).toHaveBeenCalledWith('testuser');
         expect(component.userForm.value.name).toBe('Test User');
-        // Password validator should be cleared
         expect(component.userForm.controls.password.validator).toBeNull();
     });
 
     it('should update user', () => {
         const user = { username: 'testuser', role: Role.Admin } as any;
-        usersServiceSpy.getUser.and.returnValue(of(user));
+        usersServiceSpy.getUser.mockReturnValue(of(user));
         fixture.detectChanges();
 
         component.userForm.patchValue({ name: 'Updated Name' });
-        usersServiceSpy.updateUser.and.returnValue(of({} as any));
+        usersServiceSpy.updateUser.mockReturnValue(of({} as any));
 
         component.saveUser();
 
         expect(usersServiceSpy.updateUser).toHaveBeenCalled();
-        expect(messageServiceSpy.add).toHaveBeenCalledWith(jasmine.objectContaining({ severity: 'success' }));
+        expect(messageServiceSpy.add).toHaveBeenCalledWith(expect.objectContaining({ severity: 'success' }));
         expect(routerSpy.navigate).toHaveBeenCalledWith(['/users']);
     });
 
     it('should create new user', () => {
-        // Reconfigure for new user mode
-        TestBed.resetTestingModule();
-        const usrSpy = jasmine.createSpyObj('UsersService', ['createUser']);
-        const routerSpyObj = jasmine.createSpyObj('Router', ['navigate']);
-        const messageSpy = jasmine.createSpyObj('MessageService', ['add']);
+        const paramsMap = { get: (key: string) => key === 'username' ? 'new' : null };
+        (component as any).route.paramMap = of(paramsMap);
 
-        TestBed.configureTestingModule({
-            imports: [UserDetailsComponent, NoopAnimationsModule],
-            providers: [
-                { provide: UsersService, useValue: usrSpy },
-                { provide: Router, useValue: routerSpyObj },
-                { provide: ActivatedRoute, useValue: { paramMap: of({ get: () => null }) } }, // Null or 'new'? code checks username && username !== 'new'
-                // If param is null, username becomes ''.
-                // code: this.username = params.get('username') || '';
-                // if (this.username && this.username !== 'new') ... else ...
-            ]
-        })
-            .overrideComponent(UserDetailsComponent, {
-                set: { providers: [{ provide: MessageService, useValue: messageSpy }] }
-            })
-            .compileComponents();
-
-        fixture = TestBed.createComponent(UserDetailsComponent);
-        component = fixture.componentInstance;
-        usersServiceSpy = TestBed.inject(UsersService) as jasmine.SpyObj<UsersService>;
-        routerSpy = TestBed.inject(Router) as jasmine.SpyObj<Router>;
-        messageServiceSpy = messageSpy;
-
+        component.ngOnInit();
         fixture.detectChanges();
 
-        expect(component.isEditMode).toBeFalse();
-        // Password should be required
+        expect(component.isEditMode).toBe(false);
         expect(component.userForm.controls.password.validator).toBeTruthy();
 
         component.userForm.setValue({
@@ -120,12 +134,12 @@ describe('UserDetailsComponent', () => {
             password: 'password'
         });
 
-        usersServiceSpy.createUser.and.returnValue(of({} as any));
+        usersServiceSpy.createUser.mockReturnValue(of({} as any));
 
         component.saveUser();
 
         expect(usersServiceSpy.createUser).toHaveBeenCalled();
-        expect(messageServiceSpy.add).toHaveBeenCalledWith(jasmine.objectContaining({ severity: 'success' }));
+        expect(messageServiceSpy.add).toHaveBeenCalledWith(expect.objectContaining({ severity: 'success' }));
         expect(routerSpy.navigate).toHaveBeenCalledWith(['/users']);
     });
 });

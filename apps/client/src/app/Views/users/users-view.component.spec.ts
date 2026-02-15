@@ -6,20 +6,37 @@ import { MessageService, ConfirmationService } from 'primeng/api';
 import { of } from 'rxjs';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { Role } from '../../core/Models/Role';
+import { vi } from 'vitest';
+import { getTestBed } from '@angular/core/testing';
+import { BrowserDynamicTestingModule, platformBrowserDynamicTesting } from '@angular/platform-browser-dynamic/testing';
 
 describe('UsersViewComponent', () => {
+    beforeAll(() => {
+        try {
+            getTestBed().initTestEnvironment(BrowserDynamicTestingModule, platformBrowserDynamicTesting());
+        } catch { }
+    });
+
     let component: UsersViewComponent;
     let fixture: ComponentFixture<UsersViewComponent>;
-    let usersServiceSpy: jasmine.SpyObj<UsersService>;
-    let routerSpy: jasmine.SpyObj<Router>;
-    let messageServiceSpy: jasmine.SpyObj<MessageService>;
-    let confirmationServiceSpy: jasmine.SpyObj<ConfirmationService>;
+    let usersServiceSpy: any;
+    let routerSpy: any;
+    let messageServiceSpy: any;
+    let confirmationServiceSpy: any;
+
+    const createSpyObj = (methodNames: string[]) => {
+        const obj: any = {};
+        for (const method of methodNames) {
+            obj[method] = vi.fn();
+        }
+        return obj;
+    };
 
     beforeEach(async () => {
-        const usrSpy = jasmine.createSpyObj('UsersService', ['getUsers', 'deleteUser']);
-        const routerSpyObj = jasmine.createSpyObj('Router', ['navigate']);
-        const messageSpy = jasmine.createSpyObj('MessageService', ['add']);
-        const confirmSpy = jasmine.createSpyObj('ConfirmationService', ['confirm']);
+        const usrSpy = createSpyObj(['getUsers', 'deleteUser']);
+        const routerSpyObj = createSpyObj(['navigate']);
+        const messageSpy = createSpyObj(['add']);
+        const confirmSpy = createSpyObj(['confirm']);
 
         await TestBed.configureTestingModule({
             imports: [UsersViewComponent, NoopAnimationsModule],
@@ -40,12 +57,12 @@ describe('UsersViewComponent', () => {
 
         fixture = TestBed.createComponent(UsersViewComponent);
         component = fixture.componentInstance;
-        usersServiceSpy = TestBed.inject(UsersService) as jasmine.SpyObj<UsersService>;
-        routerSpy = TestBed.inject(Router) as jasmine.SpyObj<Router>;
+        usersServiceSpy = TestBed.inject(UsersService);
+        routerSpy = TestBed.inject(Router);
         messageServiceSpy = messageSpy;
         confirmationServiceSpy = confirmSpy;
 
-        usersServiceSpy.getUsers.and.returnValue(of({ items: [{ username: 'user1', name: 'User 1' }] } as any));
+        usersServiceSpy.getUsers.mockReturnValue(of({ items: [{ username: 'user1', name: 'User 1' }] } as any));
     });
 
     it('should create', () => {
@@ -72,13 +89,13 @@ describe('UsersViewComponent', () => {
 
     it('should delete user', () => {
         const user = { username: 'test', name: 'Test' } as any;
-        confirmationServiceSpy.confirm.and.callFake((config: any) => config.accept());
-        usersServiceSpy.deleteUser.and.returnValue(of(void 0));
+        confirmationServiceSpy.confirm.mockImplementation((config: any) => config.accept());
+        usersServiceSpy.deleteUser.mockReturnValue(of(void 0));
 
         component.deleteUser(user);
 
         expect(usersServiceSpy.deleteUser).toHaveBeenCalledWith('test');
-        expect(messageServiceSpy.add).toHaveBeenCalledWith(jasmine.objectContaining({ severity: 'success' }));
+        expect(messageServiceSpy.add).toHaveBeenCalledWith(expect.objectContaining({ severity: 'success' }));
     });
 
     it('should get correct role severity', () => {

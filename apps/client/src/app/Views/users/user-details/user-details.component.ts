@@ -1,16 +1,16 @@
-import {Component, inject, OnInit} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {ActivatedRoute, Router} from '@angular/router';
-import {FormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
-import {ButtonModule} from 'primeng/button';
-import {InputTextModule} from 'primeng/inputtext';
-import {SelectModule} from 'primeng/select';
-import {PasswordModule} from 'primeng/password';
-import {MessageService} from 'primeng/api';
-import {ToastModule} from 'primeng/toast';
-import {UserCreate, UsersService, UserUpdateInformation} from '../../../core/Services/UsersService/UsersService';
-import {Role} from '../../../core/Models/Role';
-import {Textarea} from "primeng/textarea";
+import { Component, inject, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ActivatedRoute, Router } from '@angular/router';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ButtonModule } from 'primeng/button';
+import { InputTextModule } from 'primeng/inputtext';
+import { SelectModule } from 'primeng/select';
+import { PasswordModule } from 'primeng/password';
+import { MessageService } from 'primeng/api';
+import { ToastModule } from 'primeng/toast';
+import { UserCreate, UsersService, UserUpdateInformation } from '../../../core/Services/UsersService/UsersService';
+import { Role } from '../../../core/Models/Role';
+import { Textarea } from "primeng/textarea";
 
 @Component({
   selector: 'app-user-details',
@@ -39,10 +39,10 @@ export class UserDetailsComponent implements OnInit {
   isEditMode = false;
 
   roles = [
-    {label: 'Analyst', value: Role.Analyst},
-    {label: 'Developer', value: Role.Developer},
-    {label: 'Project Manager', value: Role.ProjectManager},
-    {label: 'Admin', value: Role.Admin}
+    { label: 'Analyst', value: Role.Analyst },
+    { label: 'Developer', value: Role.Developer },
+    { label: 'Project Manager', value: Role.ProjectManager },
+    { label: 'Admin', value: Role.Admin }
   ];
 
   userForm = this.fb.group({
@@ -56,30 +56,40 @@ export class UserDetailsComponent implements OnInit {
   ngOnInit() {
     this.route.paramMap.subscribe(params => {
       this.username = params.get('username') || '';
-      if (this.username && this.username !== 'new') {
-        this.isEditMode = true;
-        this.loadUser();
-      } else {
-        // New User Mode
-        this.isEditMode = false;
-        this.userForm.controls.password.setValidators(Validators.required);
-      }
+      this.loadUser(this.username);
     });
   }
 
-  loadUser() {
-    this.usersService.getUser(this.username).subscribe({
-      next: (user) => {
+  loadUser(username: string) {
+    if (!username || username === 'new') {
+      this.isEditMode = false;
+      this.userForm.controls['password'].setValidators([Validators.required, Validators.minLength(6)]);
+      this.userForm.controls['password'].updateValueAndValidity();
+      return;
+    }
+
+    this.isEditMode = true;
+    this.userForm.controls['password'].clearValidators();
+    this.userForm.controls['password'].updateValueAndValidity();
+
+    this.usersService.getUser(username).subscribe({
+      next: (u: any) => {
         this.userForm.patchValue({
-          username: user.username,
-          name: user.name,
-          role: parseInt(user.role as unknown as string) as Role,
-          description: user.description
+          username: u.username,
+          name: u.name,
+          role: u.role,
+          description: u.description
         });
-        this.userForm.controls.password.clearValidators();
-        this.userForm.controls.password.updateValueAndValidity();
+        this.userForm.get('username')?.disable();
       },
-      error: () => this.messageService.add({severity: 'error', summary: 'Error', detail: 'Failed to load user'})
+      error: (err) => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Failed to load user details'
+        });
+        this.goBack();
+      }
     });
   }
 
@@ -100,7 +110,7 @@ export class UserDetailsComponent implements OnInit {
       };
       this.usersService.updateUser(this.username, update).subscribe(() => {
         this.router.navigate(['/users']);
-        this.messageService.add({severity: 'success', summary: 'Success', detail: 'User updated'});
+        this.messageService.add({ severity: 'success', summary: 'Success', detail: 'User updated' });
       });
     } else {
       const create: UserCreate = {
@@ -112,7 +122,7 @@ export class UserDetailsComponent implements OnInit {
       };
       this.usersService.createUser(create).subscribe(() => {
         this.router.navigate(['/users']);
-        this.messageService.add({severity: 'success', summary: 'Success', detail: 'User created'});
+        this.messageService.add({ severity: 'success', summary: 'Success', detail: 'User created' });
       });
     }
   }
