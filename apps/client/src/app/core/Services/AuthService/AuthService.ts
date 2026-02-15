@@ -1,9 +1,8 @@
-import {computed, inject, Injectable, signal} from '@angular/core';
-import {Router} from '@angular/router';
-import {catchError, filter, map, Observable, of, switchMap, tap} from 'rxjs';
-import {Login} from '../../swagger/model/login';
-import {UserView} from '../../swagger/model/userView';
-import {AuthService as ApiAuthService} from '../../swagger/api/auth.service';
+import { computed, inject, Injectable, signal } from '@angular/core';
+import { Router } from '@angular/router';
+import { catchError, finalize, map, Observable, of, shareReplay, switchMap, tap } from 'rxjs';
+import { Login, UserView } from '../../swagger';
+import { AuthService as ApiAuthService } from '../../swagger/api/auth.service';
 
 export interface AuthState {
   user: UserView | null;
@@ -22,19 +21,13 @@ export class AuthService {
 
   private _tkn = signal<string | null>(localStorage.getItem('access_token'));
   private _rtkn = signal<string | null>(localStorage.getItem('refresh_token'));
-  readonly token = this._tkn.asReadonly();
 
   readonly isLoggedIn = computed(() => !!this._tkn());
 
+  private refreshTokenRequest$: Observable<boolean> | null = null;
+
   init() {
-    this.refreshToken()
-      .pipe(
-        filter((succeeded) => succeeded),
-        switchMap(() => this.fetchSelf()),
-        // tap(() => this.router.navigate(['/'])),
-        catchError(() => of(void 0))
-      )
-      .subscribe();
+    this.refreshToken().subscribe();
   }
 
   login(credentials: Login): Observable<void> {
@@ -48,24 +41,34 @@ export class AuthService {
   }
 
   refreshToken(): Observable<boolean> {
-    if (!this._rtkn()) {
-      return of(false)
-        .pipe(
-          tap(() => this.logout())
-        );
+    if (this.refreshTokenRequest$) {
+      return this.refreshTokenRequest$;
     }
-    return this.apiAuthService.authControllerRefreshToken({string: this._rtkn()!}).pipe(
+
+    if (!this._rtkn()) {
+      return of(false).pipe(tap(() => this.logout()));
+    }
+
+    this.refreshTokenRequest$ = this.apiAuthService.authControllerRefreshToken({ string: this._rtkn()! }).pipe(
       tap(response => {
         this.setSession(response.accessToken, response.refreshToken);
       }),
       switchMap(() => this.fetchSelf()),
-      map(() => true),
-      catchError(() => of(false))
+      map((user) => !!user),
+      catchError(() => {
+        this.logout();
+        return of(false);
+      }),
+      finalize(() => {
+        this.refreshTokenRequest$ = null;
+      }),
+      shareReplay(1)
     );
+
+    return this.refreshTokenRequest$;
   }
 
   logout() {
-    console.log('LOGOUT')
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
     this._tkn.set(null);

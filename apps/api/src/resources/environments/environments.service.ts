@@ -1,7 +1,7 @@
 import {Injectable, NotFoundException} from '@nestjs/common';
 import {InjectModel} from '@nestjs/mongoose';
 import {Model} from 'mongoose';
-import {from, map, Observable, of, switchMap} from 'rxjs';
+import {catchError, filter, from, map, Observable, of, switchMap, take, tap, throwError} from 'rxjs';
 import {AsFilteredListOf} from '../../database/filtered-list';
 import {
     CreateEnvironment,
@@ -13,6 +13,7 @@ import {
 } from '../../database/schemas/environment.schema';
 import {Project, ProjectDocument,} from '../../database/schemas/project.schema';
 import {throwIfNoValuePipe} from '../../global/error-responses';
+import {ProjectsService} from "../projects/projects.service";
 
 export const EnvironmentFilteredListClass = AsFilteredListOf(Environment);
 export type EnvironmentFilteredList = InstanceType<
@@ -26,7 +27,57 @@ export class EnvironmentsService {
         private readonly environmentModel: Model<EnvironmentDocument>,
         @InjectModel(Project.name)
         private readonly projectModel: Model<ProjectDocument>,
+        private readonly projectsService: ProjectsService
     ) {
+        this.checkForDefaultProject();
+    }
+
+    checkForDefaultProject() {
+        from(
+            this.projectModel.countDocuments({name: 'ng-reports'})
+        )
+            .pipe(
+                take(1),
+                filter(count => count === 0),
+                tap(() => console.log('Default project not found, creating one...')),
+                switchMap(() =>
+                    this.projectsService.create({
+                        projectId: 'ng-reports',
+                        name: 'NG Reports',
+                        description: 'NG Reports (self) project.'
+                    })
+                ),
+                switchMap(() =>
+                    this.create({
+                        projectId: 'ng-reports',
+                        environmentId: 'ng-reports-prod',
+                        name: 'Production',
+                        description: 'Production environment.',
+                        urls: [
+                            {url: 'http://localhost:4201', name: 'Localhost'},
+                            {url: 'http://172.0.0.1:4201', name: 'Localhost IP'}
+                        ]
+                    })
+                ),
+                switchMap(() =>
+                    this.create({
+                        projectId: 'ng-reports',
+                        environmentId: 'ng-reports-dev',
+                        name: 'Development',
+                        description: 'Development environment.',
+                        urls: [
+                            {url: 'http://localhost:4201', name: 'Localhost'},
+                            {url: 'http://172.0.0.1:4201', name: 'Localhost IP'}
+                        ]
+                    })
+                ),
+                tap(() => console.log('Created default project and environments')),
+                catchError((err) => {
+                    console.log('An error occurred while creating default project and environments');
+                    return throwError(err);
+                })
+            )
+            .subscribe();
     }
 
     findAll(

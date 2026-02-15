@@ -30,7 +30,7 @@ import {NgReportsComponent, NgReportsService} from 'ng-reports-form';
       <nav class="w-full md:w-16rem surface-card shadow-4 flex flex-column p-3 md:h-screen sticky top-0 z-5">
 
         <div class="flex align-items-center gap-2 mb-4 md:mb-6 px-2">
-          <i class="pi pi-chart-bar text-2xl text-primary-500"></i>
+          <img src="/ng-reports.png" alt="NG Reports Icon" class="w-2rem aspect-square"/>
           <span class="text-xl font-bold hidden md:inline">NgReports</span>
         </div>
 

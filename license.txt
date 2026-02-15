@@ -1,0 +1,7 @@
+License: Creative Commons Attribution-NonCommercial-NoDerivs (CC BY-NC-ND 4.0)
+Author:
+    Mateusz Bilicz
+    https://mateuszbilicz.pl/
+    https://github.com/mateuszbilicz
+
+* License applies to all the previous, current and future versions of NG Reports.

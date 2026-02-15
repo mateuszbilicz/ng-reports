@@ -57,7 +57,7 @@ export const appConfig: ApplicationConfig = {
         environment: environment.production ? 'ng-reports-prod' : 'ng-reports-dev',
         projectId: 'ng-reports',
         language: 'EN',
-        allowAttachments: true,
+        allowAttachments: false,
         attachmentsLimit: 3,
         logsLimit: 100,
         collectConsoleLogs: true,

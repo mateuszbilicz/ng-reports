@@ -1,20 +1,26 @@
-import {Component, inject, signal} from '@angular/core';
-import {CommonModule, formatDate} from '@angular/common';
-import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule} from '@angular/forms';
-import {ButtonModule} from 'primeng/button';
-import {InputTextModule} from 'primeng/inputtext';
-import {SelectButtonModule} from 'primeng/selectbutton';
-import {TableModule} from 'primeng/table';
-import {StatisticsService} from '../../core/Services/StatisticsService/StatisticsService';
-import {ChartComponent} from 'ng-apexcharts';
-import {Select} from 'primeng/select';
-import {StyleClass} from 'primeng/styleclass';
-import {InputIcon} from 'primeng/inputicon';
-import {IconField} from 'primeng/iconfield';
-import {DatePicker} from 'primeng/datepicker';
-import {Statistics} from '../../core/swagger';
-import {Severity} from '../../core/Models/Severity';
-import {downloadFile} from '../../core/Utils/download-file';
+import { Component, inject, signal } from '@angular/core';
+import { CommonModule, formatDate } from '@angular/common';
+import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { ButtonModule } from 'primeng/button';
+import { InputTextModule } from 'primeng/inputtext';
+import { SelectButtonModule } from 'primeng/selectbutton';
+import { TableModule } from 'primeng/table';
+import { StatisticsService } from '../../core/Services/StatisticsService/StatisticsService';
+import { ChartComponent } from 'ng-apexcharts';
+import { Select } from 'primeng/select';
+import { StyleClass } from 'primeng/styleclass';
+import { InputIcon } from 'primeng/inputicon';
+import { IconField } from 'primeng/iconfield';
+import { DatePicker } from 'primeng/datepicker';
+import { Statistics } from '../../core/swagger';
+import { Severity } from '../../core/Models/Severity';
+import { downloadFile } from '../../core/Utils/download-file';
+import { ProjectsService } from '../../core/Services/ProjectsService/ProjectsService';
+import { Project } from '../../core/swagger/model/project';
+import { Environment } from '../../core/swagger/model/environment';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { shareReplay } from 'rxjs/operators';
+import { map } from 'rxjs';
 
 export type ChartOptions = any;
 
@@ -39,39 +45,68 @@ export type ChartOptions = any;
 })
 export class StatisticsViewComponent {
   protected readonly statisticsService = inject(StatisticsService);
+  protected readonly projectsService = inject(ProjectsService);
   private fb = inject(FormBuilder);
 
   isLoading = signal(false);
   tableData = signal<any[]>([]);
 
+  projects = toSignal(this.projectsService.getProjects().pipe(
+    map(res => res.items as Project[]),
+    shareReplay(1)
+  ), { initialValue: [] });
+
+  environments = signal<Environment[]>([]);
+
   viewOptions = [
-    {label: 'Chart', value: 'chart', icon: 'pi pi-chart-bar'},
-    {label: 'Table', value: 'table', icon: 'pi pi-table'}
+    { label: 'Chart', value: 'chart', icon: 'pi pi-chart-bar' },
+    { label: 'Table', value: 'table', icon: 'pi pi-table' }
   ];
-  viewControl = new FormControl('chart', {nonNullable: true});
+  viewControl = new FormControl('chart', { nonNullable: true });
 
   filterForm: FormGroup = this.fb.group({
     sampling: ['day'],
     dateRange: [[new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), new Date()]],
     severity: [null],
+    projectId: [null],
+    environmentId: [null],
     textFilter: [''],
     fixed: [null]
   });
 
   samplingOptions = [
-    {label: 'Hour', value: 'hour'},
-    {label: 'Day', value: 'day'},
-    {label: 'Week', value: 'week'},
-    {label: 'Month', value: 'month'}
+    { label: 'Hour', value: 'hour' },
+    { label: 'Day', value: 'day' },
+    { label: 'Week', value: 'week' },
+    { label: 'Month', value: 'month' }
   ];
 
   severityOptions = [
-    {label: 'Any', value: null},
-    {label: 'Info', value: 0},
-    {label: 'Warning', value: 1},
-    {label: 'Error', value: 2},
-    {label: 'Critical', value: 3}
+    { label: 'Any', value: null },
+    { label: 'Info', value: 0 },
+    { label: 'Warning', value: 1 },
+    { label: 'Error', value: 2 },
+    { label: 'Critical', value: 3 }
   ];
+
+  constructor() {
+    this.filterForm.get('projectId')?.valueChanges
+      .pipe(
+        takeUntilDestroyed()
+      )
+      .subscribe(projectId => {
+        this.filterForm.patchValue({ environmentId: null });
+        if (projectId) {
+          const project = this.projects().find(p => p.projectId === projectId);
+          this.environments.set(project?.environments || []);
+          this.filterForm.get('environmentId')?.enable();
+        } else {
+          this.environments.set([]);
+          this.filterForm.get('environmentId')?.setValue(null);
+          this.filterForm.get('environmentId')?.disable();
+        }
+      });
+  }
 
   public chartOptions: Partial<ChartOptions> | any = { // Using any to avoid strict type checks for now as ChartOptions type is 'any' alias
     series: [],
@@ -108,32 +143,48 @@ export class StatisticsViewComponent {
       categories: []
     },
     dataLabels: {
-      enabled: false
+      enabled: true,
+      style: {
+        colors: ['#fff'],
+        fontSize: '12px',
+        fontWeight: 'bold',
+      },
+      background: {
+        enabled: true,
+        foreColor: '#fff',
+        borderRadius: 2,
+        padding: 4,
+        opacity: 0.9,
+        borderWidth: 1,
+        borderColor: '#fff'
+      },
     }
   };
 
   updateChartOptionsDependingOnSeverity() {
-    this.chartOptions.chart.fill.gradient.gradientToColors = [
-      (() => {
-        switch (+(this.filterForm.get('severity')!.value)) {
-          case Severity.Info:
-            return '#558dae';
-          case Severity.Warning:
-            return '#ffae00';
-          case Severity.Error:
-            return '#ff5500';
-          case Severity.Critical:
-            return '#ff0000';
-          default:
-            return '#0994dd';
-        }
-      })()
-    ];
+    const color = (() => {
+      switch (+(this.filterForm.get('severity')!.value)) {
+        case Severity.Info:
+          return '#558dae';
+        case Severity.Warning:
+          return '#ffae00';
+        case Severity.Error:
+          return '#ff5500';
+        case Severity.Critical:
+          return '#ff0000';
+        default:
+          return '#0994dd';
+      }
+    })();
+
+    this.chartOptions.chart.fill.gradient.gradientToColors = [color];
+    this.chartOptions.chart.stroke.colors = [color];
+    this.chartOptions.dataLabels.style.colors = [color];
   }
 
   loadStatistics() {
     this.isLoading.set(true);
-    const {sampling, dateRange, severity, textFilter, fixed} = this.filterForm.value;
+    const { sampling, dateRange, severity, textFilter, fixed, projectId, environmentId } = this.filterForm.value;
     const dateFrom = dateRange && dateRange[0] ? dateRange[0] : new Date();
     const rawDateTo = dateRange && dateRange[1] ? dateRange[1] : new Date();
     const dateTo = new Date(rawDateTo);
@@ -143,11 +194,11 @@ export class StatisticsViewComponent {
       sampling,
       dateFrom,
       dateTo,
-      undefined,
-      undefined,
+      projectId || undefined,
+      environmentId || undefined,
       textFilter || undefined,
       severity ?? undefined,
-      fixed ?? undefined
+      fixed ?? undefined,
     ).subscribe({
       next: (data) => {
         this.processData(data);
@@ -201,17 +252,18 @@ export class StatisticsViewComponent {
   }
 
   exportToCSV() {
-    const data = this.tableData() as unknown as {date: string, value: string}[];
+    const data = this.tableData() as unknown as { date: string, value: string }[];
     let csv = `"NG Reports Statistics data"\nTime,"${formatDate(new Date(), 'yyyy/MM/dd HH:mm:ss', 'en-US')}"\n`;
     csv += `"Filters:"\n"Sampling","${this.filterForm.get('sampling')?.value}"\n"Date Range","${formatDate(this.filterForm.get('dateRange')?.value[0], 'yyyy/MM/dd HH:mm:ss', 'en-US')}","${formatDate(this.filterForm.get('dateRange')?.value[1], 'yyyy/MM/dd HH:mm:ss', 'en-US')}"\n`
     csv += `"Severity","${this.filterForm.get('severity')?.value}"\n"Text filter","${this.filterForm.get('textFilter')?.value}"\n`;
+    csv += `"Project","${this.filterForm.get('projectId')?.value}"\n"Environment","${this.filterForm.get('environmentId')?.value}"\n`;
     csv += `"Fixed","${this.filterForm.get('fixed')?.value}"\n`;
     csv += `\n"Data:"\n`;
     csv += `"Date","Value"\n`;
     data.forEach(item => {
       csv += `"${item.date}","${item.value}"\n`;
     });
-    const blob = new Blob([csv], {type: 'text/csv'});
+    const blob = new Blob([csv], { type: 'text/csv' });
     downloadFile(blob, `ng-reports-stats-${formatDate(new Date(), 'yyyyMMddHHmmss', 'en-US')}.csv`);
   }
 }
