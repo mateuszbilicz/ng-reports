@@ -3,7 +3,7 @@
 
   <div class="flex justify-content-between align-items-center mb-4">
     <h2 class="m-0 text-900">{{ isEditMode ? 'Edit User' : 'New User' }}</h2>
-    <p-button label="Back" icon="pi pi-arrow-left" styleClass="p-button-secondary p-button-text"
+    <p-button label="Back" icon="pi pi-arrow-left" severity="secondary" [text]="true"
               (onClick)="goBack()"></p-button>
   </div>
 
@@ -39,7 +39,7 @@
     }
 
     <div class="flex gap-2 justify-content-end mt-4">
-      <p-button label="Cancel" icon="pi pi-times" styleClass="p-button-text" (onClick)="goBack()"></p-button>
+      <p-button label="Cancel" icon="pi pi-times" [text]="true" (onClick)="goBack()"></p-button>
       <p-button label="Save" icon="pi pi-check" (onClick)="saveUser()" [disabled]="userForm.invalid"></p-button>
     </div>
 

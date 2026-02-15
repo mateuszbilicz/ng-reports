@@ -12,9 +12,9 @@
                            (input)="dt.filterGlobal($any($event.target).value, 'contains')"/>
                 </p-iconField>
             </span>
-      <p-button icon="pi pi-refresh" (onClick)="loadUsers()" styleClass="p-button-outlined p-button-secondary"
+      <p-button icon="pi pi-refresh" (onClick)="loadUsers()" severity="secondary" [outlined]="true"
                 pTooltip="Refresh"></p-button>
-      <p-button label="New User" icon="pi pi-plus" (onClick)="createNewUser()" styleClass="p-button-primary"
+      <p-button label="New User" icon="pi pi-plus" (onClick)="createNewUser()"
                 pTooltip="New User"></p-button>
     </div>
   </div>
@@ -36,9 +36,9 @@
           <p-tag [value]="getRoleName(user.role)" [severity]="getRoleSeverity(user.role)"></p-tag>
         </td>
         <td>
-          <p-button icon="pi pi-pencil" styleClass="p-button-text p-button-warning" (onClick)="editUser(user)"
+          <p-button icon="pi pi-pencil" severity="warn" [text]="true" (onClick)="editUser(user)"
                     pTooltip="Edit"></p-button>
-          <p-button icon="pi pi-trash" styleClass="p-button-text p-button-danger" (onClick)="deleteUser(user)"
+          <p-button icon="pi pi-trash" severity="danger" [text]="true" (onClick)="deleteUser(user)"
                     pTooltip="Delete"></p-button>
         </td>
       </tr>

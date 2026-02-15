@@ -13,6 +13,7 @@ import {UsersService} from '../../core/Services/UsersService/UsersService';
 import {UserMini} from '../../core/swagger/model/userMini';
 import {Role} from '../../core/Models/Role';
 import {InputText} from 'primeng/inputtext';
+import {Tooltip} from 'primeng/tooltip';
 
 @Component({
   selector: 'app-users-view',
@@ -26,7 +27,8 @@ import {InputText} from 'primeng/inputtext';
     ConfirmDialogModule,
     IconFieldModule,
     InputIconModule,
-    InputText
+    InputText,
+    Tooltip
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './users-view.component.html'

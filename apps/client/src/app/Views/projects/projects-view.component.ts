@@ -1,4 +1,4 @@
-import {Component, inject, OnInit, signal} from '@angular/core';
+import {Component, DestroyRef, inject, OnInit, signal} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {Router} from '@angular/router';
 import {FormArray, FormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
@@ -19,6 +19,8 @@ import {Project} from '../../core/swagger/model/project';
 import {CreateProject} from '../../core/swagger/model/createProject';
 import {UpdateProject} from '../../core/swagger/model/updateProject';
 import {CreateEnvironment} from '../../core/swagger/model/createEnvironment';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {Tooltip} from 'primeng/tooltip';
 
 @Component({
   selector: 'app-projects-view',
@@ -34,16 +36,18 @@ import {CreateEnvironment} from '../../core/swagger/model/createEnvironment';
     ConfirmDialogModule,
     TextareaModule,
     IconFieldModule,
-    InputIconModule
+    InputIconModule,
+    Tooltip
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './projects-view.component.html'
 })
 export class ProjectsViewComponent implements OnInit {
-  router = inject(Router);
-  projectsService = inject(ProjectsService);
-  messageService = inject(MessageService);
-  confirmationService = inject(ConfirmationService);
+  protected readonly destroyRef = inject(DestroyRef);
+  protected readonly router = inject(Router);
+  protected readonly projectsService = inject(ProjectsService);
+  protected readonly messageService = inject(MessageService);
+  protected readonly confirmationService = inject(ConfirmationService);
   fb = inject(FormBuilder);
 
   projects = signal<Project[]>([]);
@@ -66,7 +70,11 @@ export class ProjectsViewComponent implements OnInit {
   }
 
   loadProjects() {
-    this.projectsService.getProjects().subscribe(data => {
+    this.projectsService.getProjects()
+      .pipe(
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(data => {
       // Assuming data.projects or similar structure based on API
       const projects = (data as any).projects || (data as any).items || (Array.isArray(data) ? data : []);
       this.projects.set(projects);
@@ -133,7 +141,11 @@ export class ProjectsViewComponent implements OnInit {
         description: val.description || '',
       };
 
-      this.projectsService.updateProject(this.currentProjectId, update).subscribe(() => {
+      this.projectsService.updateProject(this.currentProjectId, update)
+        .pipe(
+          takeUntilDestroyed(this.destroyRef)
+        )
+        .subscribe(() => {
         this.loadProjects();
         this.hideDialog();
         this.messageService.add({severity: 'success', summary: 'Successful', detail: 'Project Updated', life: 3000});
@@ -146,6 +158,7 @@ export class ProjectsViewComponent implements OnInit {
       };
 
       this.projectsService.createProject(create).pipe(
+        takeUntilDestroyed(this.destroyRef),
         switchMap(project => {
           if (envs.length === 0) return of(project);
 

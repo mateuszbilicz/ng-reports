@@ -16,6 +16,7 @@ import {Environment} from '../../../core/swagger/model/environment';
 import {UpdateProject} from '../../../core/swagger/model/updateProject';
 import {CreateEnvironment} from '../../../core/swagger/model/createEnvironment';
 import {UpdateEnvironment} from '../../../core/swagger/model/updateEnvironment';
+import {Tooltip} from 'primeng/tooltip';
 
 @Component({
   selector: 'app-project-details',
@@ -29,7 +30,8 @@ import {UpdateEnvironment} from '../../../core/swagger/model/updateEnvironment';
     InputTextModule,
     TextareaModule,
     ToastModule,
-    ConfirmDialogModule
+    ConfirmDialogModule,
+    Tooltip
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './project-details.component.html'

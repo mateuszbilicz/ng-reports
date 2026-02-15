@@ -12,9 +12,9 @@
                            (input)="dt.filterGlobal($any($event.target).value, 'contains')"/>
                 </p-iconField>
             </span>
-      <p-button icon="pi pi-refresh" (onClick)="loadProjects()" styleClass="p-button-outlined p-button-secondary"
+      <p-button icon="pi pi-refresh" (onClick)="loadProjects()" severity="secondary" [outlined]="true"
                 pTooltip="Refresh"></p-button>
-      <p-button label="New Project" icon="pi pi-plus" (onClick)="openNew()" styleClass="p-button-primary"
+      <p-button label="New Project" icon="pi pi-plus" (onClick)="openNew()"
                 pTooltip="New Project"></p-button>
     </div>
   </div>
@@ -33,9 +33,9 @@
         <td>{{ project.name }}</td>
         <td>{{ project.description }}</td>
         <td>
-          <p-button icon="pi pi-pencil" styleClass="p-button-text p-button-warning"
+          <p-button icon="pi pi-pencil" severity="warn" [text]="true"
                     (onClick)="editProject(project)" pTooltip="Edit"></p-button>
-          <p-button icon="pi pi-trash" styleClass="p-button-text p-button-danger"
+          <p-button icon="pi pi-trash" severity="danger" [text]="true"
                     (onClick)="deleteProject(project)" pTooltip="Delete"></p-button>
         </td>
       </tr>
@@ -67,12 +67,12 @@
                 <input type="text" pInputText formControlName="name" placeholder="Name (e.g. Dev)"
                        class="flex-1"/>
                 <input type="text" pInputText formControlName="url" placeholder="URL" class="flex-2"/>
-                <button pButton icon="pi pi-trash" class="p-button-danger p-button-text"
-                        (click)="removeEnvironment($index)"></button>
+                <p-button icon="pi pi-trash" severity="danger" [text]="true"
+                        (click)="removeEnvironment($index)"></p-button>
               </div>
             }
-            <button pButton label="Add Environment" icon="pi pi-plus"
-                    class="p-button-outlined p-button-sm align-self-start" (click)="addEnvironment()"></button>
+            <p-button label="Add Environment" icon="pi pi-plus" [outlined]="true" size="small"
+                    class="align-self-start" (click)="addEnvironment()"></p-button>
           </div>
         </div>
 

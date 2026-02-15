@@ -16,9 +16,9 @@
           </div>
         </div>
         <div class="flex gap-2">
-          <p-button label="Edit Report" icon="pi pi-pencil" styleClass="p-button-outlined"
+          <p-button label="Edit Report" icon="pi pi-pencil" [outlined]="true"
                     (onClick)="editReport()"></p-button>
-          <p-button label="Back" icon="pi pi-arrow-left" styleClass="p-button-secondary p-button-text"
+          <p-button label="Back" icon="pi pi-arrow-left" severity="secondary" [text]="true"
                     (onClick)="goBack()"></p-button>
         </div>
       </div>
@@ -60,8 +60,8 @@
               <div><span
                 class="font-semibold">Connection type:&nbsp;</span><span>{{ environment().connectionType }}</span></div>
               <div><span class="font-semibold">RAM:&nbsp;</span><span>{{ environment().ram ?? '??' }} GB</span></div>
-              <div><span class="font-semibold">Window size:&nbsp;</span><span>{{ environment().windowSize.width }}
-                x{{ environment().windowSize.height }}</span></div>
+              <div><span class="font-semibold">Window size:&nbsp;</span><span>{{ environment().windowSize?.width ?? '??' }}
+                x{{ environment().windowSize?.height ?? '??' }}</span></div>
             </div>
           </p-accordion-content>
         </p-accordion-panel>

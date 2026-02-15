@@ -23,8 +23,8 @@
         </p-iconField>
       </span>
       <p-button icon="pi pi-refresh" (onClick)="loadReports(currentEnvIdForList)"
-                styleClass="p-button-outlined p-button-secondary" pTooltip="Refresh"/>
-      <p-button label="New Report" icon="pi pi-plus" (onClick)="openNew()" styleClass="p-button-primary"/>
+                severity="secondary" [outlined]="true" pTooltip="Refresh"/>
+      <p-button label="New Report" icon="pi pi-plus" (onClick)="openNew()"/>
     </div>
   </div>
 
