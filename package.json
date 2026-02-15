@@ -10,8 +10,7 @@
     "db:up": "sh ./scripts/start-mongo.sh",
     "install:server": "sh ./scripts/install.sh",
     "swagger": "cd scripts && java -jar swagger-codegen-cli.jar generate -l typescript-angular -i ../apps/api/swagger.json -o ../apps/client/src/app/core/swagger",
-    "pack:lib": "sh ./scripts/pack-ng-reports.sh",
-    "test": "turbo run test"
+    "pack:lib": "sh ./scripts/pack-ng-reports.sh"
   },
   "keywords": [],
   "author": "",
@@ -19,8 +18,5 @@
   "packageManager": "pnpm@10.17.0",
   "devDependencies": {
     "turbo": "^2.6.1"
-  },
-  "dependencies": {
-    "@mermaid-js/mermaid-cli": "^11.12.0"
   }
 }

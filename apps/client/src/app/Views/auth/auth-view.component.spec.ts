@@ -1,100 +1,118 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+// @vitest-environment jsdom
+import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { AuthViewComponent } from './auth-view.component';
 import { AuthService } from '../../core/Services/AuthService/AuthService';
 import { Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
+import { ReactiveFormsModule } from '@angular/forms';
 import { of, throwError } from 'rxjs';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { vi } from 'vitest';
-import { getTestBed } from '@angular/core/testing';
-import { BrowserDynamicTestingModule, platformBrowserDynamicTesting } from '@angular/platform-browser-dynamic/testing';
 
 describe('AuthViewComponent', () => {
-    beforeAll(() => {
-        try {
-            getTestBed().initTestEnvironment(BrowserDynamicTestingModule, platformBrowserDynamicTesting());
-        } catch { }
-    });
-
     let component: AuthViewComponent;
     let fixture: ComponentFixture<AuthViewComponent>;
-    let authServiceSpy: any;
-    let routerSpy: any;
-    let messageServiceSpy: any;
+    let authServiceMock: any;
+    let routerMock: any;
+    let messageServiceMock: any;
 
     beforeEach(async () => {
-        const authSpy = {
-            login: vi.fn()
+        authServiceMock = {
+            login: vi.fn(),
         };
-        const routerSpyObj = {
-            navigate: vi.fn()
-        };
-        const messageSpy = {
-            add: vi.fn()
+
+        routerMock = {
+            navigate: vi.fn(),
         };
 
         await TestBed.configureTestingModule({
-            imports: [AuthViewComponent, NoopAnimationsModule],
+            imports: [
+                AuthViewComponent,
+                ReactiveFormsModule,
+                NoopAnimationsModule,
+            ],
             providers: [
-                { provide: AuthService, useValue: authSpy },
-                { provide: Router, useValue: routerSpyObj },
-            ]
-        })
-            .overrideComponent(AuthViewComponent, {
-                set: {
-                    providers: [
-                        { provide: MessageService, useValue: messageSpy }
-                    ]
-                }
-            })
-            .compileComponents();
+                MessageService, // Use real service
+                { provide: AuthService, useValue: authServiceMock },
+                { provide: Router, useValue: routerMock },
+            ],
+        }).compileComponents();
 
         fixture = TestBed.createComponent(AuthViewComponent);
         component = fixture.componentInstance;
-        authServiceSpy = TestBed.inject(AuthService);
-        routerSpy = TestBed.inject(Router);
-        messageServiceSpy = messageSpy;
+        messageServiceMock = TestBed.inject(MessageService);
+        vi.spyOn(messageServiceMock, 'add');
+        fixture.detectChanges();
     });
 
     it('should create', () => {
         expect(component).toBeTruthy();
     });
 
+    it('should initialize loginForm with empty values', () => {
+        expect(component.loginForm.value).toEqual({
+            username: '',
+            password: '',
+        });
+    });
+
     it('should be invalid when empty', () => {
         expect(component.loginForm.valid).toBe(false);
     });
 
-    it('should be valid when filled', () => {
-        component.loginForm.controls['username'].setValue('test');
-        component.loginForm.controls['password'].setValue('password');
+    it('should be valid when username and password are provided', () => {
+        component.loginForm.patchValue({
+            username: 'testuser',
+            password: 'testpassword',
+        });
         expect(component.loginForm.valid).toBe(true);
     });
 
-    it('should call login on submit', () => {
-        component.loginForm.controls['username'].setValue('test');
-        component.loginForm.controls['password'].setValue('password');
+    describe('onSubmit', () => {
+        it('should not call authService.login if form is invalid', () => {
+            component.onSubmit();
+            expect(authServiceMock.login).not.toHaveBeenCalled();
+        });
 
-        authServiceSpy.login.mockReturnValue(of(void 0));
+        it('should call authService.login and navigate on success', () => {
+            component.loginForm.patchValue({
+                username: 'testuser',
+                password: 'testpassword',
+            });
+            authServiceMock.login.mockReturnValue(of(undefined));
 
-        component.onSubmit();
+            component.onSubmit();
 
-        expect(component.loading).toBe(false);
-        expect(authServiceSpy.login).toHaveBeenCalledWith({ username: 'test', password: 'password' });
-        expect(routerSpy.navigate).toHaveBeenCalledWith(['/']);
-    });
+            // loading should be false again after success
+            expect(component.loading).toBe(false);
+            expect(authServiceMock.login).toHaveBeenCalledWith({
+                username: 'testuser',
+                password: 'testpassword',
+            });
 
-    it('should show error on login failure', () => {
-        component.loginForm.controls['username'].setValue('test');
-        component.loginForm.controls['password'].setValue('password');
+            expect(routerMock.navigate).toHaveBeenCalledWith(['/']);
+        });
 
-        authServiceSpy.login.mockReturnValue(throwError(() => new Error('Error')));
+        it('should show error message on login failure', () => {
+            component.loginForm.patchValue({
+                username: 'testuser',
+                password: 'testpassword',
+            });
+            authServiceMock.login.mockReturnValue(throwError(() => new Error('Login failed')));
 
-        component.onSubmit();
+            // In the component, MessageService is provided locally.
+            // We need to spy on the instance that the component actually uses.
+            const localMessageService = fixture.debugElement.injector.get(MessageService);
+            const addSpy = vi.spyOn(localMessageService, 'add');
 
-        expect(component.loading).toBe(false);
-        expect(authServiceSpy.login).toHaveBeenCalled();
-        expect(messageServiceSpy.add).toHaveBeenCalledWith(expect.objectContaining({ severity: 'error', summary: 'Login Failed' }));
-        expect(routerSpy.navigate).not.toHaveBeenCalled();
+            component.onSubmit();
+
+            expect(component.loading).toBe(false);
+            expect(addSpy).toHaveBeenCalledWith({
+                severity: 'error',
+                summary: 'Login Failed',
+                detail: 'Invalid credentials or server error',
+            });
+        });
     });
 });
-

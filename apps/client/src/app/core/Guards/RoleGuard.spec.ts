@@ -1,64 +1,59 @@
-import { vi } from 'vitest';
-import {getTestBed, TestBed} from '@angular/core/testing';
-import { BrowserDynamicTestingModule, platformBrowserDynamicTesting } from '@angular/platform-browser-dynamic/testing';
-import {RoleGuard} from './RoleGuard';
-import {RolesService} from '../Services/roles-service/roles-service';
-import {Router} from '@angular/router';
-import {Role} from '../Models/Role';
+// @vitest-environment jsdom
+import { TestBed } from '@angular/core/testing';
+import { Router } from '@angular/router';
+import { RoleGuard } from './RoleGuard';
+import { RolesService } from '../Services/roles-service/roles-service';
+import { Role } from '../Models/Role';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 describe('RoleGuard', () => {
-    beforeAll(() => {
-        try {
-            getTestBed().initTestEnvironment(BrowserDynamicTestingModule, platformBrowserDynamicTesting());
-        } catch { }
-    });
-
     let guard: RoleGuard;
-    let rolesServiceSpy: any;
-    let routerSpy: any;
-
-    const createSpyObj = (methodNames: string[]) => {
-        const obj: any = {};
-        for (const method of methodNames) {
-            obj[method] = vi.fn();
-        }
-        return obj;
-    };
+    let rolesServiceMock: any;
+    let routerMock: any;
 
     beforeEach(() => {
-        const roleSpy = createSpyObj(['minRole']);
-        const routerSpyObj = createSpyObj(['navigate']);
+        rolesServiceMock = {
+            minRole: vi.fn(),
+        };
+
+        routerMock = {
+            navigate: vi.fn(),
+        };
 
         TestBed.configureTestingModule({
             providers: [
                 RoleGuard,
-                { provide: RolesService, useValue: roleSpy },
-                { provide: Router, useValue: routerSpyObj }
-            ]
+                { provide: RolesService, useValue: rolesServiceMock },
+                { provide: Router, useValue: routerMock },
+            ],
         });
+
         guard = TestBed.inject(RoleGuard);
-        rolesServiceSpy = TestBed.inject(RolesService);
-        routerSpy = TestBed.inject(Router);
     });
 
-    it('should allow activation if no minRole specified', () => {
+    it('should return true if no role restriction is defined', () => {
         const route = { data: {} } as any;
-        expect(guard.canActivate(route, null as any)).toBe(true);
+        const result = guard.canActivate(route, {} as any);
+        expect(result).toBe(true);
     });
 
-    it('should allow activation if user has required role', () => {
+    it('should return true if user has required role', () => {
         const route = { data: { minRole: Role.Admin } } as any;
-        rolesServiceSpy.minRole.mockReturnValue(true);
+        rolesServiceMock.minRole.mockReturnValue(true);
 
-        expect(guard.canActivate(route, null as any)).toBe(true);
-        expect(rolesServiceSpy.minRole).toHaveBeenCalledWith(Role.Admin);
+        const result = guard.canActivate(route, {} as any);
+
+        expect(result).toBe(true);
+        expect(rolesServiceMock.minRole).toHaveBeenCalledWith(Role.Admin);
     });
 
-    it('should deny activation and redirect if user lacks role', () => {
+    it('should navigate to home and return false if user doesn\'t have role', () => {
         const route = { data: { minRole: Role.Admin } } as any;
-        rolesServiceSpy.minRole.mockReturnValue(false);
+        rolesServiceMock.minRole.mockReturnValue(false);
 
-        expect(guard.canActivate(route, null as any)).toBe(false);
-        expect(routerSpy.navigate).toHaveBeenCalledWith(['/']);
+        const result = guard.canActivate(route, {} as any);
+
+        expect(result).toBe(false);
+        expect(routerMock.navigate).toHaveBeenCalledWith(['/']);
     });
 });

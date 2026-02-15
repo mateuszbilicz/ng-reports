@@ -1,7 +1,5 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { ProjectsController } from './projects.controller';
-import { ProjectsService } from './projects.service';
-import { AuthGuard } from '../auth/auth.guard';
+import {Test, TestingModule} from '@nestjs/testing';
+import {ProjectsController} from './projects.controller';
 
 describe('ProjectsController', () => {
     let controller: ProjectsController;
@@ -9,16 +7,7 @@ describe('ProjectsController', () => {
     beforeEach(async () => {
         const module: TestingModule = await Test.createTestingModule({
             controllers: [ProjectsController],
-            providers: [
-                {
-                    provide: ProjectsService,
-                    useValue: {},
-                }
-            ]
-        })
-            .overrideGuard(AuthGuard)
-            .useValue({ canActivate: () => true })
-            .compile();
+        }).compile();
 
         controller = module.get<ProjectsController>(ProjectsController);
     });

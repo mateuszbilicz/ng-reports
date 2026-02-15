@@ -1,11 +1,5 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { CommentsController } from './comments.controller';
-import { CommentsService } from './comments.service';
-import { AuthGuard } from '../auth/auth.guard';
-
-vi.mock('nanoid', () => ({
-    nanoid: () => 'mock-id',
-}));
+import {Test, TestingModule} from '@nestjs/testing';
+import {CommentsController} from './comments.controller';
 
 describe('CommentsController', () => {
     let controller: CommentsController;
@@ -13,16 +7,7 @@ describe('CommentsController', () => {
     beforeEach(async () => {
         const module: TestingModule = await Test.createTestingModule({
             controllers: [CommentsController],
-            providers: [
-                {
-                    provide: CommentsService,
-                    useValue: {},
-                }
-            ]
-        })
-            .overrideGuard(AuthGuard)
-            .useValue({ canActivate: () => true })
-            .compile();
+        }).compile();
 
         controller = module.get<CommentsController>(CommentsController);
     });

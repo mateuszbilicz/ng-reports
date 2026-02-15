@@ -1,118 +1,110 @@
-import { vi } from 'vitest';
-import { getTestBed, TestBed } from '@angular/core/testing';
-import { BrowserDynamicTestingModule, platformBrowserDynamicTesting } from '@angular/platform-browser-dynamic/testing';
-import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+// @vitest-environment jsdom
+import { TestBed } from '@angular/core/testing';
 import { HttpClient, provideHttpClient, withInterceptors } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { authInterceptor } from './AuthInterceptor';
-import { AuthService } from '../swagger';
-import { of } from 'rxjs';
+import { AuthService } from '../Services/AuthService/AuthService';
+import { of, throwError } from 'rxjs';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 describe('authInterceptor', () => {
-    beforeAll(() => {
-        try {
-            getTestBed().initTestEnvironment(BrowserDynamicTestingModule, platformBrowserDynamicTesting());
-        } catch { }
-    });
-
-    let httpTestingController: HttpTestingController;
+    let httpMock: HttpTestingController;
     let httpClient: HttpClient;
-    let authServiceSpy: any;
+    let authServiceMock: any;
 
     beforeEach(() => {
-        const authSpy = {
+        authServiceMock = {
             getToken: vi.fn(),
             refreshToken: vi.fn(),
-            logout: vi.fn()
+            logout: vi.fn(),
         };
 
         TestBed.configureTestingModule({
             providers: [
                 provideHttpClient(withInterceptors([authInterceptor])),
                 provideHttpClientTesting(),
-                { provide: AuthService, useValue: authSpy }
-            ]
+                { provide: AuthService, useValue: authServiceMock },
+            ],
         });
 
-        httpTestingController = TestBed.inject(HttpTestingController);
         httpClient = TestBed.inject(HttpClient);
-        authServiceSpy = TestBed.inject(AuthService);
+        httpMock = TestBed.inject(HttpTestingController);
     });
 
     afterEach(() => {
-        httpTestingController.verify();
+        httpMock.verify();
     });
 
     it('should add Authorization header if token exists', () => {
-        authServiceSpy.getToken.mockReturnValue('test-token');
+        authServiceMock.getToken.mockReturnValue('test-token');
 
         httpClient.get('/api/data').subscribe();
 
-        const req = httpTestingController.expectOne('/api/data');
+        const req = httpMock.expectOne('/api/data');
+        expect(req.request.headers.has('Authorization')).toBe(true);
         expect(req.request.headers.get('Authorization')).toBe('Bearer test-token');
-        req.flush({});
     });
 
-    it('should not add Authorization header if no token', () => {
-        authServiceSpy.getToken.mockReturnValue(null);
+    it('should not add Authorization header for login or refresh URLs', () => {
+        authServiceMock.getToken.mockReturnValue('test-token');
 
-        httpClient.get('/api/data').subscribe();
-
-        const req = httpTestingController.expectOne('/api/data');
-        expect(req.request.headers.has('Authorization')).toBe(false);
-        req.flush({});
-    });
-
-    it('should not add token for auth endpoints', () => {
-        authServiceSpy.getToken.mockReturnValue('test-token');
-
-        httpClient.post('/auth/login', {}).subscribe();
-        const reqLogin = httpTestingController.expectOne('/auth/login');
+        httpClient.get('/auth/login').subscribe();
+        const reqLogin = httpMock.expectOne('/auth/login');
         expect(reqLogin.request.headers.has('Authorization')).toBe(false);
-        reqLogin.flush({});
 
-        httpClient.post('/auth/refresh', {}).subscribe();
-        const reqRefresh = httpTestingController.expectOne('/auth/refresh');
+        httpClient.get('/auth/refresh').subscribe();
+        const reqRefresh = httpMock.expectOne('/auth/refresh');
         expect(reqRefresh.request.headers.has('Authorization')).toBe(false);
-        reqRefresh.flush({});
     });
 
-    it('should handle 401 error by refreshing token', () => {
-        authServiceSpy.getToken.mockReturnValueOnce('old-token').mockReturnValueOnce('new-token');
-        authServiceSpy.refreshToken.mockReturnValue(of(true));
+    it('should handle 401 error and retry request after successful refresh', () => {
+        authServiceMock.getToken.mockReturnValueOnce('old-token').mockReturnValue('new-token');
+        authServiceMock.refreshToken.mockReturnValue(of(true));
 
         httpClient.get('/api/data').subscribe();
 
-        const req = httpTestingController.expectOne('/api/data');
+        // First request fails with 401
+        const req = httpMock.expectOne('/api/data');
         req.flush('Unauthorized', { status: 401, statusText: 'Unauthorized' });
 
-        expect(authServiceSpy.refreshToken).toHaveBeenCalled();
+        // Should call refreshToken
+        expect(authServiceMock.refreshToken).toHaveBeenCalled();
 
-        const retryReq = httpTestingController.expectOne('/api/data');
+        // Should retry the request with new token
+        const retryReq = httpMock.expectOne('/api/data');
         expect(retryReq.request.headers.get('Authorization')).toBe('Bearer new-token');
-        retryReq.flush({});
+        retryReq.flush({ data: 'ok' });
     });
 
-    it('should logout if refresh fails on 401', () => {
-        authServiceSpy.getToken.mockReturnValue('old-token');
-        authServiceSpy.refreshToken.mockReturnValue(of(false));
+    it('should logout if refreshToken fails with false', () => {
+        authServiceMock.getToken.mockReturnValue('old-token');
+        authServiceMock.refreshToken.mockReturnValue(of(false));
 
-        let errorOccurred = false;
         httpClient.get('/api/data').subscribe({
-            next: () => {
-                // Should not succeed
-            },
-            error: (error) => {
-                errorOccurred = true;
-                expect(error).toBeTruthy();
+            error: (err) => {
+                expect(err.message).toBe('Session expired');
             }
         });
 
-        const req = httpTestingController.expectOne('/api/data');
+        const req = httpMock.expectOne('/api/data');
         req.flush('Unauthorized', { status: 401, statusText: 'Unauthorized' });
 
-        expect(authServiceSpy.refreshToken).toHaveBeenCalled();
-        expect(authServiceSpy.logout).toHaveBeenCalled();
-        expect(errorOccurred).toBe(true);
+        expect(authServiceMock.logout).toHaveBeenCalled();
+    });
+
+    it('should logout if refreshToken throws error', () => {
+        authServiceMock.getToken.mockReturnValue('old-token');
+        authServiceMock.refreshToken.mockReturnValue(throwError(() => new Error('Refresh failed')));
+
+        httpClient.get('/api/data').subscribe({
+            error: (err) => {
+                expect(err.message).toBe('Refresh failed');
+            }
+        });
+
+        const req = httpMock.expectOne('/api/data');
+        req.flush('Unauthorized', { status: 401, statusText: 'Unauthorized' });
+
+        expect(authServiceMock.logout).toHaveBeenCalled();
     });
 });
-

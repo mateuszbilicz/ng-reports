@@ -1,53 +1,47 @@
-import { vi } from 'vitest';
-import {getTestBed, TestBed} from '@angular/core/testing';
-import { BrowserDynamicTestingModule, platformBrowserDynamicTesting } from '@angular/platform-browser-dynamic/testing';
-import {signal} from '@angular/core';
-import {AuthService} from '../Services/AuthService/AuthService';
-import {Router, UrlTree} from '@angular/router';
-import {AuthGuard} from './AuthGuard';
+// @vitest-environment jsdom
+import { TestBed } from '@angular/core/testing';
+import { Router, UrlTree } from '@angular/router';
+import { AuthGuard } from './AuthGuard';
+import { AuthService } from '../Services/AuthService/AuthService';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 describe('AuthGuard', () => {
-    beforeAll(() => {
-        try {
-            getTestBed().initTestEnvironment(BrowserDynamicTestingModule, platformBrowserDynamicTesting());
-        } catch { }
-    });
-
-    let authServiceSpy: any;
-    let routerSpy: any;
-
-    const isLoggedInSignal = signal(false);
+    let authServiceMock: any;
+    let routerMock: any;
 
     beforeEach(() => {
-        const authSpy = { isLoggedIn: isLoggedInSignal };
-        const routerSpyObj = { createUrlTree: vi.fn() };
+        authServiceMock = {
+            isLoggedIn: vi.fn(),
+        };
+
+        routerMock = {
+            createUrlTree: vi.fn(),
+        };
 
         TestBed.configureTestingModule({
             providers: [
-                { provide: AuthService, useValue: authSpy },
-                { provide: Router, useValue: routerSpyObj }
-            ]
+                { provide: AuthService, useValue: authServiceMock },
+                { provide: Router, useValue: routerMock },
+            ],
         });
-        authServiceSpy = TestBed.inject(AuthService);
-        routerSpy = TestBed.inject(Router);
     });
 
-    it('should allow navigation if logged in', () => {
-        isLoggedInSignal.set(true);
+    it('should return true if user is logged in', () => {
+        authServiceMock.isLoggedIn.mockReturnValue(true);
 
         const result = TestBed.runInInjectionContext(() => AuthGuard({} as any, {} as any));
 
         expect(result).toBe(true);
     });
 
-    it('should redirect to login if not logged in', () => {
-        isLoggedInSignal.set(false);
-        const mockUrlTree = {} as UrlTree;
-        routerSpy.createUrlTree.mockReturnValue(mockUrlTree);
+    it('should return UrlTree to login if user is not logged in', () => {
+        const dummyUrlTree = {} as UrlTree;
+        authServiceMock.isLoggedIn.mockReturnValue(false);
+        routerMock.createUrlTree.mockReturnValue(dummyUrlTree);
 
         const result = TestBed.runInInjectionContext(() => AuthGuard({} as any, {} as any));
 
-        expect(result).toBe(mockUrlTree);
-        expect(routerSpy.createUrlTree).toHaveBeenCalledWith(['/auth/login']);
+        expect(result).toBe(dummyUrlTree);
+        expect(routerMock.createUrlTree).toHaveBeenCalledWith(['/auth/login']);
     });
 });

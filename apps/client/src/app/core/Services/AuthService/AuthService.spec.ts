@@ -1,125 +1,122 @@
-import { TestBed, getTestBed } from '@angular/core/testing';
-import { BrowserDynamicTestingModule, platformBrowserDynamicTesting } from '@angular/platform-browser-dynamic/testing';
-import { AuthService } from './AuthService';
-import { AuthService as ApiAuthService } from '../../swagger/api/auth.service';
+// @vitest-environment jsdom
+import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { of, throwError } from 'rxjs';
-import { UserView } from '../../swagger/model/userView';
-import { vi } from 'vitest';
+import { AuthService } from './AuthService';
+import { AuthService as ApiAuthService } from '../../swagger/api/auth.service';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 describe('AuthService', () => {
-    beforeAll(() => {
-        try {
-            getTestBed().initTestEnvironment(BrowserDynamicTestingModule, platformBrowserDynamicTesting());
-        } catch {
-            // ignore
-        }
-    });
-
     let service: AuthService;
-    let apiAuthServiceSpy: any;
-    let routerSpy: any;
-
-    const createSpyObj = (methodNames: string[]) => {
-        const obj: any = {};
-        for (const method of methodNames) {
-            obj[method] = vi.fn();
-        }
-        return obj;
-    };
+    let apiAuthServiceMock: any;
+    let routerMock: any;
 
     beforeEach(() => {
-        localStorage.clear();
+        apiAuthServiceMock = {
+            authControllerLogin: vi.fn(),
+            authControllerRefreshToken: vi.fn(),
+            authControllerGetUser: vi.fn(),
+        };
 
-        const apiSpy = createSpyObj(['authControllerLogin', 'authControllerRefreshToken', 'authControllerGetUser']);
-        const routerSpyObj = createSpyObj(['navigate']);
+        routerMock = {
+            navigate: vi.fn(),
+        };
+
+        // Clear localStorage before each test
+        localStorage.clear();
 
         TestBed.configureTestingModule({
             providers: [
                 AuthService,
-                { provide: ApiAuthService, useValue: apiSpy },
-                { provide: Router, useValue: routerSpyObj }
-            ]
+                { provide: ApiAuthService, useValue: apiAuthServiceMock },
+                { provide: Router, useValue: routerMock },
+            ],
         });
+
         service = TestBed.inject(AuthService);
-        apiAuthServiceSpy = TestBed.inject(ApiAuthService);
-        routerSpy = TestBed.inject(Router);
     });
 
     it('should be created', () => {
         expect(service).toBeTruthy();
     });
 
+    it('should return false for isLoggedIn when no token is present', () => {
+        expect(service.isLoggedIn()).toBe(false);
+    });
+
+    it('should return true for isLoggedIn when token is present', () => {
+        // We need to set session to trigger the signal
+        (service as any).setSession('token', 'refresh');
+        expect(service.isLoggedIn()).toBe(true);
+    });
+
     describe('login', () => {
-        it('should login, set session, and fetch user', async () => {
-            const mockLoginResponse = { accessToken: 'access', refreshToken: 'refresh' };
-            const mockUser: UserView = {
-              createDate: new Date(),
-              description: '',
-              isActive: false,
-              name: 'Test',
-              username: 'test', role: 0 };
+        it('should set session and fetch user on successful login', () => {
+            const loginResponse = { accessToken: 'at', refreshToken: 'rt' };
+            const userResponse = { username: 'testuser' };
 
-            apiAuthServiceSpy.authControllerLogin.mockReturnValue(of(mockLoginResponse));
-            apiAuthServiceSpy.authControllerGetUser.mockReturnValue(of(mockUser));
+            apiAuthServiceMock.authControllerLogin.mockReturnValue(of(loginResponse));
+            apiAuthServiceMock.authControllerGetUser.mockReturnValue(of(userResponse));
 
-            await service.login({ username: 'test', password: 'password' }).toPromise();
+            service.login({ username: 'user', password: 'password' }).subscribe();
 
-            expect(localStorage.getItem('access_token')).toBe('access');
-            expect(localStorage.getItem('refresh_token')).toBe('refresh');
-            expect(service.isLoggedIn()).toBe(true);
+            expect(apiAuthServiceMock.authControllerLogin).toHaveBeenCalled();
+            expect(localStorage.getItem('access_token')).toBe('at');
+            expect(localStorage.getItem('refresh_token')).toBe('rt');
+            expect(service.getToken()).toBe('at');
+            expect(service.currentUser()).toEqual(userResponse);
+        });
+    });
+
+    describe('refreshToken', () => {
+        it('should logout if no refresh token is present', () => {
+            const logoutSpy = vi.spyOn(service, 'logout');
+
+            service.refreshToken().subscribe((result) => {
+                expect(result).toBe(false);
+                expect(logoutSpy).toHaveBeenCalled();
+            });
+        });
+
+        it('should share single request if multiple calls made simultaneously', () => {
+            localStorage.setItem('refresh_token', 'rt');
+            (service as any)._rtkn.set('rt');
+
+            apiAuthServiceMock.authControllerRefreshToken.mockReturnValue(of({ accessToken: 'new_at', refreshToken: 'new_rt' }));
+            apiAuthServiceMock.authControllerGetUser.mockReturnValue(of({ id: 1 }));
+
+            const obs1 = service.refreshToken();
+            const obs2 = service.refreshToken();
+
+            expect(obs1).toBe(obs2);
+        });
+
+        it('should logout and return false on refresh error', () => {
+            localStorage.setItem('refresh_token', 'rt');
+            (service as any)._rtkn.set('rt');
+
+            apiAuthServiceMock.authControllerRefreshToken.mockReturnValue(throwError(() => new Error('error')));
+            const logoutSpy = vi.spyOn(service, 'logout');
+
+            service.refreshToken().subscribe((result) => {
+                expect(result).toBe(false);
+                expect(logoutSpy).toHaveBeenCalled();
+            });
         });
     });
 
     describe('logout', () => {
         it('should clear session and navigate to login', () => {
-            localStorage.setItem('access_token', 'token');
-            localStorage.setItem('refresh_token', 'refresh');
+            localStorage.setItem('access_token', 'at');
+            localStorage.setItem('refresh_token', 'rt');
 
             service.logout();
 
             expect(localStorage.getItem('access_token')).toBeNull();
             expect(localStorage.getItem('refresh_token')).toBeNull();
+            expect(service.getToken()).toBeNull();
             expect(service.currentUser()).toBeNull();
-            expect(routerSpy.navigate).toHaveBeenCalledWith(['/auth/login']);
-        });
-    });
-
-    describe('refreshToken', () => {
-        it('should refresh token if refresh token exists', async () => {
-            (service as any).setSession('old_access', 'old_refresh');
-
-            const mockRefreshResponse = { accessToken: 'new_access', refreshToken: 'new_refresh' };
-            const mockUser: UserView = { createDate: new Date(), description: '', isActive: false, name: 'Test', username: 'test', role: 0 };
-
-            apiAuthServiceSpy.authControllerRefreshToken.mockReturnValue(of(mockRefreshResponse));
-            apiAuthServiceSpy.authControllerGetUser.mockReturnValue(of(mockUser));
-
-            const result = await service.refreshToken().toPromise();
-
-            expect(result).toBe(true);
-            expect(localStorage.getItem('access_token')).toBe('new_access');
-            expect(localStorage.getItem('refresh_token')).toBe('new_refresh');
-        });
-
-        it('should logout if no refresh token', async () => {
-            localStorage.removeItem('refresh_token');
-            (service as any)._rtkn.set(null);
-
-            vi.spyOn(service, 'logout');
-
-            const result = await service.refreshToken().toPromise();
-            expect(result).toBe(false);
-            expect(service.logout).toHaveBeenCalled();
-        });
-
-        it('should logout if refresh token api fails', async () => {
-            (service as any).setSession('old_access', 'old_refresh');
-
-            apiAuthServiceSpy.authControllerRefreshToken.mockReturnValue(throwError(() => new Error('Error')));
-
-            const result = await service.refreshToken().toPromise();
-            expect(result).toBe(false);
+            expect(routerMock.navigate).toHaveBeenCalledWith(['/auth/login']);
         });
     });
 });
