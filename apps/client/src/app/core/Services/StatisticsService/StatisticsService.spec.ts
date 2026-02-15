@@ -3,53 +3,35 @@ import { StatisticsService } from './StatisticsService';
 import { StatisticsService as ApiStatisticsService } from '../../swagger/api/statistics.service';
 import { of } from 'rxjs';
 import { Statistics } from '../../swagger';
-import { vi } from 'vitest';
-import { getTestBed } from '@angular/core/testing';
-import { BrowserDynamicTestingModule, platformBrowserDynamicTesting } from '@angular/platform-browser-dynamic/testing';
 
 describe('StatisticsService', () => {
-    beforeAll(() => {
-        try {
-            getTestBed().initTestEnvironment(BrowserDynamicTestingModule, platformBrowserDynamicTesting());
-        } catch { }
-    });
-
     let service: StatisticsService;
-    let apiStatisticsServiceSpy: any;
-
-    const createSpyObj = (methodNames: string[]) => {
-        const obj: any = {};
-        for (const method of methodNames) {
-            obj[method] = vi.fn();
-        }
-        return obj;
-    };
+    let apiStatisticsServiceSpy: jasmine.SpyObj<ApiStatisticsService>;
 
     beforeEach(() => {
-        const spy = createSpyObj(['statisticsControllerGetStatistics']);
-        apiStatisticsServiceSpy = spy;
-
+        const spy = jasmine.createSpyObj('ApiStatisticsService', ['statisticsControllerGetStatistics']);
         TestBed.configureTestingModule({
             providers: [
                 StatisticsService,
-                { provide: ApiStatisticsService, useValue: apiStatisticsServiceSpy }
+                { provide: ApiStatisticsService, useValue: spy }
             ]
         });
         service = TestBed.inject(StatisticsService);
+        apiStatisticsServiceSpy = TestBed.inject(ApiStatisticsService) as jasmine.SpyObj<ApiStatisticsService>;
     });
 
     it('should be created', () => {
         expect(service).toBeTruthy();
     });
 
-    it('should get statistics', () => new Promise<void>((done) => {
+    it('should get statistics', (done) => {
         const mockStats: Statistics = {
             totalReports: 10,
-            sampling: 'daily',
-            samples: [],
-            avgReportsPerSample: 2
+            reportsByDate: [],
+            reportsBySeverity: [],
+            reportsByStatus: []
         };
-        apiStatisticsServiceSpy.statisticsControllerGetStatistics.mockReturnValue(of(mockStats));
+        apiStatisticsServiceSpy.statisticsControllerGetStatistics.and.returnValue(of(mockStats));
 
         const dateFrom = new Date();
         const dateTo = new Date();
@@ -68,5 +50,5 @@ describe('StatisticsService', () => {
             );
             done();
         });
-    }));
+    });
 });

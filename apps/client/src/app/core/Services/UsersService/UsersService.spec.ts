@@ -3,16 +3,8 @@ import { UsersService, User, UserCreate, UserUpdateInformation, UserFilteredList
 import { UsersService as ApiUsersService } from '../../swagger/api/users.service';
 import { of } from 'rxjs';
 import { vi } from 'vitest';
-import { getTestBed } from '@angular/core/testing';
-import { BrowserDynamicTestingModule, platformBrowserDynamicTesting } from '@angular/platform-browser-dynamic/testing';
 
 describe('UsersService', () => {
-    beforeAll(() => {
-        try {
-            getTestBed().initTestEnvironment(BrowserDynamicTestingModule, platformBrowserDynamicTesting());
-        } catch { }
-    });
-
     let service: UsersService;
     let apiUsersServiceSpy: any;
 
@@ -26,15 +18,14 @@ describe('UsersService', () => {
 
     beforeEach(() => {
         const spy = createSpyObj(['usersControllerFindOne', 'usersControllerGetList', 'usersControllerCreateUser', 'usersControllerUpdateUser', 'usersControllerDeleteUser']);
-        apiUsersServiceSpy = spy;
-
         TestBed.configureTestingModule({
             providers: [
                 UsersService,
-                { provide: ApiUsersService, useValue: apiUsersServiceSpy }
+                { provide: ApiUsersService, useValue: spy }
             ]
         });
         service = TestBed.inject(UsersService);
+        apiUsersServiceSpy = TestBed.inject(ApiUsersService);
     });
 
     it('should be created', () => {
@@ -60,7 +51,7 @@ describe('UsersService', () => {
     }));
 
     it('should get users list', () => new Promise<void>((done) => {
-        const userList: UserFilteredList = { items: [], totalItemsCount: 0 };
+        const userList: UserFilteredList = { items: [], total: 0 };
         apiUsersServiceSpy.usersControllerGetList.mockReturnValue(of(userList));
 
         service.getUsers('filter', 10, 0).subscribe(res => {

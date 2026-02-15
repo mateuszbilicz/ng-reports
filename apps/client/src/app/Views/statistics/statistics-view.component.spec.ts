@@ -4,51 +4,26 @@ import { StatisticsService } from '../../core/Services/StatisticsService/Statist
 import { of, throwError } from 'rxjs';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { Severity } from '../../core/Models/Severity';
-import { vi } from 'vitest';
-import { getTestBed } from '@angular/core/testing';
-import { BrowserDynamicTestingModule, platformBrowserDynamicTesting } from '@angular/platform-browser-dynamic/testing';
-import { ProjectsService } from '../../core/Services/ProjectsService/ProjectsService';
 
 describe('StatisticsViewComponent', () => {
-    beforeAll(() => {
-        try {
-            getTestBed().initTestEnvironment(BrowserDynamicTestingModule, platformBrowserDynamicTesting());
-        } catch { }
-    });
-
     let component: StatisticsViewComponent;
     let fixture: ComponentFixture<StatisticsViewComponent>;
-    let statisticsServiceSpy: any;
-    let projectsServiceSpy: any;
-
-    const createSpyObj = (methodNames: string[]) => {
-        const obj: any = {};
-        for (const method of methodNames) {
-            obj[method] = vi.fn().mockReturnValue(of({}));
-        }
-        return obj;
-    };
+    let statisticsServiceSpy: jasmine.SpyObj<StatisticsService>;
 
     beforeEach(async () => {
-        const statsSpy = createSpyObj(['getStatistics']);
-        const projSpy = createSpyObj(['getProjects']);
-
-        projSpy.getProjects.mockReturnValue(of({ items: [] }));
-        statsSpy.getStatistics.mockReturnValue(of({ samples: [], totalReports: 0, avgReportsPerSample: 0 }));
+        const statsSpy = jasmine.createSpyObj('StatisticsService', ['getStatistics']);
 
         await TestBed.configureTestingModule({
             imports: [StatisticsViewComponent, NoopAnimationsModule],
             providers: [
-                { provide: StatisticsService, useValue: statsSpy },
-                { provide: ProjectsService, useValue: projSpy }
+                { provide: StatisticsService, useValue: statsSpy }
             ]
         })
             .compileComponents();
 
         fixture = TestBed.createComponent(StatisticsViewComponent);
         component = fixture.componentInstance;
-        statisticsServiceSpy = TestBed.inject(StatisticsService);
-        projectsServiceSpy = TestBed.inject(ProjectsService);
+        statisticsServiceSpy = TestBed.inject(StatisticsService) as jasmine.SpyObj<StatisticsService>;
     });
 
     it('should create', () => {
@@ -62,11 +37,11 @@ describe('StatisticsViewComponent', () => {
                 { label: '2023-01-02', value: 20 }
             ]
         };
-        statisticsServiceSpy.getStatistics.mockReturnValue(of(mockStats));
+        statisticsServiceSpy.getStatistics.and.returnValue(of(mockStats));
 
         component.loadStatistics();
 
-        expect(component.isLoading()).toBe(false);
+        expect(component.isLoading()).toBeFalse();
         expect(statisticsServiceSpy.getStatistics).toHaveBeenCalled();
         expect(component.tableData().length).toBe(2);
         expect(component.chartOptions.series[0].data).toEqual([10, 20]);
@@ -74,11 +49,11 @@ describe('StatisticsViewComponent', () => {
     });
 
     it('should handle load error', () => {
-        statisticsServiceSpy.getStatistics.mockReturnValue(throwError(() => new Error('Error')));
+        statisticsServiceSpy.getStatistics.and.returnValue(throwError(() => new Error('Error')));
 
         component.loadStatistics();
 
-        expect(component.isLoading()).toBe(false);
+        expect(component.isLoading()).toBeFalse();
         expect(statisticsServiceSpy.getStatistics).toHaveBeenCalled();
         expect(component.tableData().length).toBe(0);
     });
@@ -86,11 +61,23 @@ describe('StatisticsViewComponent', () => {
     it('should update chart colors based on severity', () => {
         component.filterForm.patchValue({ severity: Severity.Critical });
         component.updateChartOptionsDependingOnSeverity();
+        // Verify changes to chartOptions
+        // gradientToColors is array
         expect(component.chartOptions.chart.fill.gradient.gradientToColors[0]).toBe('#ff0000');
     });
 
     it('should export to CSV', () => {
-        component.tableData.set([{ date: '2023-01-01', value: 10 } as any]);
+        // Mock data
+        component.tableData.set([{ date: '2023-01-01', value: 10 }]);
+
+        // We can't easily test file download without mocking DOM/Window functions, 
+        // but we can ensure the method runs without error and constructs the CSV string logic.
+        // Ideally we would spy on the download utility or URL.createObjectURL.
+        // For now, let's just make sure it doesn't crash.
+
+        // Using a spy on window.URL.createObjectURL would be ideal but it's hard in JSDOM sometimes.
+        // Let's rely on the fact that `downloadFile` util is used.
+
         expect(() => component.exportToCSV()).not.toThrow();
     });
 });

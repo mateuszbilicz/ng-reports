@@ -1,33 +1,12 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { AuthService } from './auth.service';
-import { UsersService } from '../users/users.service';
-import { JwtService } from '@nestjs/jwt';
-import { of } from 'rxjs';
-
-
+import {Test, TestingModule} from '@nestjs/testing';
+import {AuthService} from './auth.service';
 
 describe('AuthService', () => {
     let service: AuthService;
 
     beforeEach(async () => {
         const module: TestingModule = await Test.createTestingModule({
-            providers: [
-                AuthService,
-                {
-                    provide: UsersService,
-                    useValue: {
-                        getAuth: vi.fn().mockReturnValue(of({})),
-                        get: vi.fn().mockReturnValue(of({})),
-                    },
-                },
-                {
-                    provide: JwtService,
-                    useValue: {
-                        signAsync: vi.fn().mockResolvedValue('token'),
-                        verify: vi.fn().mockReturnValue({}),
-                    },
-                },
-            ],
+            providers: [AuthService],
         }).compile();
 
         service = module.get<AuthService>(AuthService);

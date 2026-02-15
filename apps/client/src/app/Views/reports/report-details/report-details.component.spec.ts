@@ -9,17 +9,8 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { Report } from '../../../core/swagger/model/report';
 import { Comment } from '../../../core/swagger/model/comment';
 import { vi } from 'vitest';
-import { getTestBed } from '@angular/core/testing';
-import { BrowserDynamicTestingModule, platformBrowserDynamicTesting } from '@angular/platform-browser-dynamic/testing';
-import {Environment, NgReportsEnvironment} from '../../../core/swagger';
 
 describe('ReportDetailsComponent', () => {
-    beforeAll(() => {
-        try {
-            getTestBed().initTestEnvironment(BrowserDynamicTestingModule, platformBrowserDynamicTesting());
-        } catch { }
-    });
-
     let component: ReportDetailsComponent;
     let fixture: ComponentFixture<ReportDetailsComponent>;
     let reportsServiceSpy: any;
@@ -78,15 +69,11 @@ describe('ReportDetailsComponent', () => {
         confirmationServiceSpy = confirmSpy;
 
         const mockReport: Partial<Report> = {
+            id: 'r1',
             title: 'Report 1',
-            environment: {
-              userAgent: 'ua',
-              browserAppName: 'b',
-              extensions: [],
-              appEnvironment: ''
-            } as unknown as NgReportsEnvironment,
-            logs: [],
-            user: undefined,
+            environment: '{"name": "env1"}',
+            logs: ['[{"type": "log", "timestamp": 123}]'],
+            user: '{"username": "user1"}',
             timestamp: 123
         };
 

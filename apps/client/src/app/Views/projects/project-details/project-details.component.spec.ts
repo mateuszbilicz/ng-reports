@@ -1,23 +1,15 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ProjectDetailsComponent } from './project-details.component';
 import { ProjectsService } from '../../../core/Services/ProjectsService/ProjectsService';
-import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { of } from 'rxjs';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { Project } from '../../../core/swagger/model/project';
 import { Environment } from '../../../core/swagger/model/environment';
 import { vi } from 'vitest';
-import { getTestBed } from '@angular/core/testing';
-import { BrowserDynamicTestingModule, platformBrowserDynamicTesting } from '@angular/platform-browser-dynamic/testing';
 
 describe('ProjectDetailsComponent', () => {
-    beforeAll(() => {
-        try {
-            getTestBed().initTestEnvironment(BrowserDynamicTestingModule, platformBrowserDynamicTesting());
-        } catch { }
-    });
-
     let component: ProjectDetailsComponent;
     let fixture: ComponentFixture<ProjectDetailsComponent>;
     let projectsServiceSpy: any;
@@ -56,10 +48,7 @@ describe('ProjectDetailsComponent', () => {
                 set: {
                     providers: [
                         { provide: MessageService, useValue: messageSpy },
-                        { provide: ConfirmationService, useValue: confirmSpy },
-                        { provide: ActivatedRoute, useValue: { paramMap: of(convertToParamMap({ id: 'p1' })) } },
-                        { provide: ProjectsService, useValue: projSpy },
-                        { provide: Router, useValue: routerSpyObj }
+                        { provide: ConfirmationService, useValue: confirmSpy }
                     ]
                 }
             })
@@ -72,8 +61,8 @@ describe('ProjectDetailsComponent', () => {
         messageServiceSpy = messageSpy;
         confirmationServiceSpy = confirmSpy;
 
-        projectsServiceSpy.getProject.mockReturnValue(of({ projectId: '1', name: 'Project 1' } as Project));
-        projectsServiceSpy.getEnvironments.mockReturnValue(of({ environments: [{ id: 'e1', environmentId: 'e1', name: 'Env 1', reports: [], urls: [] }] }));
+        projectsServiceSpy.getProject.mockReturnValue(of({ id: '1', projectId: 'p1', name: 'Project 1' } as Project));
+        projectsServiceSpy.getEnvironments.mockReturnValue(of({ environments: [{ id: 'e1', environmentId: 'e1', name: 'Env 1' }] }));
     });
 
     it('should create', () => {
@@ -101,7 +90,7 @@ describe('ProjectDetailsComponent', () => {
         component.editProject();
         component.projectForm.patchValue({ name: 'Updated' });
 
-        projectsServiceSpy.updateProject.mockReturnValue(of({ projectId: 'p1', name: 'Updated' } as Project));
+        projectsServiceSpy.updateProject.mockReturnValue(of({ id: '1', projectId: 'p1', name: 'Updated' } as Project));
 
         component.saveProject();
 
@@ -112,7 +101,7 @@ describe('ProjectDetailsComponent', () => {
 
     it('should delete environment', () => {
         fixture.detectChanges();
-        const env: Environment = {description: '', reports: [], urls: [], environmentId: 'e1', name: 'Env 1' };
+        const env: Environment = { id: 'e1', environmentId: 'e1', name: 'Env 1' };
 
         confirmationServiceSpy.confirm.mockImplementation((config: any) => config.accept());
         projectsServiceSpy.deleteEnvironment.mockReturnValue(of(env));
