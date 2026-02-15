@@ -103,44 +103,52 @@ describe('ReportsViewComponent', () => {
         component = fixture.componentInstance;
     });
 
-    it('should create', () => {
+    it('should create', async () => {
         fixture.detectChanges();
+        await fixture.whenStable();
         expect(component).toBeTruthy();
     });
 
-    it('should load tree nodes on init', () => {
+    it('should load tree nodes on init', async () => {
         fixture.detectChanges();
+        await fixture.whenStable();
         expect(projectsServiceSpy.getProjects).toHaveBeenCalled();
         const nodes = component.nodes();
         expect(nodes.length).toBe(1);
     });
 
-    it('should load reports when environment selected', () => {
+    it('should load reports when environment selected', async () => {
         fixture.detectChanges();
+        await fixture.whenStable();
         const node = { data: { envId: 'e1' } };
         component.onNodeSelect(node);
+        await fixture.whenStable();
         expect(reportsServiceSpy.getReports).toHaveBeenCalledWith('e1');
     });
 
-    it('should open new report dialog', () => {
+    it('should open new report dialog', async () => {
         fixture.detectChanges();
+        await fixture.whenStable();
         component.openNew();
         expect(component.reportDialog).toBe(true);
     });
 
-    it('should edit report (navigate)', () => {
+    it('should edit report (navigate)', async () => {
         fixture.detectChanges();
+        await fixture.whenStable();
         const report = { id: 'r1' } as any;
         component.editReport(report);
         expect(routerSpy.navigate).toHaveBeenCalledWith(['/reports', 'r1']);
     });
 
-    it('should delete report', () => {
+    it('should delete report', async () => {
         fixture.detectChanges();
+        await fixture.whenStable();
         const report = { id: 'r1', title: 'R1' } as any;
         confirmationServiceSpy.confirm.mockImplementation((config: any) => config.accept());
         reportsServiceSpy.deleteReport.mockReturnValue(of(report));
         component.deleteReport(report);
+        await fixture.whenStable();
         expect(reportsServiceSpy.deleteReport).toHaveBeenCalledWith('r1');
     });
 });

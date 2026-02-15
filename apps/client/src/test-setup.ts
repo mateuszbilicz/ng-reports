@@ -10,3 +10,10 @@ getTestBed().initTestEnvironment(
     BrowserDynamicTestingModule,
     platformBrowserDynamicTesting(),
 );
+
+// Mock ResizeObserver for ApexCharts
+(window as any).ResizeObserver = class ResizeObserver {
+    observe() { }
+    unobserve() { }
+    disconnect() { }
+};

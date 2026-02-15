@@ -1,11 +1,11 @@
 import { vi } from 'vitest';
-import {getTestBed, TestBed} from '@angular/core/testing';
+import { getTestBed, TestBed } from '@angular/core/testing';
 import { BrowserDynamicTestingModule, platformBrowserDynamicTesting } from '@angular/platform-browser-dynamic/testing';
-import {HttpTestingController, provideHttpClientTesting} from '@angular/common/http/testing';
-import {HttpClient, provideHttpClient, withInterceptors} from '@angular/common/http';
-import {authInterceptor} from './AuthInterceptor';
-import {AuthService} from '../swagger';
-import {of} from 'rxjs';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { HttpClient, provideHttpClient, withInterceptors } from '@angular/common/http';
+import { authInterceptor } from './AuthInterceptor';
+import { AuthService } from '../swagger';
+import { of } from 'rxjs';
 
 describe('authInterceptor', () => {
     beforeAll(() => {
@@ -96,8 +96,13 @@ describe('authInterceptor', () => {
         authServiceSpy.getToken.mockReturnValue('old-token');
         authServiceSpy.refreshToken.mockReturnValue(of(false));
 
+        let errorOccurred = false;
         httpClient.get('/api/data').subscribe({
+            next: () => {
+                // Should not succeed
+            },
             error: (error) => {
+                errorOccurred = true;
                 expect(error).toBeTruthy();
             }
         });
@@ -107,6 +112,7 @@ describe('authInterceptor', () => {
 
         expect(authServiceSpy.refreshToken).toHaveBeenCalled();
         expect(authServiceSpy.logout).toHaveBeenCalled();
+        expect(errorOccurred).toBe(true);
     });
 });
 

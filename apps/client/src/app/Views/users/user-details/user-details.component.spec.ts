@@ -84,16 +84,18 @@ describe('UserDetailsComponent', () => {
         component = fixture.componentInstance;
     });
 
-    it('should create', () => {
+    it('should create', async () => {
         fixture.detectChanges();
+        await fixture.whenStable();
         expect(component).toBeTruthy();
     });
 
-    it('should load user in edit mode', () => {
+    it('should load user in edit mode', async () => {
         const user = { username: 'testuser', name: 'Test User', role: Role.Admin, description: 'desc' } as any;
         usersServiceSpy.getUser.mockReturnValue(of(user));
 
         fixture.detectChanges();
+        await fixture.whenStable();
 
         expect(component.isEditMode).toBe(true);
         expect(usersServiceSpy.getUser).toHaveBeenCalledWith('testuser');
@@ -101,27 +103,30 @@ describe('UserDetailsComponent', () => {
         expect(component.userForm.controls.password.validator).toBeNull();
     });
 
-    it('should update user', () => {
+    it('should update user', async () => {
         const user = { username: 'testuser', role: Role.Admin } as any;
         usersServiceSpy.getUser.mockReturnValue(of(user));
         fixture.detectChanges();
+        await fixture.whenStable();
 
         component.userForm.patchValue({ name: 'Updated Name' });
         usersServiceSpy.updateUser.mockReturnValue(of({} as any));
 
         component.saveUser();
+        await fixture.whenStable();
 
         expect(usersServiceSpy.updateUser).toHaveBeenCalled();
         expect(messageServiceSpy.add).toHaveBeenCalledWith(expect.objectContaining({ severity: 'success' }));
         expect(routerSpy.navigate).toHaveBeenCalledWith(['/users']);
     });
 
-    it('should create new user', () => {
+    it('should create new user', async () => {
         const paramsMap = { get: (key: string) => key === 'username' ? 'new' : null };
         (component as any).route.paramMap = of(paramsMap);
 
         component.ngOnInit();
         fixture.detectChanges();
+        await fixture.whenStable();
 
         expect(component.isEditMode).toBe(false);
         expect(component.userForm.controls.password.validator).toBeTruthy();
@@ -137,6 +142,7 @@ describe('UserDetailsComponent', () => {
         usersServiceSpy.createUser.mockReturnValue(of({} as any));
 
         component.saveUser();
+        await fixture.whenStable();
 
         expect(usersServiceSpy.createUser).toHaveBeenCalled();
         expect(messageServiceSpy.add).toHaveBeenCalledWith(expect.objectContaining({ severity: 'success' }));
