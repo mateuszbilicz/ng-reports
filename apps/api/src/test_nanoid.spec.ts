@@ -1,5 +1,5 @@
-jest.mock('nanoid', () => ({ nanoid: () => 'id' }));
-import { nanoid } from 'nanoid';
+jest.mock('nanoid', () => ({nanoid: () => 'id'}));
+import {nanoid} from 'nanoid';
 
 describe('Nanoid', () => {
     it('should be defined', () => {

@@ -1,7 +1,6 @@
 import {Controller, Get, Header, StreamableFile} from '@nestjs/common';
 import {createReadStream, readdirSync} from "node:fs";
 import {join} from 'node:path';
-import {ApiConsumes, ApiOkResponse, ApiResponse} from "@nestjs/swagger";
 import {Public} from "../auth/auth.guard";
 
 @Controller('developers')

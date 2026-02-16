@@ -1,13 +1,13 @@
-jest.mock('nanoid', () => ({ nanoid: () => 'id' }));
-import { Test, TestingModule } from '@nestjs/testing';
-import { UsersService } from './users.service';
-import { getModelToken } from '@nestjs/mongoose';
-import { User } from '../../database/schemas/user.schema';
-import { of } from 'rxjs';
+jest.mock('nanoid', () => ({nanoid: () => 'id'}));
+import {Test, TestingModule} from '@nestjs/testing';
+import {UsersService} from './users.service';
+import {getModelToken} from '@nestjs/mongoose';
+import {User} from '../../database/schemas/user.schema';
+import {of} from 'rxjs';
 import * as rxArgon from '../../global/rx-argon';
 
 jest.mock('../../global/rx-argon', () => {
-    const { of } = require('rxjs');
+    const {of} = require('rxjs');
     return {
         argon2Hash: jest.fn().mockReturnValue(of('hashed')),
         argon2Verify: jest.fn().mockReturnValue(of(true)),
@@ -24,7 +24,7 @@ describe('UsersService', () => {
                 exec: jest.fn().mockResolvedValue(null),
                 then: jest.fn().mockImplementation(cb => Promise.resolve(null).then(cb)),
             }),
-            create: jest.fn().mockImplementation((dto) => Promise.resolve({ ...dto, _id: 'id' })),
+            create: jest.fn().mockImplementation((dto) => Promise.resolve({...dto, _id: 'id'})),
             updateOne: jest.fn().mockReturnValue({
                 exec: jest.fn().mockResolvedValue({}),
                 then: jest.fn().mockImplementation(cb => Promise.resolve({}).then(cb)),
@@ -45,14 +45,14 @@ describe('UsersService', () => {
 
         // Mock findOne for the constructor calls
         model.findOne.mockReturnValue({
-            exec: jest.fn().mockResolvedValue({ username: 'admin' }),
-            then: jest.fn().mockImplementation(cb => Promise.resolve({ username: 'admin' }).then(cb)),
+            exec: jest.fn().mockResolvedValue({username: 'admin'}),
+            then: jest.fn().mockImplementation(cb => Promise.resolve({username: 'admin'}).then(cb)),
         });
 
         const module: TestingModule = await Test.createTestingModule({
             providers: [
                 UsersService,
-                { provide: getModelToken(User.name), useValue: model },
+                {provide: getModelToken(User.name), useValue: model},
             ],
         }).compile();
 
@@ -64,8 +64,8 @@ describe('UsersService', () => {
     });
 
     it('should create a user', (done) => {
-        const dto = { username: 'new', password: 'password', name: 'New', description: 'desc', role: 'Developer' as any };
-        model.create.mockResolvedValue({ ...dto, _id: 'id' });
+        const dto = {username: 'new', password: 'password', name: 'New', description: 'desc', role: 'Developer' as any};
+        model.create.mockResolvedValue({...dto, _id: 'id'});
 
         service.create(dto).subscribe((result) => {
             expect(result.username).toBe('new');
@@ -75,7 +75,7 @@ describe('UsersService', () => {
     });
 
     it('should get user by username', (done) => {
-        const user = { username: 'test' };
+        const user = {username: 'test'};
         model.findOne.mockReturnValue({
             then: cb => Promise.resolve(user).then(cb)
         });
@@ -87,7 +87,7 @@ describe('UsersService', () => {
     });
 
     it('should authenticate user', (done) => {
-        const user = { username: 'test', password: 'hashed', isActive: true, role: 'Developer' };
+        const user = {username: 'test', password: 'hashed', isActive: true, role: 'Developer'};
         model.findOne.mockReturnValue({
             then: cb => Promise.resolve(user).then(cb)
         });
@@ -100,7 +100,7 @@ describe('UsersService', () => {
     });
 
     it('should list users', (done) => {
-        const users = [{ username: 'u1' }];
+        const users = [{username: 'u1'}];
         model.find.mockReturnValue({
             then: cb => Promise.resolve(users).then(cb)
         });

@@ -4,12 +4,12 @@ import {Model} from 'mongoose';
 import {from, map, Observable, switchMap} from 'rxjs';
 import {AsFilteredListOf} from '../../database/filtered-list';
 import {
-  CreateProject,
-  Project,
-  PROJECT_DETAILS_PROJECTION,
-  PROJECT_LIST_PROJECTION,
-  ProjectDocument,
-  UpdateProject,
+    CreateProject,
+    Project,
+    PROJECT_DETAILS_PROJECTION,
+    PROJECT_LIST_PROJECTION,
+    ProjectDocument,
+    UpdateProject,
 } from '../../database/schemas/project.schema';
 import {throwIfNoValuePipe} from '../../global/error-responses';
 

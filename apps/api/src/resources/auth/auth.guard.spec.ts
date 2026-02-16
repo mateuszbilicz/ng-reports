@@ -1,9 +1,9 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { AuthGuard, IS_PUBLIC_KEY } from './auth.guard';
-import { JwtService } from '@nestjs/jwt';
-import { Reflector } from '@nestjs/core';
-import { UnauthorizedException, ExecutionContext } from '@nestjs/common';
-import { jwt } from '../../../ng-reports.config.json';
+import {Test, TestingModule} from '@nestjs/testing';
+import {AuthGuard, IS_PUBLIC_KEY} from './auth.guard';
+import {JwtService} from '@nestjs/jwt';
+import {Reflector} from '@nestjs/core';
+import {UnauthorizedException} from '@nestjs/common';
+import {jwt} from '../../../ng-reports.config.json';
 
 describe('AuthGuard', () => {
     let guard: AuthGuard;
@@ -21,8 +21,8 @@ describe('AuthGuard', () => {
         const module: TestingModule = await Test.createTestingModule({
             providers: [
                 AuthGuard,
-                { provide: JwtService, useValue: jwtService },
-                { provide: Reflector, useValue: reflector },
+                {provide: JwtService, useValue: jwtService},
+                {provide: Reflector, useValue: reflector},
             ],
         }).compile();
 
@@ -51,16 +51,16 @@ describe('AuthGuard', () => {
 
     it('should verify token and attach user to request', async () => {
         reflector.getAllAndOverride.mockReturnValue(false);
-        const payload = { sub: '123', username: 'test' };
+        const payload = {sub: '123', username: 'test'};
         jwtService.verifyAsync.mockResolvedValue(payload);
         const request = {
-            headers: { authorization: 'Bearer valid-token' }
+            headers: {authorization: 'Bearer valid-token'}
         };
         const context = createMockContext(request);
 
         const result = await guard.canActivate(context as any);
         expect(result).toBe(true);
-        expect(jwtService.verifyAsync).toHaveBeenCalledWith('valid-token', { secret: jwt.secret });
+        expect(jwtService.verifyAsync).toHaveBeenCalledWith('valid-token', {secret: jwt.secret});
         expect(request['user']).toEqual(payload);
     });
 
@@ -68,13 +68,13 @@ describe('AuthGuard', () => {
         reflector.getAllAndOverride.mockReturnValue(false);
         jwtService.verifyAsync.mockRejectedValue(new Error('invalid token'));
         const context = createMockContext({
-            headers: { authorization: 'Bearer invalid-token' }
+            headers: {authorization: 'Bearer invalid-token'}
         });
 
         await expect(guard.canActivate(context as any)).rejects.toThrow(UnauthorizedException);
     });
 
-    function createMockContext(request: any = { headers: {} }) {
+    function createMockContext(request: any = {headers: {}}) {
         return {
             getHandler: jest.fn(),
             getClass: jest.fn(),

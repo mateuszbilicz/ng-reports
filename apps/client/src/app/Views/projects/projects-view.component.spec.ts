@@ -1,13 +1,13 @@
 // @vitest-environment jsdom
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
-import { ProjectsViewComponent } from './projects-view.component';
-import { ProjectsService } from '../../core/Services/ProjectsService/ProjectsService';
-import { Router } from '@angular/router';
-import { ConfirmationService, MessageService } from 'primeng/api';
-import { of } from 'rxjs';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { ReactiveFormsModule } from '@angular/forms';
+import {ComponentFixture, TestBed} from '@angular/core/testing';
+import {ProjectsViewComponent} from './projects-view.component';
+import {ProjectsService} from '../../core/Services/ProjectsService/ProjectsService';
+import {Router} from '@angular/router';
+import {ConfirmationService, MessageService} from 'primeng/api';
+import {of} from 'rxjs';
+import {beforeEach, describe, expect, it, vi} from 'vitest';
+import {NoopAnimationsModule} from '@angular/platform-browser/animations';
+import {ReactiveFormsModule} from '@angular/forms';
 
 describe('ProjectsViewComponent', () => {
   let component: ProjectsViewComponent;
@@ -19,11 +19,11 @@ describe('ProjectsViewComponent', () => {
 
   beforeEach(async () => {
     projectsServiceMock = {
-      getProjects: vi.fn().mockReturnValue(of({ items: [] })),
-      deleteProject: vi.fn().mockReturnValue(of({ success: true })),
-      createProject: vi.fn().mockReturnValue(of({ success: true })),
-      updateProject: vi.fn().mockReturnValue(of({ success: true })),
-      createEnvironment: vi.fn().mockReturnValue(of({ success: true })),
+      getProjects: vi.fn().mockReturnValue(of({items: []})),
+      deleteProject: vi.fn().mockReturnValue(of({success: true})),
+      createProject: vi.fn().mockReturnValue(of({success: true})),
+      updateProject: vi.fn().mockReturnValue(of({success: true})),
+      createEnvironment: vi.fn().mockReturnValue(of({success: true})),
     };
 
     routerMock = {
@@ -37,8 +37,8 @@ describe('ProjectsViewComponent', () => {
         ReactiveFormsModule
       ],
       providers: [
-        { provide: ProjectsService, useValue: projectsServiceMock },
-        { provide: Router, useValue: routerMock },
+        {provide: ProjectsService, useValue: projectsServiceMock},
+        {provide: Router, useValue: routerMock},
         MessageService,
         ConfirmationService
       ]
@@ -62,8 +62,8 @@ describe('ProjectsViewComponent', () => {
   });
 
   it('should load projects on init', () => {
-    const projects = [{ projectId: 'p1', name: 'Project 1' }];
-    projectsServiceMock.getProjects.mockReturnValue(of({ items: projects }));
+    const projects = [{projectId: 'p1', name: 'Project 1'}];
+    projectsServiceMock.getProjects.mockReturnValue(of({items: projects}));
 
     component.ngOnInit();
     fixture.detectChanges();
@@ -79,14 +79,14 @@ describe('ProjectsViewComponent', () => {
   });
 
   it('should navigate to project details on edit', () => {
-    const project = { projectId: 'p1', name: 'P1' } as any;
+    const project = {projectId: 'p1', name: 'P1'} as any;
     component.editProject(project);
     fixture.detectChanges();
     expect(routerMock.navigate).toHaveBeenCalledWith(['/projects', 'p1']);
   });
 
   it('should confirm and delete project', () => {
-    const project = { projectId: 'p1', name: 'P1' } as any;
+    const project = {projectId: 'p1', name: 'P1'} as any;
     component.deleteProject(project);
     fixture.detectChanges();
 
@@ -97,7 +97,7 @@ describe('ProjectsViewComponent', () => {
     confirmArgs.accept();
 
     expect(projectsServiceMock.deleteProject).toHaveBeenCalledWith('p1');
-    expect(messageServiceMock.add).toHaveBeenCalledWith(expect.objectContaining({ summary: 'Successful' }));
+    expect(messageServiceMock.add).toHaveBeenCalledWith(expect.objectContaining({summary: 'Successful'}));
   });
 
   /*describe('saveProject', () => {

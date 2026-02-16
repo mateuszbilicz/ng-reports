@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { DevelopersViewComponent } from './developers-view.component';
-import { describe, it, expect, beforeEach } from 'vitest';
+import {ComponentFixture, TestBed} from '@angular/core/testing';
+import {DevelopersViewComponent} from './developers-view.component';
+import {beforeEach, describe, expect, it} from 'vitest';
 
 describe('DevelopersViewComponent', () => {
   let component: DevelopersViewComponent;

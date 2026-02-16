@@ -1,10 +1,10 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { EnvironmentsService } from './environments.service';
-import { getModelToken } from '@nestjs/mongoose';
-import { Environment } from '../../database/schemas/environment.schema';
-import { Project } from '../../database/schemas/project.schema';
-import { ProjectsService } from '../projects/projects.service';
-import { of } from 'rxjs';
+import {Test, TestingModule} from '@nestjs/testing';
+import {EnvironmentsService} from './environments.service';
+import {getModelToken} from '@nestjs/mongoose';
+import {Environment} from '../../database/schemas/environment.schema';
+import {Project} from '../../database/schemas/project.schema';
+import {ProjectsService} from '../projects/projects.service';
+import {of} from 'rxjs';
 
 describe('EnvironmentsService', () => {
     let service: EnvironmentsService;
@@ -19,7 +19,7 @@ describe('EnvironmentsService', () => {
         });
 
         const mockEnv = {
-            save: jest.fn().mockResolvedValue({ _id: 'eid', environmentId: 'e1' }),
+            save: jest.fn().mockResolvedValue({_id: 'eid', environmentId: 'e1'}),
             _id: 'eid',
         };
         environmentModel = jest.fn().mockImplementation(() => mockEnv);
@@ -30,7 +30,7 @@ describe('EnvironmentsService', () => {
         (environmentModel as any).countDocuments = jest.fn().mockReturnValue(mockQuery(0));
 
         projectModel = {
-            findOne: jest.fn().mockReturnValue(mockQuery({ _id: 'pid', environments: [] })),
+            findOne: jest.fn().mockReturnValue(mockQuery({_id: 'pid', environments: []})),
             updateOne: jest.fn().mockReturnValue(mockQuery({})),
             countDocuments: jest.fn().mockReturnValue(mockQuery(1)),
         };
@@ -42,9 +42,9 @@ describe('EnvironmentsService', () => {
         const module: TestingModule = await Test.createTestingModule({
             providers: [
                 EnvironmentsService,
-                { provide: getModelToken(Environment.name), useValue: environmentModel },
-                { provide: getModelToken(Project.name), useValue: projectModel },
-                { provide: ProjectsService, useValue: projectsService },
+                {provide: getModelToken(Environment.name), useValue: environmentModel},
+                {provide: getModelToken(Project.name), useValue: projectModel},
+                {provide: ProjectsService, useValue: projectsService},
             ],
         }).compile();
 
@@ -56,7 +56,7 @@ describe('EnvironmentsService', () => {
     });
 
     it('should create environment', (done) => {
-        const dto = { projectId: 'p1', environmentId: 'e1', name: 'E1', description: 'desc', urls: [] };
+        const dto = {projectId: 'p1', environmentId: 'e1', name: 'E1', description: 'desc', urls: []};
 
         service.create(dto).subscribe((result) => {
             expect(result.environmentId).toBe('e1');
@@ -67,7 +67,7 @@ describe('EnvironmentsService', () => {
     });
 
     it('should list environments', (done) => {
-        const envs = [{ name: 'E1' }];
+        const envs = [{name: 'E1'}];
         (environmentModel as any).find.mockReturnValue({
             exec: jest.fn().mockResolvedValue(envs),
             then: (cb) => Promise.resolve(envs).then(cb),
@@ -84,7 +84,7 @@ describe('EnvironmentsService', () => {
     });
 
     it('should get environment', (done) => {
-        const env = { environmentId: 'e1' };
+        const env = {environmentId: 'e1'};
         (environmentModel as any).findOne.mockReturnValue({
             exec: jest.fn().mockResolvedValue(env),
             then: (cb) => Promise.resolve(env).then(cb),
@@ -97,8 +97,8 @@ describe('EnvironmentsService', () => {
     });
 
     it('should update environment', (done) => {
-        const dto = { name: 'E2' };
-        const updatedEnv = { environmentId: 'e1', name: 'E2' };
+        const dto = {name: 'E2'};
+        const updatedEnv = {environmentId: 'e1', name: 'E2'};
         (environmentModel as any).findOneAndUpdate.mockReturnValue({
             exec: jest.fn().mockResolvedValue(updatedEnv),
             then: (cb) => Promise.resolve(updatedEnv).then(cb),
@@ -111,7 +111,7 @@ describe('EnvironmentsService', () => {
     });
 
     it('should remove environment', (done) => {
-        const env = { environmentId: 'e1' };
+        const env = {environmentId: 'e1'};
         (environmentModel as any).findOneAndDelete.mockReturnValue({
             exec: jest.fn().mockResolvedValue(env),
             then: (cb) => Promise.resolve(env).then(cb),

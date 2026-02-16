@@ -78,7 +78,7 @@
           },
           "configurations": {
             "production": {
-              "buildTarget": "client:build:production",
+              "buildTarget": "client:build:production"
             },
             "development": {
               "buildTarget": "client:build:development"

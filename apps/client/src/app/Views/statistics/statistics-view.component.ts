@@ -1,26 +1,26 @@
-import { Component, inject, signal } from '@angular/core';
-import { CommonModule, formatDate } from '@angular/common';
-import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { ButtonModule } from 'primeng/button';
-import { InputTextModule } from 'primeng/inputtext';
-import { SelectButtonModule } from 'primeng/selectbutton';
-import { TableModule } from 'primeng/table';
-import { StatisticsService } from '../../core/Services/StatisticsService/StatisticsService';
-import { ChartComponent } from 'ng-apexcharts';
-import { Select } from 'primeng/select';
-import { StyleClass } from 'primeng/styleclass';
-import { InputIcon } from 'primeng/inputicon';
-import { IconField } from 'primeng/iconfield';
-import { DatePicker } from 'primeng/datepicker';
-import { Statistics } from '../../core/swagger';
-import { Severity } from '../../core/Models/Severity';
-import { downloadFile } from '../../core/Utils/download-file';
-import { ProjectsService } from '../../core/Services/ProjectsService/ProjectsService';
-import { Project } from '../../core/swagger/model/project';
-import { Environment } from '../../core/swagger/model/environment';
-import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
-import { shareReplay } from 'rxjs/operators';
-import { map } from 'rxjs';
+import {Component, inject, signal} from '@angular/core';
+import {CommonModule, formatDate} from '@angular/common';
+import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule} from '@angular/forms';
+import {ButtonModule} from 'primeng/button';
+import {InputTextModule} from 'primeng/inputtext';
+import {SelectButtonModule} from 'primeng/selectbutton';
+import {TableModule} from 'primeng/table';
+import {StatisticsService} from '../../core/Services/StatisticsService/StatisticsService';
+import {ChartComponent} from 'ng-apexcharts';
+import {Select} from 'primeng/select';
+import {StyleClass} from 'primeng/styleclass';
+import {InputIcon} from 'primeng/inputicon';
+import {IconField} from 'primeng/iconfield';
+import {DatePicker} from 'primeng/datepicker';
+import {Statistics} from '../../core/swagger';
+import {Severity} from '../../core/Models/Severity';
+import {downloadFile} from '../../core/Utils/download-file';
+import {ProjectsService} from '../../core/Services/ProjectsService/ProjectsService';
+import {Project} from '../../core/swagger/model/project';
+import {Environment} from '../../core/swagger/model/environment';
+import {takeUntilDestroyed, toSignal} from '@angular/core/rxjs-interop';
+import {shareReplay} from 'rxjs/operators';
+import {map} from 'rxjs';
 
 export type ChartOptions = any;
 
@@ -54,15 +54,15 @@ export class StatisticsViewComponent {
   projects = toSignal(this.projectsService.getProjects().pipe(
     map(res => res.items as Project[]),
     shareReplay(1)
-  ), { initialValue: [] });
+  ), {initialValue: []});
 
   environments = signal<Environment[]>([]);
 
   viewOptions = [
-    { label: 'Chart', value: 'chart', icon: 'pi pi-chart-bar' },
-    { label: 'Table', value: 'table', icon: 'pi pi-table' }
+    {label: 'Chart', value: 'chart', icon: 'pi pi-chart-bar'},
+    {label: 'Table', value: 'table', icon: 'pi pi-table'}
   ];
-  viewControl = new FormControl('chart', { nonNullable: true });
+  viewControl = new FormControl('chart', {nonNullable: true});
 
   filterForm: FormGroup = this.fb.group({
     sampling: ['day'],
@@ -75,18 +75,18 @@ export class StatisticsViewComponent {
   });
 
   samplingOptions = [
-    { label: 'Hour', value: 'hour' },
-    { label: 'Day', value: 'day' },
-    { label: 'Week', value: 'week' },
-    { label: 'Month', value: 'month' }
+    {label: 'Hour', value: 'hour'},
+    {label: 'Day', value: 'day'},
+    {label: 'Week', value: 'week'},
+    {label: 'Month', value: 'month'}
   ];
 
   severityOptions = [
-    { label: 'Any', value: null },
-    { label: 'Info', value: 0 },
-    { label: 'Warning', value: 1 },
-    { label: 'Error', value: 2 },
-    { label: 'Critical', value: 3 }
+    {label: 'Any', value: null},
+    {label: 'Info', value: 0},
+    {label: 'Warning', value: 1},
+    {label: 'Error', value: 2},
+    {label: 'Critical', value: 3}
   ];
 
   constructor() {
@@ -95,7 +95,7 @@ export class StatisticsViewComponent {
         takeUntilDestroyed()
       )
       .subscribe(projectId => {
-        this.filterForm.patchValue({ environmentId: null });
+        this.filterForm.patchValue({environmentId: null});
         if (projectId) {
           const project = this.projects().find(p => p.projectId === projectId);
           this.environments.set(project?.environments || []);
@@ -184,7 +184,7 @@ export class StatisticsViewComponent {
 
   loadStatistics() {
     this.isLoading.set(true);
-    const { sampling, dateRange, severity, textFilter, fixed, projectId, environmentId } = this.filterForm.value;
+    const {sampling, dateRange, severity, textFilter, fixed, projectId, environmentId} = this.filterForm.value;
     const dateFrom = dateRange && dateRange[0] ? dateRange[0] : new Date();
     const rawDateTo = dateRange && dateRange[1] ? dateRange[1] : new Date();
     const dateTo = new Date(rawDateTo);
@@ -263,7 +263,7 @@ export class StatisticsViewComponent {
     data.forEach(item => {
       csv += `"${item.date}","${item.value}"\n`;
     });
-    const blob = new Blob([csv], { type: 'text/csv' });
+    const blob = new Blob([csv], {type: 'text/csv'});
     downloadFile(blob, `ng-reports-stats-${formatDate(new Date(), 'yyyyMMddHHmmss', 'en-US')}.csv`);
   }
 }

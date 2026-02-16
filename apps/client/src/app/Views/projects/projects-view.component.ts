@@ -75,10 +75,10 @@ export class ProjectsViewComponent implements OnInit {
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe(data => {
-      // Assuming data.projects or similar structure based on API
-      const projects = (data as any).projects || (data as any).items || (Array.isArray(data) ? data : []);
-      this.projects.set(projects);
-    });
+        // Assuming data.projects or similar structure based on API
+        const projects = (data as any).projects || (data as any).items || (Array.isArray(data) ? data : []);
+        this.projects.set(projects);
+      });
   }
 
   createEnvironmentGroup(name = '', url = '') {
@@ -146,10 +146,10 @@ export class ProjectsViewComponent implements OnInit {
           takeUntilDestroyed(this.destroyRef)
         )
         .subscribe(() => {
-        this.loadProjects();
-        this.hideDialog();
-        this.messageService.add({severity: 'success', summary: 'Successful', detail: 'Project Updated', life: 3000});
-      });
+          this.loadProjects();
+          this.hideDialog();
+          this.messageService.add({severity: 'success', summary: 'Successful', detail: 'Project Updated', life: 3000});
+        });
     } else {
       const create: CreateProject = {
         projectId: projectId,

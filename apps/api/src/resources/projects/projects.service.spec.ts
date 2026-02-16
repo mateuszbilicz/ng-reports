@@ -1,9 +1,8 @@
-jest.mock('nanoid', () => ({ nanoid: () => 'id' }));
-import { Test, TestingModule } from '@nestjs/testing';
-import { ProjectsService } from './projects.service';
-import { getModelToken } from '@nestjs/mongoose';
-import { Project } from '../../database/schemas/project.schema';
-import { of } from 'rxjs';
+jest.mock('nanoid', () => ({nanoid: () => 'id'}));
+import {Test, TestingModule} from '@nestjs/testing';
+import {ProjectsService} from './projects.service';
+import {getModelToken} from '@nestjs/mongoose';
+import {Project} from '../../database/schemas/project.schema';
 
 describe('ProjectsService', () => {
     let service: ProjectsService;
@@ -24,7 +23,7 @@ describe('ProjectsService', () => {
 
         model = jest.fn().mockImplementation((dto) => ({
             ...dto,
-            save: jest.fn().mockResolvedValue({ ...dto, _id: 'pid' }),
+            save: jest.fn().mockResolvedValue({...dto, _id: 'pid'}),
         }));
         (model as any).find = jest.fn().mockReturnValue(mockQuery([]));
         (model as any).findOne = jest.fn().mockReturnValue(mockQuery(null));
@@ -35,7 +34,7 @@ describe('ProjectsService', () => {
         const module: TestingModule = await Test.createTestingModule({
             providers: [
                 ProjectsService,
-                { provide: getModelToken(Project.name), useValue: model },
+                {provide: getModelToken(Project.name), useValue: model},
             ],
         }).compile();
 
@@ -47,7 +46,7 @@ describe('ProjectsService', () => {
     });
 
     it('should create a project', (done) => {
-        const dto = { projectId: 'p1', name: 'P1', description: 'desc' };
+        const dto = {projectId: 'p1', name: 'P1', description: 'desc'};
 
         service.create(dto).subscribe((result) => {
             expect(result.projectId).toBe('p1');
@@ -57,7 +56,7 @@ describe('ProjectsService', () => {
     });
 
     it('should list projects', (done) => {
-        const projects = [{ projectId: 'p1' }];
+        const projects = [{projectId: 'p1'}];
         const mockQuery = (val) => ({
             exec: jest.fn().mockResolvedValue(val),
             then: (cb) => Promise.resolve(val).then(cb),
@@ -72,7 +71,7 @@ describe('ProjectsService', () => {
     });
 
     it('should get a project', (done) => {
-        const project = { projectId: 'p1' };
+        const project = {projectId: 'p1'};
         const mockQuery = (val) => ({
             exec: jest.fn().mockResolvedValue(val),
             then: (cb) => Promise.resolve(val).then(cb),
@@ -91,7 +90,7 @@ describe('ProjectsService', () => {
             exec: jest.fn().mockResolvedValue(val),
             then: (cb) => Promise.resolve(val).then(cb),
         });
-        (model.findOneAndDelete as jest.Mock).mockReturnValue(mockQuery({ deletedCount: 1 }));
+        (model.findOneAndDelete as jest.Mock).mockReturnValue(mockQuery({deletedCount: 1}));
 
         service.remove('p1').subscribe((result) => {
             expect(result).toBeDefined();

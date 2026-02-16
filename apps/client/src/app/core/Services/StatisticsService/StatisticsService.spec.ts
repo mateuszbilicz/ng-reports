@@ -1,42 +1,42 @@
 // @vitest-environment jsdom
-import { TestBed } from '@angular/core/testing';
-import { StatisticsService } from './StatisticsService';
-import { StatisticsService as ApiStatisticsService } from '../../swagger/api/statistics.service';
-import { of } from 'rxjs';
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import {TestBed} from '@angular/core/testing';
+import {StatisticsService} from './StatisticsService';
+import {StatisticsService as ApiStatisticsService} from '../../swagger/api/statistics.service';
+import {of} from 'rxjs';
+import {beforeEach, describe, expect, it, vi} from 'vitest';
 
 describe('StatisticsService', () => {
-    let service: StatisticsService;
-    let apiServiceMock: any;
+  let service: StatisticsService;
+  let apiServiceMock: any;
 
-    beforeEach(() => {
-        apiServiceMock = {
-            statisticsControllerGetStatistics: vi.fn(),
-        };
+  beforeEach(() => {
+    apiServiceMock = {
+      statisticsControllerGetStatistics: vi.fn(),
+    };
 
-        TestBed.configureTestingModule({
-            providers: [
-                StatisticsService,
-                { provide: ApiStatisticsService, useValue: apiServiceMock }
-            ]
-        });
-
-        service = TestBed.inject(StatisticsService);
+    TestBed.configureTestingModule({
+      providers: [
+        StatisticsService,
+        {provide: ApiStatisticsService, useValue: apiServiceMock}
+      ]
     });
 
-    it('should be created', () => {
-        expect(service).toBeTruthy();
-    });
+    service = TestBed.inject(StatisticsService);
+  });
 
-    it('should call apiStatisticsService.statisticsControllerGetStatistics with correct params', () => {
-        const from = new Date();
-        const to = new Date();
-        apiServiceMock.statisticsControllerGetStatistics.mockReturnValue(of({}));
+  it('should be created', () => {
+    expect(service).toBeTruthy();
+  });
 
-        service.getStatistics('day', from, to, 'p1', 'e1', 'filter', 1, true).subscribe();
+  it('should call apiStatisticsService.statisticsControllerGetStatistics with correct params', () => {
+    const from = new Date();
+    const to = new Date();
+    apiServiceMock.statisticsControllerGetStatistics.mockReturnValue(of({}));
 
-        expect(apiServiceMock.statisticsControllerGetStatistics).toHaveBeenCalledWith(
-            'day', from, to, 'p1', 'e1', 'filter', 1, true
-        );
-    });
+    service.getStatistics('day', from, to, 'p1', 'e1', 'filter', 1, true).subscribe();
+
+    expect(apiServiceMock.statisticsControllerGetStatistics).toHaveBeenCalledWith(
+      'day', from, to, 'p1', 'e1', 'filter', 1, true
+    );
+  });
 });

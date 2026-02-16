@@ -1,12 +1,12 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { ReportsService } from './reports.service';
-import { getModelToken, getConnectionToken } from '@nestjs/mongoose';
-import { Report } from '../../database/schemas/report.schema';
-import { Environment } from '../../database/schemas/environment.schema';
-import { Comment } from '../../database/schemas/comment.schema';
-import { of } from 'rxjs';
-import { AiService } from '../ai/ai.service';
-import { SystemConfigurationService } from '../system-configuration/system-configuration.service';
+import {Test, TestingModule} from '@nestjs/testing';
+import {ReportsService} from './reports.service';
+import {getConnectionToken, getModelToken} from '@nestjs/mongoose';
+import {Report} from '../../database/schemas/report.schema';
+import {Environment} from '../../database/schemas/environment.schema';
+import {Comment} from '../../database/schemas/comment.schema';
+import {of} from 'rxjs';
+import {AiService} from '../ai/ai.service';
+import {SystemConfigurationService} from '../system-configuration/system-configuration.service';
 
 describe('ReportsService', () => {
     let service: ReportsService;
@@ -19,7 +19,7 @@ describe('ReportsService', () => {
     beforeEach(async () => {
         reportModel = jest.fn().mockImplementation((dto) => ({
             ...dto,
-            save: jest.fn().mockResolvedValue({ _id: 'rid', ...dto }),
+            save: jest.fn().mockResolvedValue({_id: 'rid', ...dto}),
         }));
         const mockQuery = (val) => ({
             exec: jest.fn().mockResolvedValue(val),
@@ -33,7 +33,7 @@ describe('ReportsService', () => {
         (reportModel as any).countDocuments = jest.fn().mockReturnValue(mockQuery(0));
 
         environmentModel = {
-            findOne: jest.fn().mockReturnValue(mockQuery({ _id: 'eid', reports: [] })),
+            findOne: jest.fn().mockReturnValue(mockQuery({_id: 'eid', reports: []})),
             updateOne: jest.fn().mockReturnValue(mockQuery({})),
         };
 
@@ -57,12 +57,12 @@ describe('ReportsService', () => {
         const module: TestingModule = await Test.createTestingModule({
             providers: [
                 ReportsService,
-                { provide: getModelToken(Report.name), useValue: reportModel },
-                { provide: getModelToken(Environment.name), useValue: environmentModel },
-                { provide: getModelToken(Comment.name), useValue: commentModel },
-                { provide: getConnectionToken(), useValue: { db: {}, startSession: jest.fn() } },
-                { provide: AiService, useValue: aiService },
-                { provide: SystemConfigurationService, useValue: systemConfigurationService },
+                {provide: getModelToken(Report.name), useValue: reportModel},
+                {provide: getModelToken(Environment.name), useValue: environmentModel},
+                {provide: getModelToken(Comment.name), useValue: commentModel},
+                {provide: getConnectionToken(), useValue: {db: {}, startSession: jest.fn()}},
+                {provide: AiService, useValue: aiService},
+                {provide: SystemConfigurationService, useValue: systemConfigurationService},
             ],
         }).compile();
 
@@ -74,15 +74,15 @@ describe('ReportsService', () => {
     });
 
     it('should create a report and link to environment', (done) => {
-        const dto = { title: 'R1' };
-        const env = { _id: 'eid' };
+        const dto = {title: 'R1'};
+        const env = {_id: 'eid'};
         environmentModel.findOne.mockReturnValue({
             exec: jest.fn().mockResolvedValue(env),
             then: (cb) => Promise.resolve(env).then(cb),
         });
         reportModel.mockImplementation((data) => ({
             ...data,
-            save: jest.fn().mockResolvedValue({ _id: 'rid', ...data }),
+            save: jest.fn().mockResolvedValue({_id: 'rid', ...data}),
         }));
         environmentModel.updateOne.mockReturnValue({
             exec: jest.fn().mockResolvedValue({}),
@@ -98,7 +98,7 @@ describe('ReportsService', () => {
     });
 
     it('should list reports for an environment', (done) => {
-        const reports = [{ title: 'R1' }];
+        const reports = [{title: 'R1'}];
         reportModel.find.mockReturnValue({
             exec: jest.fn().mockResolvedValue(reports),
             then: (cb) => Promise.resolve(reports).then(cb),

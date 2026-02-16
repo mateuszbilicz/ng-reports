@@ -1,7 +1,7 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { SystemConfigurationService } from './system-configuration.service';
-import { getModelToken } from '@nestjs/mongoose';
-import { ConfigField } from '../../database/schemas/system-config.schema';
+import {Test, TestingModule} from '@nestjs/testing';
+import {SystemConfigurationService} from './system-configuration.service';
+import {getModelToken} from '@nestjs/mongoose';
+import {ConfigField} from '../../database/schemas/system-config.schema';
 
 describe('SystemConfigurationService', () => {
     let service: SystemConfigurationService;
@@ -22,7 +22,7 @@ describe('SystemConfigurationService', () => {
         const module: TestingModule = await Test.createTestingModule({
             providers: [
                 SystemConfigurationService,
-                { provide: getModelToken(ConfigField.name), useValue: model },
+                {provide: getModelToken(ConfigField.name), useValue: model},
             ],
         }).compile();
 
@@ -36,7 +36,7 @@ describe('SystemConfigurationService', () => {
     it('should set config value', (done) => {
         service.setConfigValue('enableAISummary', true).subscribe(() => {
             expect(model.updateOne).toHaveBeenCalledWith(
-                { fieldName: 'enableAISummary' },
+                {fieldName: 'enableAISummary'},
                 expect.any(Object)
             );
             expect(service.config.getValue().enableAISummary).toBe(true);
@@ -45,10 +45,10 @@ describe('SystemConfigurationService', () => {
     });
 
     it('should update many config values', (done) => {
-        const values = { enableAISummary: false };
+        const values = {enableAISummary: false};
         service.updateManyConfigValues(values).subscribe(() => {
             expect(model.updateOne).toHaveBeenCalledWith(
-                { fieldName: 'enableAISummary' },
+                {fieldName: 'enableAISummary'},
                 expect.any(Object)
             );
             expect(service.config.getValue().enableAISummary).toBe(false);

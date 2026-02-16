@@ -1,8 +1,8 @@
-import { computed, inject, Injectable, signal } from '@angular/core';
-import { Router } from '@angular/router';
-import { catchError, finalize, map, Observable, of, shareReplay, switchMap, tap } from 'rxjs';
-import { Login, UserView } from '../../swagger';
-import { AuthService as ApiAuthService } from '../../swagger/api/auth.service';
+import {computed, inject, Injectable, signal} from '@angular/core';
+import {Router} from '@angular/router';
+import {catchError, finalize, map, Observable, of, shareReplay, switchMap, tap} from 'rxjs';
+import {Login, UserView} from '../../swagger';
+import {AuthService as ApiAuthService} from '../../swagger/api/auth.service';
 
 export interface AuthState {
   user: UserView | null;
@@ -49,7 +49,7 @@ export class AuthService {
       return of(false).pipe(tap(() => this.logout()));
     }
 
-    this.refreshTokenRequest$ = this.apiAuthService.authControllerRefreshToken({ string: this._rtkn()! }).pipe(
+    this.refreshTokenRequest$ = this.apiAuthService.authControllerRefreshToken({string: this._rtkn()!}).pipe(
       tap(response => {
         this.setSession(response.accessToken, response.refreshToken);
       }),
