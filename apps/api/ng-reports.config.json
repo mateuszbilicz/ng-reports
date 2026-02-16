@@ -1,13 +1,13 @@
 {
   "databaseUrl": "mongodb://localhost:27017",
-  "panelUrl": "http://localhost:4300",
+  "panelUrl": "http://localhost:80",
   "http": {
     "enabled": true,
     "port": 3333
   },
   "https": {
     "enabled": false,
-    "port": 443,
+    "port": 3334,
     "privateKeyPath": "",
     "certPath": ""
   },

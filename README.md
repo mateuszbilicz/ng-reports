@@ -65,7 +65,7 @@ File: `./apps/api/ng-reports.config.json`
 |                 http.port |           3333            | HTTP Server Port                                                        |
 |                     https |            {}             | HTTPS Server options                                                    |
 |             https.enabled |           false           | Enable HTTPS Server                                                     |
-|                https.port |            443            | HTTPS Server Port                                                       |
+|                https.port |           3334            | HTTPS Server Port                                                       |
 |      https.privateKeyPath |            ""             | Path to SSL certificate private key                                     |
 |            https.certPath |            ""             | Path to SSL certificate certificate                                     |
 |              defaultAdmin |            {}             | Default system admin account                                            |
@@ -90,7 +90,7 @@ File: `./apps/client-host/config.json`
 
 |            Property | Default value | Description                                                                 |
 |--------------------:|:-------------:|-----------------------------------------------------------------------------|
-|                port |     5000      | Front-End host port                                                         |
+|                port |      80       | Front-End host port                                                         |
 |   clearRequireCache |     true      | Clear require cache from Node.js after startup - reduces usage of resources |
 |                cors |     null      | {}                                                                          |
 |         cors.origin |   string[]    | CORS configuration                                                          |

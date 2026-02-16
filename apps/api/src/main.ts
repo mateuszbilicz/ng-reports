@@ -17,15 +17,11 @@ async function bootstrap() {
         logger: ['error', 'log'],
     });
 
-    // Get the underlying HTTP adapter (Express instance)
     const server = app.getHttpAdapter().getInstance();
 
     app.useGlobalPipes(new ValidationPipe());
     await app.init();
 
-    // Register middleware AFTER app.init() if necessary, or let implicit setup handle it.
-    // However, app.use(cors) works on the underlying express app.
-    // Note: NestJS has app.enableCors() which is preferred, but we follow existing pattern if possible.
     const shutdownObserver = app.get(ShutdownObserver);
     const corsController = app.get(CORSController);
     // eslint-disable-next-line @typescript-eslint/unbound-method
@@ -54,8 +50,6 @@ async function bootstrap() {
 
     if (httpConfig.enabled) {
         try {
-            // Note: NestJS app.listen() starts a server. Here we are manually creating servers.
-            // app.init() does NOT start listening.
             const httpServer = http.createServer(server).listen(httpConfig.port);
             console.log('Started HTTP server on port ' + httpConfig.port);
             shutdownObserver.addHttpServer(httpServer);

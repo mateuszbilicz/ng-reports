@@ -1,5 +1,0 @@
-
-
-> page-host@1.0.0 build /home/mateusz/WebstormProjects/ng-reports/apps/client-host
-> tsc -p tsconfig.json --module CommonJS
-

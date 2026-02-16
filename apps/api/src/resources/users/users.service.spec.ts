@@ -44,7 +44,6 @@ describe('UsersService', () => {
         };
 
         // Mock findOne for the constructor calls
-        // Mock findOne for the constructor calls
         model.findOne.mockReturnValue({
             exec: jest.fn().mockResolvedValue({ username: 'admin' }),
             then: jest.fn().mockImplementation(cb => Promise.resolve({ username: 'admin' }).then(cb)),
